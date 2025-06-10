@@ -42,7 +42,30 @@ const Control: React.FC<ControlComponentProps> = ({
     width = '100',
     height = '100',
     level = 'h1',
-    rows = '3'
+    rows = '3',
+    cols = '50',
+    maxLength = '',
+    minLength = '',
+    min = '',
+    max = '',
+    step = '',
+    multiple = false,
+    accept = '',
+    autoComplete = '',
+    autoFocus = false,
+    name = '',
+    id: controlId = '',
+    className: additionalClasses = '',
+    style: inlineStyles = {},
+    title: tooltipTitle = '',
+    tabIndex = '',
+    role = '',
+    ariaLabel = '',
+    ariaDescribedBy = '',
+    dataAttributes = {},
+    readonly = false,
+    required = false,
+    options = []
   } = props;
 
   // Build CSS classes
@@ -60,8 +83,17 @@ const Control: React.FC<ControlComponentProps> = ({
     backgroundClass,
     selectionClasses,
     'transition-all duration-200 cursor-pointer relative inline-block',
-    customClasses
+    customClasses,
+    additionalClasses
   ].filter(Boolean).join(' ');
+
+  const combinedStyle = {
+    ...inlineStyles,
+    ...(width && height && controlType === 'spacer' ? {
+      width: `${width}px`,
+      height: `${height}px`
+    } : {})
+  };
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -91,10 +123,32 @@ const Control: React.FC<ControlComponentProps> = ({
             type={type}
             placeholder={placeholder}
             value={value}
-            className={`${baseClasses} border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 dark:bg-slate-700`}
-            onClick={handleClick}
+            name={name}
+            id={controlId}
+            min={min}
+            max={max}
+            step={step}
+            minLength={minLength ? parseInt(minLength) : undefined}
+            maxLength={maxLength ? parseInt(maxLength) : undefined}
+            accept={accept}
+            multiple={multiple}
+            autoComplete={autoComplete}
+            autoFocus={autoFocus}
+            required={required}
+            readOnly={readonly}
             disabled={disabled}
-            readOnly
+            tabIndex={tabIndex ? parseInt(tabIndex) : undefined}
+            role={role}
+            aria-label={ariaLabel}
+            aria-describedby={ariaDescribedBy}
+            title={tooltipTitle}
+            className={`${baseClasses} border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 dark:bg-slate-700`}
+            style={combinedStyle}
+            onClick={handleClick}
+            {...(dataAttributes && Object.keys(dataAttributes).reduce((acc, key) => {
+              acc[`data-${key}`] = dataAttributes[key];
+              return acc;
+            }, {} as Record<string, string>))}
           />
         );
 
@@ -103,11 +157,28 @@ const Control: React.FC<ControlComponentProps> = ({
           <textarea
             placeholder={placeholder}
             value={value}
-            className={`${baseClasses} border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 dark:bg-slate-700 resize-none`}
-            onClick={handleClick}
-            disabled={disabled}
-            readOnly
+            name={name}
+            id={controlId}
             rows={parseInt(rows) || 3}
+            cols={parseInt(cols) || 50}
+            minLength={minLength ? parseInt(minLength) : undefined}
+            maxLength={maxLength ? parseInt(maxLength) : undefined}
+            autoFocus={autoFocus}
+            required={required}
+            readOnly={readonly}
+            disabled={disabled}
+            tabIndex={tabIndex ? parseInt(tabIndex) : undefined}
+            role={role}
+            aria-label={ariaLabel}
+            aria-describedby={ariaDescribedBy}
+            title={tooltipTitle}
+            className={`${baseClasses} border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 dark:bg-slate-700 resize-none`}
+            style={combinedStyle}
+            onClick={handleClick}
+            {...(dataAttributes && Object.keys(dataAttributes).reduce((acc, key) => {
+              acc[`data-${key}`] = dataAttributes[key];
+              return acc;
+            }, {} as Record<string, string>))}
           />
         );
 
@@ -203,13 +274,34 @@ const Control: React.FC<ControlComponentProps> = ({
         );
 
       case 'select':
+        const selectOptions = Array.isArray(options) ? options : ['Option 1', 'Option 2', 'Option 3'];
         return (
           <select
-            className={`${baseClasses} border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 dark:bg-slate-700`}
-            onClick={handleClick}
+            name={name}
+            id={controlId}
+            multiple={multiple}
+            required={required}
             disabled={disabled}
+            autoFocus={autoFocus}
+            tabIndex={tabIndex ? parseInt(tabIndex) : undefined}
+            role={role}
+            aria-label={ariaLabel}
+            aria-describedby={ariaDescribedBy}
+            title={tooltipTitle}
+            className={`${baseClasses} border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-100 dark:bg-slate-700`}
+            style={combinedStyle}
+            onClick={handleClick}
+            {...(dataAttributes && Object.keys(dataAttributes).reduce((acc, key) => {
+              acc[`data-${key}`] = dataAttributes[key];
+              return acc;
+            }, {} as Record<string, string>))}
           >
-            <option>Select option...</option>
+            <option value="">Select option...</option>
+            {selectOptions.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
           </select>
         );
 

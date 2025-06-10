@@ -44,18 +44,40 @@ export interface ControlSpecificProps {
   href?: string;
   src?: string;
   alt?: string;
-  type?: string;
+  type?: string; // input type: text, email, password, number, etc.
   value?: string;
   checked?: boolean;
   disabled?: boolean;
+  readonly?: boolean;
+  required?: boolean;
   htmlFor?: string;
-  target?: string;
-  variant?: string;
-  size?: string;
+  target?: string; // link target: _self, _blank, _parent, _top
+  variant?: string; // button/badge variant: primary, secondary, success, warning, error
+  size?: string; // size: xs, sm, md, lg, xl
   width?: string;
   height?: string;
-  level?: string; // for headings: h1, h2, h3, etc.
+  level?: string; // for headings: h1, h2, h3, h4, h5, h6
   rows?: string; // for textarea
+  cols?: string; // for textarea
+  maxLength?: string; // for input/textarea
+  minLength?: string; // for input/textarea
+  min?: string; // for number input
+  max?: string; // for number input
+  step?: string; // for number input
+  multiple?: boolean; // for select/file input
+  accept?: string; // for file input
+  autoComplete?: string; // for input
+  autoFocus?: boolean; // for input/textarea/select
+  name?: string; // form field name
+  id?: string; // element id
+  className?: string; // additional CSS classes
+  style?: Record<string, string>; // inline styles
+  title?: string; // tooltip text
+  tabIndex?: string; // tab order
+  role?: string; // ARIA role
+  ariaLabel?: string; // ARIA label
+  ariaDescribedBy?: string; // ARIA described by
+  dataAttributes?: Record<string, string>; // data-* attributes
   [key: string]: any; // Allow additional properties
 }
 export type ControlProps = CommonProps & ControlSpecificProps;
