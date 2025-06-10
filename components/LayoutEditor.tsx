@@ -93,6 +93,29 @@ const LayoutEditor: React.FC = () => {
     }
   );
 
+  // Handle keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Delete key - delete selected element
+      if (event.key === 'Delete' && selectedElementId) {
+        event.preventDefault();
+        deleteElement(selectedElementId);
+      }
+
+      // Escape key - deselect element
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        selectElement(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedElementId, deleteElement, selectElement]);
+
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault(); // Necessary to allow dropping
     event.dataTransfer.dropEffect = 'move';

@@ -946,15 +946,34 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
             />
           </>
         )}
-        <Button 
-            variant="danger" 
-            size="sm" 
-            className="w-full mt-6"
-            onClick={() => onDeleteElement(id)}
-            aria-label={`Delete element ${name}`}
-        >
-            Delete Element
-        </Button>
+
+        {/* Actions Section */}
+        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-600">
+          <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Actions</h4>
+
+          {/* Keyboard shortcuts info */}
+          <div className="mb-3 p-2 bg-slate-100 dark:bg-slate-700 rounded-md">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+              <strong>Keyboard Shortcuts:</strong>
+            </p>
+            <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+              <li>• <kbd className="px-1 py-0.5 bg-slate-200 dark:bg-slate-600 rounded text-xs">Delete</kbd> - Delete selected element</li>
+              <li>• <kbd className="px-1 py-0.5 bg-slate-200 dark:bg-slate-600 rounded text-xs">Escape</kbd> - Deselect element</li>
+            </ul>
+          </div>
+
+          {/* Delete Button */}
+          <Button
+              variant="danger"
+              size="sm"
+              className="w-full"
+              onClick={() => onDeleteElement(id)}
+              aria-label={`Delete element ${name}`}
+              title="You can also press Delete key to delete this element"
+          >
+              🗑️ Delete Element
+          </Button>
+        </div>
       </div>
     </div>
   );
