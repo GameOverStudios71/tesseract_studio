@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutElement, ElementProps, Spacing, ContainerProps, RowProps, ColProps, AllElementPropKeys } from '../types';
+import { LayoutElement, ElementProps, Spacing, ContainerProps, RowProps, ColProps, ControlProps, AllElementPropKeys } from '../types';
 import { 
     SPACING_SCALES, BACKGROUND_COLORS, JUSTIFY_CONTENT_OPTIONS, 
     ALIGN_ITEMS_OPTIONS, ALIGN_SELF_OPTIONS, COL_SPAN_OPTIONS, 
@@ -195,6 +195,44 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
               value={(props as Partial<RowProps>).alignItems || 'stretch'}
               options={ALIGN_ITEMS_OPTIONS}
               onChange={(val) => handlePropChange('alignItems', val)}
+            />
+          </>
+        )}
+
+        {type === 'control' && (
+          <>
+            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 pt-2 border-t border-slate-200 dark:border-slate-600">Control Options</h4>
+
+            <SelectControl
+                label="Control Type"
+                value={(props as Partial<ControlProps>).controlType || 'button'}
+                onChange={(value) => handlePropChange('controlType', value)}
+                options={[
+                    { value: 'button', label: 'Button' },
+                    { value: 'input', label: 'Input' },
+                    { value: 'textarea', label: 'Textarea' },
+                    { value: 'label', label: 'Label' },
+                    { value: 'heading', label: 'Heading' },
+                    { value: 'paragraph', label: 'Paragraph' },
+                    { value: 'link', label: 'Link' },
+                    { value: 'image', label: 'Image' },
+                    { value: 'checkbox', label: 'Checkbox' },
+                    { value: 'radio', label: 'Radio' },
+                    { value: 'select', label: 'Select' },
+                    { value: 'divider', label: 'Divider' },
+                    { value: 'spacer', label: 'Spacer' },
+                    { value: 'badge', label: 'Badge' }
+                ]}
+            />
+
+            <label htmlFor={`text-${id}`} className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 mt-3">Text Content</label>
+            <input
+                type="text"
+                id={`text-${id}`}
+                value={(props as Partial<ControlProps>).text || ''}
+                onChange={(e) => handlePropChange('text', e.target.value)}
+                placeholder="Enter text content..."
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-xs bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
           </>
         )}

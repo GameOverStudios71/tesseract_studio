@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Toolbar from './Toolbar';
 import CanvasArea from './CanvasArea';
 import PropertiesPanel from './PropertiesPanel';
-import ComponentsPanel from './ComponentsPanel'; // Import the new panel
+import LeftPanel from './LeftPanel'; // Import the new tabbed panel
 import ResizablePanel from './ResizablePanel'; // Import the resizable panel
 import PanelControls from './PanelControls'; // Import panel controls
 import ThemeToggle from './ThemeToggle'; // Import theme toggle
@@ -18,6 +18,7 @@ const LayoutEditor: React.FC = () => {
     selectedElement,
     rootElementIds,
     addElement,
+    addControl,
     addPredefinedComponent, // Get the new function
     updateElementSingleProp,
     updateElementSpacingProp,
@@ -60,13 +61,31 @@ const LayoutEditor: React.FC = () => {
 
   const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+
+    // Try to get component key (old format)
     const componentKey = event.dataTransfer.getData('application/layout-component-key') as PredefinedComponentKey;
     if (componentKey) {
-      // For now, components are added as new root elements.
-      // Later, we could determine a targetParentId based on drop location or selected element.
       addPredefinedComponent(componentKey, null);
+      return;
     }
-  }, [addPredefinedComponent]);
+
+    // Try to get JSON data (new format for controls)
+    try {
+      const jsonData = event.dataTransfer.getData('application/json');
+      if (jsonData) {
+        const data = JSON.parse(jsonData);
+        if (data.type === 'control') {
+          // Find the best parent for the control
+          const target = event.target as HTMLElement;
+          const containerElement = target.closest('[data-element-type="container"], [data-element-type="col"]');
+          const parentId = containerElement?.getAttribute('data-element-id') || null;
+          addControl(data.control, parentId);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing drop data:', error);
+    }
+  }, [addPredefinedComponent, addControl]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -95,12 +114,12 @@ const LayoutEditor: React.FC = () => {
           </div>
         </div>
         <div className="flex flex-grow overflow-hidden"> {/* Main content area for panels */}
-            {/* Left Resizable Panel - Components */}
+            {/* Left Resizable Panel - Components & Controls */}
             <div
               className="relative flex-shrink-0 h-full bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700"
               style={{ width: `${leftPanel.width}px` }}
             >
-              <ComponentsPanel />
+              <LeftPanel />
 
               {/* Resize handle for left panel */}
               <div

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { LayoutElement, ElementType, ElementProps, Spacing, ContainerSpecificProps, RowSpecificProps, ColSpecificProps, AllElementPropKeys, PredefinedComponentKey } from '../types';
+import { LayoutElement, ElementType, ElementProps, Spacing, ContainerSpecificProps, RowSpecificProps, ColSpecificProps, ControlSpecificProps, AllElementPropKeys, PredefinedComponentKey } from '../types';
 import { PREDEFINED_COMPONENTS } from '../lib/componentDefinitions.tsx';
 
 
@@ -41,6 +41,15 @@ const getDefaultProps = (type: ElementType): Partial<ElementProps> => {
         backgroundColor: 'neutral-100',
         minHeight: '40px',
       } as Partial<ColSpecificProps & typeof common>;
+    case 'control':
+      return {
+        ...common,
+        controlType: 'button',
+        text: 'Button',
+        backgroundColor: 'white',
+        minHeight: 'auto',
+        padding: { ...initialSpacing, top: '2', right: '3', bottom: '2', left: '3' },
+      } as Partial<ControlSpecificProps & typeof common>;
     default:
       return common;
   }
@@ -56,6 +65,39 @@ export const useLayoutManager = () => {
     const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
     return `${capitalizedType} ${idNum}`;
   }, []);
+
+  const addControl = useCallback((controlData: any, parentId: string | null = null) => {
+    const newId = `el-${nextIdNum}`;
+    const currentIdNumForName = nextIdNum;
+    setNextIdNum(prev => prev + 1);
+
+    const controlProps = {
+      ...getDefaultProps('control', parentId),
+      controlType: controlData.id,
+      ...controlData.defaultProps
+    };
+
+    const newElement: LayoutElement = {
+      id: newId,
+      type: 'control',
+      name: `${controlData.name} ${currentIdNumForName}`,
+      parentId,
+      children: [],
+      props: controlProps,
+    };
+
+    setElements(prevElements => {
+      const updatedElements = { ...prevElements, [newId]: newElement };
+      if (parentId && updatedElements[parentId]) {
+        updatedElements[parentId] = {
+          ...updatedElements[parentId],
+          children: [...updatedElements[parentId].children, newId],
+        };
+      }
+      return updatedElements;
+    });
+    setSelectedElementId(newId);
+  }, [nextIdNum, getElementName, elements]);
 
   const addElement = useCallback((type: ElementType, parentId: string | null = null) => {
     // Check if there's already a fullscreen container and we're trying to add a root element
@@ -261,6 +303,7 @@ export const useLayoutManager = () => {
     selectedElement,
     rootElementIds,
     addElement,
+    addControl,
     addPredefinedComponent,
     updateElementProps,
     updateElementSingleProp,

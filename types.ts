@@ -1,4 +1,4 @@
-export type ElementType = 'container' | 'row' | 'col';
+export type ElementType = 'container' | 'row' | 'col' | 'control';
 
 export interface Spacing {
   top: string;
@@ -37,7 +37,26 @@ export interface ColSpecificProps {
 }
 export type ColProps = CommonProps & ColSpecificProps;
 
-export type ElementProps = ContainerProps | RowProps | ColProps;
+export interface ControlSpecificProps {
+  controlType: string; // button, input, label, etc.
+  text?: string;
+  placeholder?: string;
+  href?: string;
+  src?: string;
+  alt?: string;
+  type?: string;
+  value?: string;
+  checked?: boolean;
+  disabled?: boolean;
+  htmlFor?: string;
+  target?: string;
+  variant?: string;
+  size?: string;
+  [key: string]: any; // Allow additional properties
+}
+export type ControlProps = CommonProps & ControlSpecificProps;
+
+export type ElementProps = ContainerProps | RowProps | ColProps | ControlProps;
 
 export interface LayoutElement {
   id: string;
@@ -53,8 +72,9 @@ export type CommonPropKeys = keyof CommonProps;
 export type ContainerSpecificPropKeys = keyof ContainerSpecificProps;
 export type RowSpecificPropKeys = keyof RowSpecificProps;
 export type ColSpecificPropKeys = keyof ColSpecificProps;
+export type ControlSpecificPropKeys = keyof ControlSpecificProps;
 
-export type AllElementPropKeys = CommonPropKeys | ContainerSpecificPropKeys | RowSpecificPropKeys | ColSpecificPropKeys;
+export type AllElementPropKeys = CommonPropKeys | ContainerSpecificPropKeys | RowSpecificPropKeys | ColSpecificPropKeys | ControlSpecificPropKeys;
 
 // Type for predefined component keys
 export type PredefinedComponentKey = 'INFO_CARDS_SECTION' | string; // Allow for more keys

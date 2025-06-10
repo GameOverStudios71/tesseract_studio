@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { LayoutElement, ElementProps, ContainerProps, RowProps, ColProps, Spacing } from '../types';
-import { Container, Row, Col } from './elements';
+import { LayoutElement, ElementProps, ContainerProps, RowProps, ColProps, ControlProps, Spacing } from '../types';
+import { Container, Row, Col, Control } from './elements';
 
 interface RenderedElementProps {
   element: LayoutElement;
@@ -71,6 +71,18 @@ const RenderedElement: React.FC<RenderedElementProps> = ({
         >
           {childElements}
         </Col>
+      );
+
+    case 'control':
+      return (
+        <Control
+          props={props as Partial<ControlProps>}
+          isSelected={isSelected}
+          onClick={() => onSelectElement(id)}
+          id={id}
+        >
+          {childElements}
+        </Control>
       );
 
     default:
