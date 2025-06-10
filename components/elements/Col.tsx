@@ -7,6 +7,8 @@ interface ColComponentProps {
   isSelected: boolean;
   onClick: () => void;
   id: string;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
 }
 
 const Col: React.FC<ColComponentProps> = ({
@@ -14,7 +16,9 @@ const Col: React.FC<ColComponentProps> = ({
   children,
   isSelected,
   onClick,
-  id
+  id,
+  draggable = false,
+  onDragStart
 }) => {
   const {
     padding = { top: '2', right: '2', bottom: '2', left: '2' },
@@ -75,6 +79,8 @@ const Col: React.FC<ColComponentProps> = ({
       data-element-type="col"
       role="gridcell"
       aria-label={`Column ${span !== 'auto' ? `(${span}/12)` : '(auto)'}`}
+      draggable={draggable}
+      onDragStart={onDragStart}
     >
       {/* Selection indicator */}
       {isSelected && (

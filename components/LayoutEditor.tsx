@@ -14,6 +14,7 @@ import { PredefinedComponentKey, ContainerSpecificProps } from '../types';
 const LayoutEditor: React.FC = () => {
   const {
     elements,
+    setElements,
     selectedElementId,
     selectedElement,
     rootElementIds,
@@ -27,9 +28,47 @@ const LayoutEditor: React.FC = () => {
     selectElement,
   } = useLayoutManager();
 
+  // Function to move an existing element to a new parent
+  const moveElement = useCallback((elementId: string, newParentId: string | null) => {
+    setElements(prevElements => {
+      const updatedElements = { ...prevElements };
+      const elementToMove = updatedElements[elementId];
+
+      if (!elementToMove) return prevElements;
+
+      // Remove from old parent
+      if (elementToMove.parentId) {
+        const oldParent = updatedElements[elementToMove.parentId];
+        if (oldParent) {
+          updatedElements[elementToMove.parentId] = {
+            ...oldParent,
+            children: oldParent.children.filter(childId => childId !== elementId)
+          };
+        }
+      }
+
+      // Add to new parent
+      updatedElements[elementId] = {
+        ...elementToMove,
+        parentId: newParentId
+      };
+
+      if (newParentId && updatedElements[newParentId]) {
+        updatedElements[newParentId] = {
+          ...updatedElements[newParentId],
+          children: [...updatedElements[newParentId].children, elementId]
+        };
+      }
+
+      return updatedElements;
+    });
+  }, [setElements]);
+
   const [currentViewportWidth, setCurrentViewportWidth] = useState<string>(
     VIEWPORT_BREAKPOINTS.find(bp => bp.label === 'Full')?.width || '100%'
   );
+  const [draggedElementType, setDraggedElementType] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Initialize resizable panels
   const {
@@ -56,8 +95,12 @@ const LayoutEditor: React.FC = () => {
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault(); // Necessary to allow dropping
-    event.dataTransfer.dropEffect = 'copy';
-  }, []);
+    event.dataTransfer.dropEffect = 'move';
+
+    if (!isDragging) {
+      setIsDragging(true);
+    }
+  }, [isDragging]);
 
   const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -69,23 +112,100 @@ const LayoutEditor: React.FC = () => {
       return;
     }
 
-    // Try to get JSON data (new format for controls)
+    // Try to get JSON data (new format for controls and toolbar elements)
     try {
       const jsonData = event.dataTransfer.getData('application/json');
       if (jsonData) {
         const data = JSON.parse(jsonData);
+
         if (data.type === 'control') {
           // Find the best parent for the control
           const target = event.target as HTMLElement;
           const containerElement = target.closest('[data-element-type="container"], [data-element-type="col"]');
           const parentId = containerElement?.getAttribute('data-element-id') || null;
           addControl(data.control, parentId);
+        } else if (data.type === 'toolbar-element') {
+          // Handle toolbar elements (container, row, col)
+          const target = event.target as HTMLElement;
+          let parentId: string | null = null;
+
+          // Determine the appropriate parent based on element type
+          if (data.elementType === 'container') {
+            // Containers are added as root elements
+            parentId = null;
+          } else if (data.elementType === 'row') {
+            // Rows should be added to containers
+            const containerElement = target.closest('[data-element-type="container"]');
+            parentId = containerElement?.getAttribute('data-element-id') || null;
+          } else if (data.elementType === 'col') {
+            // Columns should be added to rows
+            const rowElement = target.closest('[data-element-type="row"]');
+            parentId = rowElement?.getAttribute('data-element-id') || null;
+          }
+
+          addElement(data.elementType, parentId);
+        } else if (data.type === 'existing-element') {
+          // Handle moving existing elements
+          const target = event.target as HTMLElement;
+          let newParentId: string | null = null;
+
+          // Determine the appropriate parent based on element type being moved
+          if (data.elementType === 'container') {
+            // Containers can only be moved to root or other containers
+            const containerElement = target.closest('[data-element-type="container"]');
+            newParentId = containerElement?.getAttribute('data-element-id') || null;
+          } else if (data.elementType === 'row') {
+            // Rows should be moved to containers
+            const containerElement = target.closest('[data-element-type="container"]');
+            newParentId = containerElement?.getAttribute('data-element-id') || null;
+          } else if (data.elementType === 'col') {
+            // Columns should be moved to rows
+            const rowElement = target.closest('[data-element-type="row"]');
+            newParentId = rowElement?.getAttribute('data-element-id') || null;
+          } else if (data.elementType === 'control') {
+            // Controls can be moved to containers or columns
+            // First try to find the closest column, then container
+            const colElement = target.closest('[data-element-type="col"]');
+            const containerElement = target.closest('[data-element-type="container"]');
+
+            if (colElement) {
+              newParentId = colElement.getAttribute('data-element-id');
+            } else if (containerElement) {
+              newParentId = containerElement.getAttribute('data-element-id');
+            } else {
+              newParentId = null;
+            }
+          }
+
+          // Don't move if it would create a circular reference
+          const elementToMove = elements[data.elementId];
+          if (elementToMove && newParentId !== elementToMove.parentId) {
+            // Check if the new parent is not a descendant of the element being moved
+            let currentParent = newParentId;
+            let isCircular = false;
+            while (currentParent) {
+              if (currentParent === data.elementId) {
+                isCircular = true;
+                break;
+              }
+              currentParent = elements[currentParent]?.parentId || null;
+            }
+
+            if (!isCircular) {
+              moveElement(data.elementId, newParentId);
+            }
+          }
         }
       }
     } catch (error) {
       console.error('Error parsing drop data:', error);
     }
-  }, [addPredefinedComponent, addControl]);
+  }, [addPredefinedComponent, addControl, addElement, elements, moveElement]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+    setDraggedElementType(null);
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">

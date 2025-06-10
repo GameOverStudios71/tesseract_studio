@@ -7,6 +7,8 @@ interface ControlComponentProps {
   isSelected: boolean;
   onClick: () => void;
   id: string;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
 }
 
 const Control: React.FC<ControlComponentProps> = ({
@@ -14,7 +16,9 @@ const Control: React.FC<ControlComponentProps> = ({
   children,
   isSelected,
   onClick,
-  id
+  id,
+  draggable = false,
+  onDragStart
 }) => {
   const {
     padding = { top: '2', right: '3', bottom: '2', left: '3' },
@@ -260,14 +264,20 @@ const Control: React.FC<ControlComponentProps> = ({
   };
 
   return (
-    <div className="inline-block">
+    <div
+      className="inline-block"
+      draggable={draggable}
+      onDragStart={onDragStart}
+      data-element-id={id}
+      data-element-type="control"
+    >
       {/* Selection indicator */}
       {isSelected && (
         <div className="absolute -top-6 left-0 bg-orange-600 text-white px-2 py-1 rounded-t text-xs font-medium z-10">
           {controlType} ({id})
         </div>
       )}
-      
+
       {renderControl()}
     </div>
   );

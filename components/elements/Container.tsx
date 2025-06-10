@@ -7,6 +7,10 @@ interface ContainerComponentProps {
   isSelected: boolean;
   onClick: () => void;
   id: string;
+  parentId?: string | null;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  showDropZone?: boolean;
 }
 
 const Container: React.FC<ContainerComponentProps> = ({
@@ -14,7 +18,11 @@ const Container: React.FC<ContainerComponentProps> = ({
   children,
   isSelected,
   onClick,
-  id
+  id,
+  parentId = null,
+  draggable = false,
+  onDragStart,
+  showDropZone = false
 }) => {
   const {
     padding = { top: '2', right: '2', bottom: '2', left: '2' },
@@ -72,6 +80,8 @@ const Container: React.FC<ContainerComponentProps> = ({
       data-element-type="container"
       role="region"
       aria-label={`Container ${isFullscreen ? '(Fullscreen)' : isFluid ? '(Fluid)' : ''}`}
+      draggable={draggable}
+      onDragStart={onDragStart}
     >
       {/* Fullscreen indicator */}
       {isFullscreen && (

@@ -31,6 +31,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
   const canAddContainer = !hasFullscreenContainer;
 
+  const handleDragStart = (e: React.DragEvent, elementType: ElementType) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      type: 'toolbar-element',
+      elementType: elementType
+    }));
+  };
+
   return (
     <div className="p-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
       {hasFullscreenContainer && (
@@ -45,27 +52,39 @@ const Toolbar: React.FC<ToolbarProps> = ({
           variant="primary"
           size="sm"
           disabled={!canAddContainer}
-          aria-label={canAddContainer ? "Add Container" : "Cannot add container - fullscreen mode active"}
+          aria-label={canAddContainer ? "Add Container (click or drag)" : "Cannot add container - fullscreen mode active"}
+          title={canAddContainer ? "Click to add or drag to canvas" : "Cannot add container - fullscreen mode active"}
+          draggable={canAddContainer}
+          onDragStart={(e) => handleDragStart(e, 'container')}
+          className={canAddContainer ? 'cursor-grab active:cursor-grabbing' : ''}
         >
           Add Container
         </Button>
-        <Button 
-          onClick={() => selectedElement && onAddElement('row', selectedElement.id)} 
+        <Button
+          onClick={() => selectedElement && onAddElement('row', selectedElement.id)}
           disabled={!canAddRow}
           variant="primary"
           size="sm"
-          aria-label={canAddRow ? `Add Row to selected ${selectedElement?.name}` : "Select a Container to add a Row"}
+          aria-label={canAddRow ? `Add Row to selected ${selectedElement?.name} (click or drag)` : "Select a Container to add a Row"}
+          title={canAddRow ? "Click to add to selected container or drag to canvas" : "Select a Container to add a Row"}
           aria-disabled={!canAddRow}
+          draggable={canAddRow}
+          onDragStart={(e) => handleDragStart(e, 'row')}
+          className={canAddRow ? 'cursor-grab active:cursor-grabbing' : ''}
         >
           Add Row
         </Button>
-        <Button 
-          onClick={() => selectedElement && onAddElement('col', selectedElement.id)} 
+        <Button
+          onClick={() => selectedElement && onAddElement('col', selectedElement.id)}
           disabled={!canAddCol}
           variant="primary"
           size="sm"
-          aria-label={canAddCol ? `Add Column to selected ${selectedElement?.name}` : "Select a Row to add a Column"}
+          aria-label={canAddCol ? `Add Column to selected ${selectedElement?.name} (click or drag)` : "Select a Row to add a Column"}
+          title={canAddCol ? "Click to add to selected row or drag to canvas" : "Select a Row to add a Column"}
           aria-disabled={!canAddCol}
+          draggable={canAddCol}
+          onDragStart={(e) => handleDragStart(e, 'col')}
+          className={canAddCol ? 'cursor-grab active:cursor-grabbing' : ''}
         >
           Add Column
         </Button>

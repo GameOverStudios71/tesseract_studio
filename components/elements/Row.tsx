@@ -7,6 +7,8 @@ interface RowComponentProps {
   isSelected: boolean;
   onClick: () => void;
   id: string;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
 }
 
 const Row: React.FC<RowComponentProps> = ({
@@ -14,7 +16,9 @@ const Row: React.FC<RowComponentProps> = ({
   children,
   isSelected,
   onClick,
-  id
+  id,
+  draggable = false,
+  onDragStart
 }) => {
   const {
     padding = { top: '0', right: '0', bottom: '0', left: '0' },
@@ -70,6 +74,8 @@ const Row: React.FC<RowComponentProps> = ({
       data-element-type="row"
       role="group"
       aria-label="Row container"
+      draggable={draggable}
+      onDragStart={onDragStart}
     >
       {/* Selection indicator */}
       {isSelected && (
