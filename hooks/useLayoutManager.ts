@@ -18,6 +18,7 @@ const getDefaultProps = (type: ElementType): Partial<ElementProps> => {
       return {
         ...common,
         isFluid: false,
+        isFullscreen: false,
         backgroundColor: 'slate-100',
       } as Partial<ContainerSpecificProps & typeof common>;
     case 'row':
@@ -57,6 +58,18 @@ export const useLayoutManager = () => {
   }, []);
 
   const addElement = useCallback((type: ElementType, parentId: string | null = null) => {
+    // Check if there's already a fullscreen container and we're trying to add a root element
+    const hasFullscreenContainer = Object.values(elements).some(el =>
+      el.type === 'container' &&
+      el.parentId === null &&
+      (el.props as Partial<ContainerSpecificProps>).isFullscreen
+    );
+
+    if (hasFullscreenContainer && parentId === null) {
+      alert('Cannot add elements when a fullscreen container is present. Please disable fullscreen mode first.');
+      return;
+    }
+
     const newId = `el-${nextIdNum}`;
     const currentIdNumForName = nextIdNum; // Capture current ID num for naming
     setNextIdNum(prev => prev + 1);
@@ -81,7 +94,7 @@ export const useLayoutManager = () => {
       return updatedElements;
     });
     setSelectedElementId(newId);
-  }, [nextIdNum, getElementName]);
+  }, [nextIdNum, getElementName, elements]);
 
   const addPredefinedComponent = useCallback((componentKey: PredefinedComponentKey, targetParentId: string | null = null) => {
     const componentDefinition = PREDEFINED_COMPONENTS.find(c => c.key === componentKey);
@@ -131,6 +144,28 @@ export const useLayoutManager = () => {
     setElements(prevElements => {
       if (!prevElements[id]) return prevElements;
       const currentElement = prevElements[id];
+
+      // Special handling for fullscreen containers
+      if (propKey === 'isFullscreen' && value === true && currentElement.type === 'container') {
+        // Check if there are other root elements
+        const otherRootElements = Object.values(prevElements).filter(el =>
+          el.parentId === null && el.id !== id
+        );
+
+        if (otherRootElements.length > 0) {
+          alert('Cannot enable fullscreen mode when other elements exist at root level. Please remove other root elements first.');
+          return prevElements;
+        }
+
+        // Also check if this container has siblings
+        if (currentElement.parentId === null) {
+          // It's already a root element, so we're good
+        } else {
+          alert('Cannot enable fullscreen mode on a nested container. Only root containers can be fullscreen.');
+          return prevElements;
+        }
+      }
+
       return {
         ...prevElements,
         [id]: {

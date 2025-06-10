@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ElementType, LayoutElement } from '../types';
+import { ElementType, LayoutElement, ContainerSpecificProps } from '../types';
 import Button from './shared/Button';
 import { VIEWPORT_BREAKPOINTS } from '../constants';
 
@@ -9,21 +9,44 @@ interface ToolbarProps {
   selectedElement: LayoutElement | null;
   currentViewportWidth: string;
   onViewportChange: (width: string) => void;
+  allElements: Record<string, LayoutElement>;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ 
-  onAddElement, 
+const Toolbar: React.FC<ToolbarProps> = ({
+  onAddElement,
   selectedElement,
   currentViewportWidth,
-  onViewportChange
+  onViewportChange,
+  allElements
 }) => {
   const canAddRow = selectedElement?.type === 'container';
   const canAddCol = selectedElement?.type === 'row';
 
+  // Check if there's a fullscreen container
+  const hasFullscreenContainer = Object.values(allElements).some(el =>
+    el.type === 'container' &&
+    el.parentId === null &&
+    (el.props as Partial<ContainerSpecificProps>).isFullscreen
+  );
+
+  const canAddContainer = !hasFullscreenContainer;
+
   return (
     <div className="p-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+      {hasFullscreenContainer && (
+        <div className="bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700 rounded px-3 py-1 text-xs text-blue-800 dark:text-blue-200 mr-4">
+          Fullscreen mode active - Disable fullscreen to add more elements
+        </div>
+      )}
+
       <div className="flex space-x-2 items-center">
-        <Button onClick={() => onAddElement('container')} variant="primary" size="sm" aria-label="Add Container">
+        <Button
+          onClick={() => onAddElement('container')}
+          variant="primary"
+          size="sm"
+          disabled={!canAddContainer}
+          aria-label={canAddContainer ? "Add Container" : "Cannot add container - fullscreen mode active"}
+        >
           Add Container
         </Button>
         <Button 

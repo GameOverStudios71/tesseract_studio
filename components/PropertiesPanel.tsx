@@ -130,6 +130,23 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         {type === 'container' && (
           <>
             <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 pt-2 border-t border-slate-200 dark:border-slate-600">Container Options</h4>
+
+            <div className="flex items-center mb-2">
+              <input
+                type="checkbox"
+                id={`isFullscreen-${id}`}
+                checked={(props as Partial<ContainerProps>).isFullscreen || false}
+                onChange={(e) => handlePropChange('isFullscreen', e.target.checked)}
+                className="h-4 w-4 text-sky-600 border-gray-300 dark:border-gray-600 rounded focus:ring-sky-500 mr-2"
+              />
+              <label htmlFor={`isFullscreen-${id}`} className="text-xs text-gray-700 dark:text-gray-300">
+                Fullscreen (100% width & height)
+              </label>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 ml-6">
+              When enabled, this container will occupy the entire page and no other root elements can be added.
+            </p>
+
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -137,8 +154,11 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 checked={(props as Partial<ContainerProps>).isFluid || false}
                 onChange={(e) => handlePropChange('isFluid', e.target.checked)}
                 className="h-4 w-4 text-sky-600 border-gray-300 dark:border-gray-600 rounded focus:ring-sky-500 mr-2"
+                disabled={(props as Partial<ContainerProps>).isFullscreen || false}
               />
-              <label htmlFor={`isFluid-${id}`} className="text-xs text-gray-700 dark:text-gray-300">Fluid (Full Width)</label>
+              <label htmlFor={`isFluid-${id}`} className={`text-xs ${(props as Partial<ContainerProps>).isFullscreen ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}>
+                Fluid (Full Width) {(props as Partial<ContainerProps>).isFullscreen ? '(disabled in fullscreen)' : ''}
+              </label>
             </div>
           </>
         )}

@@ -9,7 +9,7 @@ import ThemeToggle from './ThemeToggle'; // Import theme toggle
 import { useLayoutManager } from '../hooks/useLayoutManager';
 import { useResizablePanels } from '../hooks/useResizablePanels';
 import { VIEWPORT_BREAKPOINTS } from '../constants';
-import { PredefinedComponentKey } from '../types';
+import { PredefinedComponentKey, ContainerSpecificProps } from '../types';
 
 const LayoutEditor: React.FC = () => {
   const {
@@ -75,6 +75,7 @@ const LayoutEditor: React.FC = () => {
             selectedElement={selectedElement}
             currentViewportWidth={currentViewportWidth}
             onViewportChange={setCurrentViewportWidth}
+            allElements={elements}
         />
 
         {/* Panel Controls */}
@@ -154,24 +155,50 @@ const LayoutEditor: React.FC = () => {
               role="application" // Indicates this region is an application to assistive technologies
               aria-label="Slide Canvas Drop Area"
             >
-              <div
-                className="transition-all duration-300 ease-in-out bg-white dark:bg-slate-800 shadow-lg relative"
-                style={{
-                  width: currentViewportWidth,
-                  maxWidth: '100%',
-                  height: currentViewportWidth === '100%' ? '100%' : undefined,
-                  minHeight: '200px'
-                }}
-                // Clicks on the canvas background can deselect elements
-                onClick={(e) => { if (e.target === e.currentTarget) selectElement(null);}}
-              >
-                <CanvasArea
-                    rootElementIds={rootElementIds}
-                    allElements={elements}
-                    onSelectElement={selectElement}
-                    selectedElementId={selectedElementId}
-                />
-              </div>
+              {/* Check if there's a fullscreen container */}
+              {(() => {
+                const fullscreenContainer = Object.values(elements).find(el =>
+                  el.type === 'container' &&
+                  el.parentId === null &&
+                  (el.props as Partial<ContainerSpecificProps>).isFullscreen
+                );
+
+                if (fullscreenContainer) {
+                  // Render fullscreen container directly without wrapper
+                  return (
+                    <div className="w-full h-full relative">
+                      <CanvasArea
+                          rootElementIds={[fullscreenContainer.id]}
+                          allElements={elements}
+                          onSelectElement={selectElement}
+                          selectedElementId={selectedElementId}
+                      />
+                    </div>
+                  );
+                }
+
+                // Normal viewport rendering
+                return (
+                  <div
+                    className="transition-all duration-300 ease-in-out bg-white dark:bg-slate-800 shadow-lg relative"
+                    style={{
+                      width: currentViewportWidth,
+                      maxWidth: '100%',
+                      height: currentViewportWidth === '100%' ? '100%' : undefined,
+                      minHeight: '200px'
+                    }}
+                    // Clicks on the canvas background can deselect elements
+                    onClick={(e) => { if (e.target === e.currentTarget) selectElement(null);}}
+                  >
+                    <CanvasArea
+                        rootElementIds={rootElementIds}
+                        allElements={elements}
+                        onSelectElement={selectElement}
+                        selectedElementId={selectedElementId}
+                    />
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Right Resizable Panel - Properties */}

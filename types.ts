@@ -17,6 +17,7 @@ export interface CommonProps {
 
 export interface ContainerSpecificProps {
   isFluid: boolean;
+  isFullscreen: boolean; // New property for fullscreen containers
 }
 export type ContainerProps = CommonProps & ContainerSpecificProps;
 
