@@ -1,0 +1,5 @@
+{
+  "name": "React Slide Editor",
+  "description": "A web-based slide editor application resembling PowerPoint, allowing users to add, manipulate, and arrange objects like text boxes and images on a slide. Built with React, TypeScript, and Tailwind CSS with resizable panels.",
+  "requestFramePermissions": []
+}
