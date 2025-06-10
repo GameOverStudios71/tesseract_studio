@@ -7,6 +7,7 @@ import {
     COL_OFFSET_OPTIONS, COL_ORDER_OPTIONS, GUTTER_OPTIONS, MIN_HEIGHT_OPTIONS
 } from '../constants';
 import SelectControl from './shared/SelectControl';
+import SpinBox from './shared/SpinBox';
 import Button from './shared/Button';
 
 interface PropertiesPanelProps {
@@ -24,17 +25,19 @@ const SpacingInputGroup: React.FC<{
   onChange: (side: keyof Spacing, value: string) => void;
 }> = ({ label, idPrefix, values, onChange }) => {
   return (
-    <div className="mb-3 p-2 border border-gray-200 rounded-md">
-      <h4 className="text-sm font-medium text-gray-600 mb-1">{label}</h4>
+    <div className="mb-3 p-2 border border-gray-200 dark:border-gray-600 rounded-md">
+      <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">{label}</h4>
       <div className="grid grid-cols-2 gap-2">
         {(['top', 'right', 'bottom', 'left'] as Array<keyof Spacing>).map(side => (
-          <SelectControl
+          <SpinBox
             key={side}
             id={`${idPrefix}-${side}`}
             label={side.charAt(0).toUpperCase() + side.slice(1)}
             value={values[side] || '0'}
-            options={SPACING_SCALES.map(s => ({ label: s, value: s }))}
             onChange={(val) => onChange(side, val)}
+            min={-50}
+            max={50}
+            step={1}
             className="mb-0"
           />
         ))}
@@ -167,19 +170,23 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           <>
             <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 pt-2 border-t border-slate-200 dark:border-slate-600">Row Options</h4>
             <div className="grid grid-cols-2 gap-2">
-                <SelectControl
-                    label="Gutters X (Gap X)"
+                <SpinBox
+                    label="Gap X"
                     id={`guttersX-${id}`}
                     value={(props as Partial<RowProps>).gutters?.x || '0'}
-                    options={GUTTER_OPTIONS.map(s => ({ label: s, value: s }))}
                     onChange={(val) => handleGutterChange('x', val)}
+                    min={0}
+                    max={20}
+                    step={1}
                 />
-                <SelectControl
-                    label="Gutters Y (Gap Y)"
+                <SpinBox
+                    label="Gap Y"
                     id={`guttersY-${id}`}
                     value={(props as Partial<RowProps>).gutters?.y || '0'}
-                    options={GUTTER_OPTIONS.map(s => ({ label: s, value: s }))}
                     onChange={(val) => handleGutterChange('y', val)}
+                    min={0}
+                    max={20}
+                    step={1}
                 />
             </div>
             <SelectControl
@@ -234,26 +241,89 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 placeholder="Enter text content..."
                 className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-xs bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
             />
+
+            {/* Numeric properties for controls */}
+            {((props as Partial<ControlProps>).controlType === 'image' || (props as Partial<ControlProps>).controlType === 'spacer') && (
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                <SpinBox
+                  label="Width"
+                  value={(props as Partial<ControlProps>).width || '100'}
+                  onChange={(val) => handlePropChange('width', val)}
+                  min={10}
+                  max={1000}
+                  step={10}
+                  suffix="px"
+                />
+                <SpinBox
+                  label="Height"
+                  value={(props as Partial<ControlProps>).height || '100'}
+                  onChange={(val) => handlePropChange('height', val)}
+                  min={10}
+                  max={1000}
+                  step={10}
+                  suffix="px"
+                />
+              </div>
+            )}
+
+            {(props as Partial<ControlProps>).controlType === 'heading' && (
+              <div className="mt-3">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Heading Level</label>
+                <select
+                  value={(props as Partial<ControlProps>).level || 'h1'}
+                  onChange={(e) => handlePropChange('level', e.target.value)}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-xs bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="h1">H1 - Main Title</option>
+                  <option value="h2">H2 - Section Title</option>
+                  <option value="h3">H3 - Subsection</option>
+                  <option value="h4">H4 - Minor Heading</option>
+                  <option value="h5">H5 - Small Heading</option>
+                  <option value="h6">H6 - Smallest Heading</option>
+                </select>
+              </div>
+            )}
+
+            {(props as Partial<ControlProps>).controlType === 'textarea' && (
+              <SpinBox
+                label="Rows"
+                value={(props as Partial<ControlProps>).rows || '3'}
+                onChange={(val) => handlePropChange('rows', val)}
+                min={1}
+                max={20}
+                step={1}
+              />
+            )}
           </>
         )}
 
         {type === 'col' && (
           <>
             <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 pt-2 border-t border-slate-200 dark:border-slate-600">Column Options</h4>
-            <SelectControl
-              label="Span (1-12, Auto)"
-              id={`span-${id}`}
-              value={(props as Partial<ColProps>).span || 'auto'}
-              options={COL_SPAN_OPTIONS.map(s => ({ label: s.toString(), value: s.toString() }))}
-              onChange={(val) => handlePropChange('span', val)}
-            />
-            <SelectControl
-              label="Offset (0-11)"
-              id={`offset-${id}`}
-              value={(props as Partial<ColProps>).offset || '0'}
-              options={COL_OFFSET_OPTIONS.map(s => ({ label: s, value: s }))}
-              onChange={(val) => handlePropChange('offset', val)}
-            />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Span</label>
+                <select
+                  value={(props as Partial<ColProps>).span || 'auto'}
+                  onChange={(e) => handlePropChange('span', e.target.value)}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-xs bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="auto">Auto</option>
+                  {[1,2,3,4,5,6,7,8,9,10,11,12].map(num => (
+                    <option key={num} value={num.toString()}>{num}/12</option>
+                  ))}
+                </select>
+              </div>
+              <SpinBox
+                label="Offset"
+                id={`offset-${id}`}
+                value={(props as Partial<ColProps>).offset || '0'}
+                onChange={(val) => handlePropChange('offset', val)}
+                min={0}
+                max={11}
+                step={1}
+              />
+            </div>
             <SelectControl
               label="Order"
               id={`order-${id}`}

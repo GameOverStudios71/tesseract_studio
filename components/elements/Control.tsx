@@ -34,7 +34,11 @@ const Control: React.FC<ControlComponentProps> = ({
     htmlFor = '',
     target = '_self',
     variant = 'primary',
-    size = 'md'
+    size = 'md',
+    width = '100',
+    height = '100',
+    level = 'h1',
+    rows = '3'
   } = props;
 
   // Build CSS classes
@@ -99,7 +103,7 @@ const Control: React.FC<ControlComponentProps> = ({
             onClick={handleClick}
             disabled={disabled}
             readOnly
-            rows={3}
+            rows={parseInt(rows) || 3}
           />
         );
 
@@ -115,14 +119,16 @@ const Control: React.FC<ControlComponentProps> = ({
         );
 
       case 'heading':
-        const HeadingTag = (props.level || 'h1') as keyof JSX.IntrinsicElements;
+        const HeadingTag = (level || 'h1') as keyof JSX.IntrinsicElements;
         return (
           <HeadingTag
             className={`${baseClasses} font-bold text-slate-900 dark:text-slate-100 ${
               HeadingTag === 'h1' ? 'text-2xl' :
               HeadingTag === 'h2' ? 'text-xl' :
               HeadingTag === 'h3' ? 'text-lg' :
-              'text-base'
+              HeadingTag === 'h4' ? 'text-base' :
+              HeadingTag === 'h5' ? 'text-sm' :
+              'text-xs'
             }`}
             onClick={handleClick}
           >
@@ -158,6 +164,10 @@ const Control: React.FC<ControlComponentProps> = ({
             src={src || 'https://via.placeholder.com/150x100'}
             alt={alt}
             className={`${baseClasses} max-w-full h-auto`}
+            style={{
+              width: width ? `${width}px` : 'auto',
+              height: height ? `${height}px` : 'auto'
+            }}
             onClick={handleClick}
           />
         );
@@ -210,7 +220,12 @@ const Control: React.FC<ControlComponentProps> = ({
       case 'spacer':
         return (
           <div
-            className={`${baseClasses} bg-slate-100 dark:bg-slate-700 border-2 border-dashed border-slate-300 dark:border-slate-600 min-h-[20px] w-full flex items-center justify-center text-xs text-slate-500`}
+            className={`${baseClasses} bg-slate-100 dark:bg-slate-700 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center text-xs text-slate-500`}
+            style={{
+              width: width ? `${width}px` : '100%',
+              height: height ? `${height}px` : '20px',
+              minHeight: '20px'
+            }}
             onClick={handleClick}
           >
             Spacer

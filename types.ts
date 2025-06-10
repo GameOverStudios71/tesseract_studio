@@ -52,6 +52,10 @@ export interface ControlSpecificProps {
   target?: string;
   variant?: string;
   size?: string;
+  width?: string;
+  height?: string;
+  level?: string; // for headings: h1, h2, h3, etc.
+  rows?: string; // for textarea
   [key: string]: any; // Allow additional properties
 }
 export type ControlProps = CommonProps & ControlSpecificProps;
