@@ -38,41 +38,12 @@
 
   <!-- Painel de Configuração -->
   <div id="config-panel">
-    <h3>Painel de Configuração</h3>
-    <button id="toggle-panel">Mostrar/Ocultar</button>
+    <div class="panel-header">
+      <h3>🎛️ Painel de Configuração Completo</h3>
+      <button id="toggle-panel">Mostrar/Ocultar</button>
+    </div>
     <div id="config-content">
-      <div class="config-group">
-        <h4>Configurações Principais</h4>
-        <div class="config-item">
-          <label for="container-margin">Margem do Container (%)</label>
-          <input type="range" id="container-margin" min="0" max="10" step="0.5" value="3">
-          <span class="value-display">3</span>
-        </div>
-        <div class="config-item">
-          <label for="container-border">Borda do Container (%)</label>
-          <input type="range" id="container-border" min="0.5" max="3" step="0.1" value="1">
-          <span class="value-display">1</span>
-        </div>
-      </div>
-      
-      <div class="config-group">
-        <h4>Efeito Glassmorphism</h4>
-        <div class="config-item">
-          <label for="bg-alpha">Opacidade do Fundo</label>
-          <input type="range" id="bg-alpha" min="0" max="1" step="0.05" value="0.25">
-          <span class="value-display">0.25</span>
-        </div>
-        <div class="config-item">
-          <label for="backdrop-blur">Desfoque (px)</label>
-          <input type="range" id="backdrop-blur" min="0" max="20" step="1" value="10">
-          <span class="value-display">10</span>
-        </div>
-      </div>
-      
-      <div class="config-group">
-        <h4>Visibilidade dos Objetos</h4>
-        <div id="visibility-controls"></div>
-      </div>
+      <!-- Conteúdo será gerado dinamicamente pelo JavaScript -->
     </div>
   </div>
 

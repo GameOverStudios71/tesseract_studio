@@ -3,87 +3,267 @@ document.addEventListener('DOMContentLoaded', function() {
   const panel = document.getElementById('config-panel');
   const toggleBtn = document.getElementById('toggle-panel');
   const configContent = document.getElementById('config-content');
-  
-  // Controles principais
-  const containerMarginInput = document.getElementById('container-margin');
-  const containerBorderInput = document.getElementById('container-border');
-  const bgAlphaInput = document.getElementById('bg-alpha');
-  const backdropBlurInput = document.getElementById('backdrop-blur');
-  
-  // Configuração de visibilidade
   const visibilityControls = document.getElementById('visibility-controls');
-  
+
   // Lista de todos os objetos
   const objectIds = [
     'top-left', 'top-center-left', 'top-middle', 'top-center-right', 'top-right',
     'middle-left', 'center-left', 'middle-middle', 'center-right', 'middle-right',
     'bottom-left', 'bottom-center-left', 'bottom-middle', 'bottom-center-right', 'bottom-right'
   ];
-  
-  // Criar controles de visibilidade
-  objectIds.forEach(id => {
+
+  // Função para criar um controle de input
+  function createControl(container, label, id, type, min, max, step, defaultValue, unit = '', cssVar = null) {
+    const div = document.createElement('div');
+    div.className = 'config-item';
+
+    const labelEl = document.createElement('label');
+    labelEl.htmlFor = id;
+    labelEl.textContent = label;
+
+    const input = document.createElement('input');
+    input.type = type;
+    input.id = id;
+    input.min = min;
+    input.max = max;
+    input.step = step;
+    input.value = defaultValue;
+
+    const display = document.createElement('span');
+    display.className = 'value-display';
+    display.textContent = defaultValue;
+
+    // Event listener para atualizar CSS e display
+    input.addEventListener('input', function() {
+      display.textContent = this.value;
+      if (cssVar) {
+        updateCSSVariable(cssVar, this.value, unit);
+      }
+    });
+
+    div.appendChild(labelEl);
+    div.appendChild(input);
+    div.appendChild(display);
+    container.appendChild(div);
+
+    return input;
+  }
+
+  // Função para criar controle de checkbox
+  function createCheckboxControl(container, label, id, defaultValue, cssVar = null, trueValue = 'visible', falseValue = 'hidden') {
     const div = document.createElement('div');
     div.className = 'config-item visibility-toggle';
-    
-    const label = document.createElement('label');
-    label.htmlFor = `visibility-${id}`;
-    label.textContent = id;
-    
+
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = `visibility-${id}`;
-    checkbox.checked = true;
-    
+    checkbox.id = id;
+    checkbox.checked = defaultValue;
+
+    const labelEl = document.createElement('label');
+    labelEl.htmlFor = id;
+    labelEl.textContent = label;
+
     checkbox.addEventListener('change', function() {
-      document.documentElement.style.setProperty(
-        `--visibility-${id}`, 
-        this.checked ? 'visible' : 'hidden'
-      );
+      if (cssVar) {
+        updateCSSVariable(cssVar, this.checked ? trueValue : falseValue);
+      }
     });
-    
+
     div.appendChild(checkbox);
-    div.appendChild(label);
-    visibilityControls.appendChild(div);
-  });
-  
+    div.appendChild(labelEl);
+    container.appendChild(div);
+
+    return checkbox;
+  }
+
+  // Função para criar controle de cor RGB
+  function createColorControl(container, label, id, defaultR, defaultG, defaultB, cssVar) {
+    const div = document.createElement('div');
+    div.className = 'config-item color-control';
+
+    const labelEl = document.createElement('label');
+    labelEl.textContent = label;
+
+    const colorContainer = document.createElement('div');
+    colorContainer.className = 'color-inputs';
+
+    const rInput = document.createElement('input');
+    rInput.type = 'range';
+    rInput.min = '0';
+    rInput.max = '255';
+    rInput.value = defaultR;
+    rInput.className = 'color-input';
+
+    const gInput = document.createElement('input');
+    gInput.type = 'range';
+    gInput.min = '0';
+    gInput.max = '255';
+    gInput.value = defaultG;
+    gInput.className = 'color-input';
+
+    const bInput = document.createElement('input');
+    bInput.type = 'range';
+    bInput.min = '0';
+    bInput.max = '255';
+    bInput.value = defaultB;
+    bInput.className = 'color-input';
+
+    const preview = document.createElement('div');
+    preview.className = 'color-preview';
+
+    const display = document.createElement('span');
+    display.className = 'color-display';
+
+    function updateColor() {
+      const r = rInput.value;
+      const g = gInput.value;
+      const b = bInput.value;
+      const rgbValue = `${r}, ${g}, ${b}`;
+
+      preview.style.backgroundColor = `rgb(${rgbValue})`;
+      display.textContent = `RGB(${rgbValue})`;
+      updateCSSVariable(cssVar, rgbValue);
+    }
+
+    rInput.addEventListener('input', updateColor);
+    gInput.addEventListener('input', updateColor);
+    bInput.addEventListener('input', updateColor);
+
+    colorContainer.appendChild(document.createTextNode('R: '));
+    colorContainer.appendChild(rInput);
+    colorContainer.appendChild(document.createTextNode(' G: '));
+    colorContainer.appendChild(gInput);
+    colorContainer.appendChild(document.createTextNode(' B: '));
+    colorContainer.appendChild(bInput);
+
+    div.appendChild(labelEl);
+    div.appendChild(colorContainer);
+    div.appendChild(preview);
+    div.appendChild(display);
+    container.appendChild(div);
+
+    updateColor(); // Inicializar
+    return { rInput, gInput, bInput };
+  }
+
   // Função para atualizar valores CSS
   function updateCSSVariable(name, value, unit = '') {
     document.documentElement.style.setProperty(`--${name}`, value + unit);
   }
-  
-  // Função para atualizar display de valor
-  function updateValueDisplay(input) {
-    const display = input.nextElementSibling;
-    display.textContent = input.value;
-  }
-  
-  // Configurar eventos para os controles
-  containerMarginInput.addEventListener('input', function() {
-    updateCSSVariable('container-margin-percent', this.value);
-    updateValueDisplay(this);
+
+  // Limpar conteúdo existente e recriar todos os controles
+  configContent.innerHTML = '';
+
+  // === CONFIGURAÇÕES PRINCIPAIS ===
+  const mainGroup = document.createElement('div');
+  mainGroup.className = 'config-group';
+  mainGroup.innerHTML = '<h4>🎯 Configurações Principais</h4>';
+  configContent.appendChild(mainGroup);
+
+  createControl(mainGroup, 'Margem do Container (%)', 'container-margin', 'range', 0, 10, 0.5, 3, '', 'container-margin-percent');
+  createControl(mainGroup, 'Borda do Container (%)', 'container-border', 'range', 0.5, 3, 0.1, 1, '', 'container-border-percent');
+  createControl(mainGroup, 'Tamanho Mínimo de Objeto (px)', 'min-object-size', 'range', 10, 50, 1, 25, 'px', 'min-object-size-px');
+
+  // === VALORES MÍNIMOS ===
+  const minGroup = document.createElement('div');
+  minGroup.className = 'config-group';
+  minGroup.innerHTML = '<h4>🔒 Valores Mínimos</h4>';
+  configContent.appendChild(minGroup);
+
+  createControl(minGroup, 'Borda Mínima (px)', 'min-border', 'range', 0, 5, 0.5, 1, 'px', 'min-border');
+  createControl(minGroup, 'Raio de Borda Mínimo (px)', 'min-border-radius', 'range', 0, 10, 1, 0, 'px', 'min-border-radius');
+  createControl(minGroup, 'Tamanho Mínimo de Fonte (px)', 'min-font-size', 'range', 6, 16, 1, 8, 'px', 'min-font-size');
+  createControl(minGroup, 'Sombra Mínima (px)', 'min-shadow', 'range', 0, 10, 1, 2, 'px', 'min-shadow');
+
+  // === EFEITO GLASSMORPHISM ===
+  const glassGroup = document.createElement('div');
+  glassGroup.className = 'config-group';
+  glassGroup.innerHTML = '<h4>🔮 Efeito Glassmorphism</h4>';
+  configContent.appendChild(glassGroup);
+
+  createControl(glassGroup, 'Opacidade do Fundo', 'bg-alpha', 'range', 0, 1, 0.05, 0.25, '', 'object-bg-alpha');
+  createControl(glassGroup, 'Desfoque (px)', 'backdrop-blur', 'range', 0, 20, 1, 10, 'px', 'object-backdrop-blur-px');
+  createControl(glassGroup, 'Saturação (%)', 'backdrop-saturate', 'range', 50, 200, 10, 120, '%', 'object-backdrop-saturate-percent');
+  createControl(glassGroup, 'Brilho (%)', 'backdrop-brightness', 'range', 50, 150, 5, 80, '%', 'object-backdrop-brightness-percent');
+
+  // === ESTILOS GLOBAIS DOS OBJETOS ===
+  const styleGroup = document.createElement('div');
+  styleGroup.className = 'config-group';
+  styleGroup.innerHTML = '<h4>✨ Estilos Globais dos Objetos</h4>';
+  configContent.appendChild(styleGroup);
+
+  createControl(styleGroup, 'Fator Raio de Borda', 'border-radius-factor', 'range', 0, 1, 0.05, 0.2, '', 'object-border-radius-factor');
+  createControl(styleGroup, 'Fator Largura da Borda', 'border-width-factor', 'range', 0, 0.2, 0.01, 0.05, '', 'object-border-width-factor');
+  createControl(styleGroup, 'Fator Tamanho da Sombra', 'shadow-size-factor', 'range', 0, 0.2, 0.01, 0.08, '', 'object-shadow-size-factor');
+  createControl(styleGroup, 'Fator Escala no Hover', 'hover-scale-factor', 'range', 1, 2, 0.1, 1.1, '', 'object-hover-scale-factor');
+  createControl(styleGroup, 'Fator Brilho no Hover', 'hover-brightness-factor', 'range', 1, 2, 0.1, 1.2, '', 'object-hover-brightness-factor');
+
+  // === CONFIGURAÇÕES INDIVIDUAIS DOS OBJETOS (1 a 15) ===
+  // Cores padrão para cada objeto
+  const defaultColors = [
+    [230, 25, 75],   // 1 - Vermelho
+    [60, 180, 75],   // 2 - Verde
+    [255, 225, 25],  // 3 - Amarelo
+    [67, 99, 216],   // 4 - Azul
+    [245, 130, 49],  // 5 - Laranja
+    [145, 30, 180],  // 6 - Roxo
+    [70, 240, 240],  // 7 - Ciano
+    [240, 50, 230],  // 8 - Magenta
+    [188, 246, 12],  // 9 - Lima
+    [250, 190, 190], // 10 - Rosa Claro
+    [0, 128, 128],   // 11 - Teal
+    [230, 190, 255], // 12 - Lavanda
+    [154, 99, 36],   // 13 - Marrom
+    [255, 250, 200], // 14 - Bege
+    [128, 0, 0]      // 15 - Marsala
+  ];
+
+  // Nomes amigáveis para os objetos
+  const objectNames = [
+    'Top Left', 'Top Center Left', 'Top Middle', 'Top Center Right', 'Top Right',
+    'Middle Left', 'Center Left', 'Middle Middle', 'Center Right', 'Middle Right',
+    'Bottom Left', 'Bottom Center Left', 'Bottom Middle', 'Bottom Center Right', 'Bottom Right'
+  ];
+
+  objectIds.forEach((id, index) => {
+    const objectNum = index + 1;
+    const objectName = objectNames[index];
+    const defaultColor = defaultColors[index];
+
+    // Criar grupo principal para o objeto
+    const objectGroup = document.createElement('div');
+    objectGroup.className = 'config-group object-group';
+    objectGroup.innerHTML = `<h4>🎯 Objeto ${objectNum} - ${objectName} (${id})</h4>`;
+    configContent.appendChild(objectGroup);
+
+    // Visibilidade
+    createCheckboxControl(objectGroup, '👁️ Visível', `visibility-${id}`, true, `visibility-${id}`);
+
+    // Tamanho e Orientação
+    const sizeGroup = document.createElement('div');
+    sizeGroup.className = 'config-subgroup';
+    sizeGroup.innerHTML = '<h5>📏 Tamanho e Orientação</h5>';
+    objectGroup.appendChild(sizeGroup);
+
+    createControl(sizeGroup, 'Tamanho (% viewport)', `${id}-size`, 'range', 5, 30, 1, 15, '', `object-${id}-size`);
+    createCheckboxControl(sizeGroup, '🖼️ Paisagem (desmarque para Retrato)', `${id}-landscape`, true, `object-${id}-orientation-is-landscape`, '1', '0');
+
+    // Cor do Objeto
+    const colorGroup = document.createElement('div');
+    colorGroup.className = 'config-subgroup';
+    colorGroup.innerHTML = '<h5>🎨 Cor do Objeto</h5>';
+    objectGroup.appendChild(colorGroup);
+
+    createColorControl(colorGroup, `Cor RGB`, `color-${objectNum}`, defaultColor[0], defaultColor[1], defaultColor[2], `object-${id}-color-rgb`);
   });
-  
-  containerBorderInput.addEventListener('input', function() {
-    updateCSSVariable('container-border-percent', this.value);
-    updateValueDisplay(this);
-  });
-  
-  bgAlphaInput.addEventListener('input', function() {
-    updateCSSVariable('object-bg-alpha', this.value);
-    updateValueDisplay(this);
-  });
-  
-  backdropBlurInput.addEventListener('input', function() {
-    updateCSSVariable('object-backdrop-blur-px', this.value, 'px');
-    updateValueDisplay(this);
-  });
-  
+
+  // === CONTROLES DO PAINEL ===
   // Toggle do painel
   toggleBtn.addEventListener('click', function() {
-    configContent.style.display = 
+    configContent.style.display =
       configContent.style.display === 'none' ? 'block' : 'none';
   });
-  
+
   // Inicializar o painel
   configContent.style.display = 'none';
 });
