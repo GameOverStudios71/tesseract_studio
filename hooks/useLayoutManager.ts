@@ -2,6 +2,25 @@ import { useState, useCallback } from 'react';
 import { LayoutElement, ElementType, ElementProps, Spacing, ContainerSpecificProps, RowSpecificProps, ColSpecificProps, ControlSpecificProps, AllElementPropKeys, PredefinedComponentKey, TemplateProps } from '../types';
 import { PREDEFINED_COMPONENTS } from '../lib/componentDefinitions.tsx';
 
+// Default colors for the Adaptive Grid Template, matching the CSS
+const ADAPTIVE_GRID_DEFAULT_COLORS = {
+  topLeft: '230, 25, 75',
+  topCenterLeft: '60, 180, 75',
+  topMiddle: '255, 225, 25',
+  topCenterRight: '67, 99, 216',
+  topRight: '245, 130, 49',
+  middleLeft: '145, 30, 180',
+  centerLeft: '70, 240, 240',
+  middleMiddle: '240, 50, 230',
+  centerRight: '188, 246, 12',
+  middleRight: '250, 190, 190',
+  bottomLeft: '0, 128, 128',
+  bottomCenterLeft: '230, 190, 255',
+  bottomMiddle: '154, 99, 36',
+  bottomCenterRight: '255, 250, 200',
+  bottomRight: '128, 0, 0',
+};
+
 
 const initialSpacing: Spacing = { top: '0', right: '0', bottom: '0', left: '0' };
 
@@ -63,6 +82,38 @@ const getDefaultProps = (type: ElementType): Partial<ElementProps> => {
 
 
 export const useLayoutManager = () => {
+  const updateTemplateColor = useCallback((elementId: string, objectKey: string, newColor: string) => {
+    setElements(prevElements => {
+      const newElements = { ...prevElements };
+      const elementToUpdate = newElements[elementId];
+
+      // Type guard to ensure we're working with a template
+      if (elementToUpdate?.type !== 'template') {
+        return newElements;
+      }
+      
+      const currentProps = elementToUpdate.props as Partial<TemplateProps>;
+
+      if (currentProps.templateProps?.colors) {
+        const newTemplateProps = {
+          ...currentProps.templateProps,
+          colors: {
+            ...currentProps.templateProps.colors,
+            [objectKey]: newColor,
+          },
+        };
+
+        newElements[elementId] = {
+          ...elementToUpdate,
+          props: {
+            ...currentProps,
+            templateProps: newTemplateProps,
+          },
+        };
+      }
+      return newElements;
+    });
+  }, []);
   const [elements, setElements] = useState<Record<string, LayoutElement>>({});
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [nextIdNum, setNextIdNum] = useState<number>(1); // Changed to number for easier incrementing
@@ -155,16 +206,24 @@ export const useLayoutManager = () => {
       const newId = `el-${nextIdNum}`;
       setNextIdNum(prev => prev + 1);
 
+      const newElementProps: Partial<TemplateProps> = {
+        ...getDefaultProps('template'),
+        templateKey: componentKey,
+      };
+
+      if (componentKey === 'ADAPTIVE_GRID_TEMPLATE') {
+        newElementProps.templateProps = {
+          colors: ADAPTIVE_GRID_DEFAULT_COLORS,
+        };
+      }
+
       const newElement: LayoutElement = {
         id: newId,
         type: 'template',
         name: componentDefinition.name,
         parentId: targetParentId,
         children: [],
-        props: {
-          ...getDefaultProps('template'),
-          templateKey: componentKey,
-        },
+        props: newElementProps,
       };
 
       setElements(prevElements => {
@@ -346,6 +405,7 @@ export const useLayoutManager = () => {
     updateElementSingleProp,
     updateElementSpacingProp,
     updateElementGutterProp,
+    updateTemplateColor,
     deleteElement,
     selectElement,
   };

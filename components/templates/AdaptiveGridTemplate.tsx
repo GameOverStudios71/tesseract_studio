@@ -1,9 +1,9 @@
 import React, { useRef, useLayoutEffect, useState } from 'react';
 import styles from './AdaptiveGridTemplate.module.css';
+import { TemplateSpecificProps } from '../../types';
 
 interface ObjectData {
   id: string;
-  className: string;
   size: number;
   isLandscape: boolean;
   aspectW: number;
@@ -11,75 +11,63 @@ interface ObjectData {
 }
 
 const objects: ObjectData[] = [
-  { id: 'top-left', className: styles.topLeft, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'top-center-left', className: styles.topCenterLeft, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'top-middle', className: styles.topMiddle, size: 15, isLandscape: false, aspectW: 9, aspectH: 16 },
-  { id: 'top-center-right', className: styles.topCenterRight, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'top-right', className: styles.topRight, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'middle-left', className: styles.middleLeft, size: 15, isLandscape: false, aspectW: 9, aspectH: 16 },
-  { id: 'center-left', className: styles.centerLeft, size: 15, isLandscape: true, aspectW: 1, aspectH: 1 },
-  { id: 'middle-middle', className: styles.middleMiddle, size: 20, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'center-right', className: styles.centerRight, size: 15, isLandscape: true, aspectW: 1, aspectH: 1 },
-  { id: 'middle-right', className: styles.middleRight, size: 15, isLandscape: false, aspectW: 9, aspectH: 16 },
-  { id: 'bottom-left', className: styles.bottomLeft, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'bottom-center-left', className: styles.bottomCenterLeft, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'bottom-middle', className: styles.bottomMiddle, size: 15, isLandscape: false, aspectW: 9, aspectH: 16 },
-  { id: 'bottom-center-right', className: styles.bottomCenterRight, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
-  { id: 'bottom-right', className: styles.bottomRight, size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'top-left', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'top-center-left', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'top-middle', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'top-center-right', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'top-right', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'middle-left', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'center-left', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'middle-middle', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'center-right', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'middle-right', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'bottom-left', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'bottom-center-left', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'bottom-middle', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'bottom-center-right', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
+  { id: 'bottom-right', size: 15, isLandscape: true, aspectW: 16, aspectH: 9 },
 ];
 
-const AdaptiveGridTemplate: React.FC = () => {
+interface AdaptiveGridTemplateProps {
+  templateProps?: TemplateSpecificProps['templateProps'];
+}
+
+const AdaptiveGridTemplate: React.FC<AdaptiveGridTemplateProps> = ({ templateProps }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [dims, setDims] = useState({ width: 0, height: 0 });
 
-  useLayoutEffect(() => {
-    if (!wrapperRef.current) return;
+  // Create dynamic styles based on the original CSS structure
+  const dynamicStyles: React.CSSProperties = {};
 
-    const resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
-        setDims({ width: entry.contentRect.width, height: entry.contentRect.height });
-      }
-    });
-
-    resizeObserver.observe(wrapperRef.current);
-
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  const getObjectStyle = (obj: ObjectData, vmin: number): React.CSSProperties => {
-    const baseSize = (obj.size * vmin) / 100;
-    const w = obj.isLandscape ? baseSize : (baseSize * obj.aspectW) / obj.aspectH;
-    const h = !obj.isLandscape ? baseSize : (baseSize * obj.aspectH) / obj.aspectW;
-
-    return {
-      '--base-size': `${baseSize}px`,
-      '--w': `${w}px`,
-      '--h': `${h}px`,
-    } as React.CSSProperties;
-  };
-
-  const vmin = Math.min(dims.width, dims.height);
+  // Apply colors from templateProps if available
+  if (templateProps?.colors) {
+    for (const [key, value] of Object.entries(templateProps.colors)) {
+      // Convert camelCase to kebab-case and create the correct CSS variable name
+      const kebabKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+      const cssVarName = `--object-${kebabKey}-color-rgb`;
+      (dynamicStyles as any)[cssVarName] = value;
+    }
+  }
 
   return (
     <div
       ref={wrapperRef}
       className={styles.wrapper}
-      style={{
-        '--component-width-val': `${dims.width}px`,
-        '--component-height-val': `${dims.height}px`,
-      } as React.CSSProperties}
+      style={dynamicStyles}
     >
+      {/* Objects positioned outside the container */}
+      {objects.map(obj => (
+        <div
+          key={obj.id}
+          className={`${styles.object}`}
+          id={obj.id}
+        />
+      ))}
+
+      {/* Container principal */}
       <div className={styles.container}>
-        {objects.map(obj => (
-          <div
-            key={obj.id}
-            className={`${styles.object} ${obj.className}`}
-            style={getObjectStyle(obj, vmin)}
-          />
-        ))}
         <div className={styles.content}>
           {/* Scrollable Content Here */}
-          <p>This content is inside the container and can scroll.</p>
+          <p>Este conteúdo está dentro do container e pode rolar.</p>
         </div>
       </div>
     </div>

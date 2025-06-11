@@ -25,6 +25,7 @@ const LayoutEditor: React.FC = () => {
     updateElementGutterProp,
     deleteElement,
     selectElement,
+    updateTemplateColor,
   } = useLayoutManager();
 
   const [currentViewportWidth, setCurrentViewportWidth] = useState<string>(
@@ -226,11 +227,12 @@ const LayoutEditor: React.FC = () => {
               style={{ width: `${rightPanel.width}px` }}
             >
               <PropertiesPanel
-                  selectedElement={selectedElement}
-                  onUpdateProp={updateElementSingleProp}
-                  onUpdateSpacingProp={updateElementSpacingProp}
-                  onUpdateGutterProp={updateElementGutterProp}
-                  onDeleteElement={deleteElement}
+                selectedElement={selectedElement}
+                onUpdateProp={updateElementSingleProp}
+                onUpdateSpacingProp={updateElementSpacingProp}
+                onUpdateGutterProp={updateElementGutterProp}
+                onDeleteElement={deleteElement}
+                onUpdateTemplateColor={updateTemplateColor}
               />
 
               {/* Resize handle for right panel */}

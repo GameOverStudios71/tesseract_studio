@@ -60,8 +60,20 @@ export interface ControlSpecificProps {
 }
 export type ControlProps = CommonProps & ControlSpecificProps;
 
+// A map of object class names to their RGB color string
+export interface AdaptiveGridObjectColors {
+  [key: string]: string; // e.g., 'topLeft': '230, 25, 75'
+}
+
+// A generic container for CSS variables that a template can expose
+export interface TemplateCssVariables {
+  colors?: AdaptiveGridObjectColors;
+  // Future properties like sizing, spacing, etc., can be added here
+}
+
 export interface TemplateSpecificProps {
   templateKey: PredefinedComponentKey;
+  templateProps?: TemplateCssVariables; // Properties to be controlled by the user
 }
 export type TemplateProps = CommonProps & TemplateSpecificProps;
 

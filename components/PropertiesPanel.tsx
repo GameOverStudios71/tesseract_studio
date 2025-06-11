@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutElement, ElementProps, Spacing, ContainerProps, RowProps, ColProps, ControlProps, AllElementPropKeys } from '../types';
+import { LayoutElement, ElementProps, Spacing, ContainerProps, RowProps, ColProps, ControlProps, AllElementPropKeys, TemplateProps } from '../types';
 import { 
     SPACING_SCALES, BACKGROUND_COLORS, JUSTIFY_CONTENT_OPTIONS, 
     ALIGN_ITEMS_OPTIONS, ALIGN_SELF_OPTIONS, COL_SPAN_OPTIONS, 
@@ -16,7 +16,30 @@ interface PropertiesPanelProps {
   onUpdateSpacingProp: (id: string, type: 'padding' | 'margin', side: keyof Spacing, value: string) => void;
   onUpdateGutterProp: (id: string, axis: 'x' | 'y', value: string) => void;
   onDeleteElement: (id: string) => void;
+  onUpdateTemplateColor: (id: string, objectKey: string, newColor: string) => void;
 }
+
+// Helper function to format camelCase keys into readable labels
+const formatLabel = (key: string) => {
+  return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+};
+
+// Helper functions to convert between color formats
+const rgbStringToHex = (rgb: string): string => {
+  if (!rgb || typeof rgb !== 'string') return '#ffffff';
+  const [r, g, b] = rgb.split(',').map(s => parseInt(s.trim(), 10));
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return '#ffffff';
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).padStart(6, '0')}`;
+};
+
+const hexToRgbString = (hex: string): string => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return '0, 0, 0';
+  const r = parseInt(result[1], 16);
+  const g = parseInt(result[2], 16);
+  const b = parseInt(result[3], 16);
+  return `${r}, ${g}, ${b}`;
+};
 
 const SpacingInputGroup: React.FC<{
   label: string;
@@ -51,7 +74,8 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     onUpdateProp,
     onUpdateSpacingProp,
     onUpdateGutterProp,
-    onDeleteElement
+    onDeleteElement,
+    onUpdateTemplateColor
 }) => {
   if (!selectedElement) {
     return (
@@ -130,6 +154,30 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 
 
         {/* Type-Specific Properties */}
+        {/* Template-Specific Properties */}
+        {type === 'template' && (props as TemplateProps).templateKey === 'ADAPTIVE_GRID_TEMPLATE' && (
+          <>
+            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 pt-2 border-t border-slate-200 dark:border-slate-600">Adaptive Grid Colors</h4>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              {(props as TemplateProps).templateProps?.colors && Object.entries((props as TemplateProps).templateProps!.colors!).map(([key, rgbValue]) => (
+                <div key={key} className="flex items-center justify-between">
+                  <label htmlFor={`color-${id}-${key}`} className="text-xs text-gray-700 dark:text-gray-300">
+                    {formatLabel(key)}
+                  </label>
+                  <input
+                    type="color"
+                    id={`color-${id}-${key}`}
+                    value={rgbStringToHex(rgbValue)}
+                    onChange={(e) => onUpdateTemplateColor(id, key, hexToRgbString(e.target.value))}
+                    className="w-8 h-8 p-0 border-none rounded-md bg-transparent cursor-pointer"
+                    style={{ backgroundColor: rgbStringToHex(rgbValue) }} // Show current color
+                  />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
         {type === 'container' && (
           <>
             <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 pt-2 border-t border-slate-200 dark:border-slate-600">Container Options</h4>

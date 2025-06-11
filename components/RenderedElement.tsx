@@ -109,7 +109,7 @@ const RenderedElement: React.FC<RenderedElementProps> = ({
           }}
         >
           {templateProps.templateKey === 'ADAPTIVE_GRID_TEMPLATE' ? (
-            <AdaptiveGridTemplate />
+            <AdaptiveGridTemplate templateProps={templateProps.templateProps} />
           ) : (
             <div className="text-red-500">Unknown Template: {templateProps.templateKey}</div>
           )}
