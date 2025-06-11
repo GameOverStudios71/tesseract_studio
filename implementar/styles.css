@@ -132,92 +132,92 @@
   /* --- Objeto: top-left (1) --- */
   --object-top-left-size: 15;
   --object-top-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-top-left-aspect-w: 16;
-  --object-top-left-aspect-h: 9;
+  --object-top-left-aspect-w: calc(16 * var(--object-top-left-orientation-is-landscape) + 9 * (1 - var(--object-top-left-orientation-is-landscape)));
+  --object-top-left-aspect-h: calc(9 * var(--object-top-left-orientation-is-landscape) + 16 * (1 - var(--object-top-left-orientation-is-landscape)));
 
   /* --- Objeto: top-center-left (2) --- */
   --object-top-center-left-size: 15;
   --object-top-center-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-top-center-left-aspect-w: 16;
-  --object-top-center-left-aspect-h: 9;
+  --object-top-center-left-aspect-w: calc(16 * var(--object-top-center-left-orientation-is-landscape) + 9 * (1 - var(--object-top-center-left-orientation-is-landscape)));
+  --object-top-center-left-aspect-h: calc(9 * var(--object-top-center-left-orientation-is-landscape) + 16 * (1 - var(--object-top-center-left-orientation-is-landscape)));
 
   /* --- Objeto: top-middle (3) --- */
   --object-top-middle-size: 15;
-  --object-top-middle-orientation-is-landscape: 0; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
-  --object-top-middle-aspect-w: 9;
-  --object-top-middle-aspect-h: 16;
+  --object-top-middle-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
+  --object-top-middle-aspect-w: calc(16 * var(--object-top-middle-orientation-is-landscape) + 9 * (1 - var(--object-top-middle-orientation-is-landscape)));
+  --object-top-middle-aspect-h: calc(9 * var(--object-top-middle-orientation-is-landscape) + 16 * (1 - var(--object-top-middle-orientation-is-landscape)));
 
   /* --- Objeto: top-center-right (4) --- */
   --object-top-center-right-size: 15;
   --object-top-center-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-top-center-right-aspect-w: 16;
-  --object-top-center-right-aspect-h: 9;
+  --object-top-center-right-aspect-w: calc(16 * var(--object-top-center-right-orientation-is-landscape) + 9 * (1 - var(--object-top-center-right-orientation-is-landscape)));
+  --object-top-center-right-aspect-h: calc(9 * var(--object-top-center-right-orientation-is-landscape) + 16 * (1 - var(--object-top-center-right-orientation-is-landscape)));
 
   /* --- Objeto: top-right (5) --- */
   --object-top-right-size: 15;
   --object-top-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-top-right-aspect-w: 16;
-  --object-top-right-aspect-h: 9;
+  --object-top-right-aspect-w: calc(16 * var(--object-top-right-orientation-is-landscape) + 9 * (1 - var(--object-top-right-orientation-is-landscape)));
+  --object-top-right-aspect-h: calc(9 * var(--object-top-right-orientation-is-landscape) + 16 * (1 - var(--object-top-right-orientation-is-landscape)));
 
   /* --- Objeto: middle-left (6) --- */
   --object-middle-left-size: 15;
-  --object-middle-left-orientation-is-landscape: 0; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
-  --object-middle-left-aspect-w: 3;
-  --object-middle-left-aspect-h: 4;
+  --object-middle-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
+  --object-middle-left-aspect-w: calc(16 * var(--object-middle-left-orientation-is-landscape) + 9 * (1 - var(--object-middle-left-orientation-is-landscape)));
+  --object-middle-left-aspect-h: calc(9 * var(--object-middle-left-orientation-is-landscape) + 16 * (1 - var(--object-middle-left-orientation-is-landscape)));
 
   /* --- Objeto: center-left (7) --- */
   --object-center-left-size: 15;
   --object-center-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Quadrado) */
-  --object-center-left-aspect-w: 1;
-  --object-center-left-aspect-h: 1;
+  --object-center-left-aspect-w: calc(16 * var(--object-center-left-orientation-is-landscape) + 1 * (1 - var(--object-center-left-orientation-is-landscape)));
+  --object-center-left-aspect-h: calc(9 * var(--object-center-left-orientation-is-landscape) + 1 * (1 - var(--object-center-left-orientation-is-landscape)));
 
   /* --- Objeto: middle-middle (8) --- */
   --object-middle-middle-size: 15; /* Maior */
   --object-middle-middle-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-middle-middle-aspect-w: 16;
-  --object-middle-middle-aspect-h: 9;
+  --object-middle-middle-aspect-w: calc(16 * var(--object-middle-middle-orientation-is-landscape) + 9 * (1 - var(--object-middle-middle-orientation-is-landscape)));
+  --object-middle-middle-aspect-h: calc(9 * var(--object-middle-middle-orientation-is-landscape) + 16 * (1 - var(--object-middle-middle-orientation-is-landscape)));
 
   /* --- Objeto: center-right (9) --- */
   --object-center-right-size: 15;
   --object-center-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Quadrado) */
-  --object-center-right-aspect-w: 1;
-  --object-center-right-aspect-h: 1;
+  --object-center-right-aspect-w: calc(16 * var(--object-center-right-orientation-is-landscape) + 1 * (1 - var(--object-center-right-orientation-is-landscape)));
+  --object-center-right-aspect-h: calc(9 * var(--object-center-right-orientation-is-landscape) + 1 * (1 - var(--object-center-right-orientation-is-landscape)));
 
   /* --- Objeto: middle-right (10) --- */
   --object-middle-right-size: 15;
-  --object-middle-right-orientation-is-landscape: 0; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
-  --object-middle-right-aspect-w: 3;
-  --object-middle-right-aspect-h: 4;
+  --object-middle-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
+  --object-middle-right-aspect-w: calc(16 * var(--object-middle-right-orientation-is-landscape) + 9 * (1 - var(--object-middle-right-orientation-is-landscape)));
+  --object-middle-right-aspect-h: calc(9 * var(--object-middle-right-orientation-is-landscape) + 16 * (1 - var(--object-middle-right-orientation-is-landscape)));
 
   /* --- Objeto: bottom-left (11) --- */
   --object-bottom-left-size: 15;
   --object-bottom-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-bottom-left-aspect-w: 16;
-  --object-bottom-left-aspect-h: 9;
+  --object-bottom-left-aspect-w: calc(16 * var(--object-bottom-left-orientation-is-landscape) + 9 * (1 - var(--object-bottom-left-orientation-is-landscape)));
+  --object-bottom-left-aspect-h: calc(9 * var(--object-bottom-left-orientation-is-landscape) + 16 * (1 - var(--object-bottom-left-orientation-is-landscape)));
 
   /* --- Objeto: bottom-center-left (12) --- */
   --object-bottom-center-left-size: 15;
   --object-bottom-center-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-bottom-center-left-aspect-w: 16;
-  --object-bottom-center-left-aspect-h: 9;
+  --object-bottom-center-left-aspect-w: calc(16 * var(--object-bottom-center-left-orientation-is-landscape) + 9 * (1 - var(--object-bottom-center-left-orientation-is-landscape)));
+  --object-bottom-center-left-aspect-h: calc(9 * var(--object-bottom-center-left-orientation-is-landscape) + 16 * (1 - var(--object-bottom-center-left-orientation-is-landscape)));
 
   /* --- Objeto: bottom-middle (13) --- */
   --object-bottom-middle-size: 15;
-  --object-bottom-middle-orientation-is-landscape: 0; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
-  --object-bottom-middle-aspect-w: 9;
-  --object-bottom-middle-aspect-h: 16;
+  --object-bottom-middle-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
+  --object-bottom-middle-aspect-w: calc(16 * var(--object-bottom-middle-orientation-is-landscape) + 9 * (1 - var(--object-bottom-middle-orientation-is-landscape)));
+  --object-bottom-middle-aspect-h: calc(9 * var(--object-bottom-middle-orientation-is-landscape) + 16 * (1 - var(--object-bottom-middle-orientation-is-landscape)));
 
   /* --- Objeto: bottom-center-right (14) --- */
   --object-bottom-center-right-size: 15;
   --object-bottom-center-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-bottom-center-right-aspect-w: 16;
-  --object-bottom-center-right-aspect-h: 9;
+  --object-bottom-center-right-aspect-w: calc(16 * var(--object-bottom-center-right-orientation-is-landscape) + 9 * (1 - var(--object-bottom-center-right-orientation-is-landscape)));
+  --object-bottom-center-right-aspect-h: calc(9 * var(--object-bottom-center-right-orientation-is-landscape) + 16 * (1 - var(--object-bottom-center-right-orientation-is-landscape)));
 
   /* --- Objeto: bottom-right (15) --- */
   --object-bottom-right-size: 15;
   --object-bottom-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
-  --object-bottom-right-aspect-w: 16;
-  --object-bottom-right-aspect-h: 9;
+  --object-bottom-right-aspect-w: calc(16 * var(--object-bottom-right-orientation-is-landscape) + 9 * (1 - var(--object-bottom-right-orientation-is-landscape)));
+  --object-bottom-right-aspect-h: calc(9 * var(--object-bottom-right-orientation-is-landscape) + 16 * (1 - var(--object-bottom-right-orientation-is-landscape)));
 
 
   /* === 🔒 CÁLCULOS AUTOMÁTICOS DE DIMENSÕES E METADES (NÃO MUDE AQUI) === */
