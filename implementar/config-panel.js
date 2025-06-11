@@ -146,6 +146,101 @@ document.addEventListener('DOMContentLoaded', function() {
     return { rInput, gInput, bInput };
   }
 
+  // Função para criar controle de imagem
+  function createImageControl(container, objectId) {
+    const div = document.createElement('div');
+    div.className = 'config-item image-control';
+
+    // Input para caminho da imagem
+    const pathLabel = document.createElement('label');
+    pathLabel.textContent = 'Caminho da Imagem/SVG:';
+
+    const pathInput = document.createElement('input');
+    pathInput.type = 'text';
+    pathInput.placeholder = 'Ex: imagem.jpg, icon.svg, https://...';
+    pathInput.className = 'image-path-input';
+
+    // Select para modo de ajuste
+    const modeLabel = document.createElement('label');
+    modeLabel.textContent = 'Modo de Ajuste:';
+
+    const modeSelect = document.createElement('select');
+    modeSelect.className = 'image-mode-select';
+
+    const modes = [
+      { value: 'cover', text: '🔳 Cover - Preenche todo o objeto (pode cortar)' },
+      { value: 'contain', text: '📦 Contain - Mostra imagem completa (pode sobrar espaço)' },
+      { value: 'fill', text: '🎯 Fill - Estica para preencher exato' },
+      { value: 'scale-down', text: '📉 Scale Down - Menor entre contain e original' },
+      { value: 'none', text: '📌 None - Tamanho original' }
+    ];
+
+    modes.forEach(mode => {
+      const option = document.createElement('option');
+      option.value = mode.value;
+      option.textContent = mode.text;
+      modeSelect.appendChild(option);
+    });
+
+    modeSelect.value = 'cover'; // Padrão
+
+    // Preview da imagem
+    const preview = document.createElement('div');
+    preview.className = 'image-preview';
+    preview.innerHTML = '<span>📷 Preview aparecerá aqui</span>';
+
+    // Botão para limpar
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.textContent = '🗑️ Limpar';
+    clearBtn.className = 'clear-image-btn';
+
+    // Função para atualizar imagem
+    function updateImage() {
+      const path = pathInput.value.trim();
+      const mode = modeSelect.value;
+
+      if (path) {
+        // Atualizar CSS
+        updateCSSVariable(`bg-${objectId}`, `url('${path}')`);
+        updateCSSVariable(`bg-${objectId}-size`, mode);
+
+        // Atualizar preview
+        preview.innerHTML = `<img src="${path}" alt="Preview" style="max-width: 100%; max-height: 60px; object-fit: ${mode};">`;
+        preview.style.backgroundImage = `url('${path}')`;
+        preview.style.backgroundSize = mode;
+        preview.style.backgroundPosition = 'center';
+        preview.style.backgroundRepeat = 'no-repeat';
+      } else {
+        // Limpar
+        updateCSSVariable(`bg-${objectId}`, `url('')`);
+        preview.innerHTML = '<span>📷 Preview aparecerá aqui</span>';
+        preview.style.backgroundImage = 'none';
+      }
+    }
+
+    // Event listeners
+    pathInput.addEventListener('input', updateImage);
+    modeSelect.addEventListener('change', updateImage);
+    clearBtn.addEventListener('click', function() {
+      pathInput.value = '';
+      modeSelect.value = 'cover';
+      updateImage();
+    });
+
+    // Montar o controle
+    div.appendChild(pathLabel);
+    div.appendChild(pathInput);
+    div.appendChild(modeLabel);
+    div.appendChild(modeSelect);
+    div.appendChild(preview);
+    div.appendChild(clearBtn);
+
+    container.appendChild(div);
+
+    return { pathInput, modeSelect, preview };
+  }
+
   // Função para atualizar valores CSS
   function updateCSSVariable(name, value, unit = '') {
     document.documentElement.style.setProperty(`--${name}`, value + unit);
@@ -255,6 +350,14 @@ document.addEventListener('DOMContentLoaded', function() {
     objectGroup.appendChild(colorGroup);
 
     createColorControl(colorGroup, `Cor RGB`, `color-${objectNum}`, defaultColor[0], defaultColor[1], defaultColor[2], `object-${id}-color-rgb`);
+
+    // Imagem/SVG do Objeto
+    const imageGroup = document.createElement('div');
+    imageGroup.className = 'config-subgroup';
+    imageGroup.innerHTML = '<h5>🖼️ Imagem/SVG do Objeto</h5>';
+    objectGroup.appendChild(imageGroup);
+
+    createImageControl(imageGroup, id);
   });
 
   // === CONTROLES DO PAINEL ===

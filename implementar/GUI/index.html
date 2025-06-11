@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUI Layout Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="grid-styles.css">
+    <style>
+        /* Custom styles for resizable panels */
+        .resize-handle {
+            cursor: col-resize;
+            user-select: none;
+        }
+
+        .resize-handle:hover {
+            background-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .resizing {
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            html {
+                color-scheme: dark;
+            }
+        }
+
+        /* Override grid styles to work within the canvas area */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .canvas-container .object {
+            position: absolute;
+            z-index: 10;
+        }
+
+
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div id="app" class="flex flex-col h-screen">
+        <!-- Panel Controls -->
+        <div class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Canvas Area: <span id="canvas-width">auto</span>px
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="toggle-left" class="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
+                        Toggle Left Panel
+                    </button>
+                    <button id="toggle-right" class="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">
+                        Toggle Right Panel
+                    </button>
+                    <button id="reset-panels" class="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        Reset Panels
+                    </button>
+                    <button id="preview-btn" class="px-3 py-1 text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 transition-colors">
+                        🚀 Preview
+                    </button>
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <span class="dark:hidden">🌙</span>
+                        <span class="hidden dark:inline">☀️</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex flex-grow overflow-hidden">
+            <!-- Left Panel -->
+            <div id="left-panel" class="relative flex-shrink-0 h-full bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700" style="width: 300px;">
+                <div class="p-4 h-full overflow-y-auto">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Left Panel</h3>
+                    
+                    <!-- Tab Navigation -->
+                    <div class="flex border-b border-gray-200 dark:border-gray-600 mb-4">
+                        <button class="tab-button active px-4 py-2 text-sm font-medium border-b-2 border-blue-500 text-blue-600 dark:text-blue-400" data-tab="components">
+                            Components
+                        </button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" data-tab="controls">
+                            Controls
+                        </button>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div id="tab-components" class="tab-content">
+                        <div class="space-y-3">
+                            <div class="p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                                <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-1">Info Cards Section</h4>
+                                <div class="w-full h-16 border border-gray-300 p-1 bg-gray-100 rounded text-xs">
+                                    <div class="bg-sky-200 h-3 mb-1 rounded flex items-center justify-center text-sky-700">Header</div>
+                                    <div class="flex space-x-1 h-10">
+                                        <div class="flex-1 bg-gray-200 rounded flex items-center justify-center text-gray-600">Card</div>
+                                        <div class="flex-1 bg-gray-200 rounded flex items-center justify-center text-gray-600">Card</div>
+                                        <div class="flex-1 bg-gray-200 rounded flex items-center justify-center text-gray-600">Card</div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Container with header and three content cards.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-controls" class="tab-content hidden">
+                        <div class="space-y-3">
+                            <div class="p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                                <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-1">Button</h4>
+                                <div class="w-full h-8 bg-blue-500 text-white rounded flex items-center justify-center text-sm">
+                                    Button
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Interactive button element.</p>
+                            </div>
+                            
+                            <div class="p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                                <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-1">Input</h4>
+                                <div class="w-full h-8 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded px-2 flex items-center text-sm text-gray-500">
+                                    Input field
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Text input field.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Left Panel Resize Handle -->
+                <div class="resize-handle absolute top-0 right-0 w-1 h-full bg-transparent hover:bg-blue-400 transition-colors duration-150 z-10" data-panel="left">
+                    <div class="absolute inset-y-0 -inset-x-1 w-3"></div>
+                </div>
+
+                <!-- Resize Indicator -->
+                <div id="left-resize-indicator" class="absolute inset-0 bg-blue-100 bg-opacity-20 pointer-events-none border-2 border-blue-400 border-dashed hidden">
+                    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-mono z-20">
+                        <span id="left-width-display">300</span>px
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Area with Grid System -->
+            <div class="flex-grow bg-gray-200 dark:bg-gray-900 p-4 overflow-hidden">
+                <div class="canvas-container w-full h-full bg-white dark:bg-gray-800 shadow-lg rounded-lg relative">
+                    
+                    <!-- Linha Superior -->
+                    <div class="object" id="top-left">1</div>
+                    <div class="object" id="top-center-left">2</div>
+                    <div class="object" id="top-middle">3</div>
+                    <div class="object" id="top-center-right">4</div>
+                    <div class="object" id="top-right">5</div>
+
+                    <!-- Linha Central -->
+                    <div class="object" id="middle-left">6</div>
+                    <div class="object" id="center-left">7</div>
+                    <div class="object" id="middle-middle">8</div>
+                    <div class="object" id="center-right">9</div>
+                    <div class="object" id="middle-right">10</div>
+
+                    <!-- Linha Inferior -->
+                    <div class="object" id="bottom-left">11</div>
+                    <div class="object" id="bottom-center-left">12</div>
+                    <div class="object" id="bottom-middle">13</div>
+                    <div class="object" id="bottom-center-right">14</div>
+                    <div class="object" id="bottom-right">15</div>
+
+                    <!-- Container principal -->
+                    <div class="container" style="border: 10px solid red;">
+                        <div class="content">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div id="right-panel" class="relative flex-shrink-0 h-full bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700" style="width: 350px;">
+                <div class="p-4 h-full overflow-y-auto">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Properties Panel</h3>
+
+                    <!-- Right Panel Tab Navigation -->
+                    <div class="flex border-b border-gray-200 dark:border-gray-600 mb-4">
+                        <button class="right-tab-button active px-3 py-2 text-sm font-medium border-b-2 border-blue-500 text-blue-600 dark:text-blue-400" data-tab="layout-decorations">
+                            Layout Decorations
+                        </button>
+                        <button class="right-tab-button px-3 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" data-tab="properties">
+                            Properties
+                        </button>
+                    </div>
+
+                    <!-- Layout Decorations Tab -->
+                    <div id="right-tab-layout-decorations" class="right-tab-content">
+                        <div class="space-y-3">
+                            <!-- Global Container Settings -->
+                            <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <button class="w-full flex items-center justify-between text-left" onclick="toggleSection('global-settings')">
+                                    <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300">🌐 Global Container Settings</h4>
+                                    <span id="global-settings-icon" class="text-gray-500">▼</span>
+                                </button>
+
+                                <div id="global-settings" class="mt-3 space-y-3">
+                                    <!-- Container Layout -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📐 Container Layout</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Container Margin (%)</label>
+                                                <input type="number" id="container-margin-percent" value="5.0" step="0.1" min="0" max="20" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Container Border (%)</label>
+                                                <input type="number" id="container-border-percent" value="3.0" step="0.1" min="0" max="5" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Container Border Color</label>
+                                                <input type="color" id="container-border-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Min Object Size (px)</label>
+                                                <input type="number" id="min-object-size-px" value="20.0" step="1" min="10" max="100" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Minimum Values -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">⚙️ Minimum Values (Global)</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Min Border (px)</label>
+                                                <input type="number" id="min-border" value="1.0" step="0.1" min="0" max="10" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Min Border Radius (px)</label>
+                                                <input type="number" id="min-border-radius" value="3.0" step="0.1" min="0" max="20" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Min Font Size (px)</label>
+                                                <input type="number" id="min-font-size" value="8.0" step="0.1" min="1" max="20" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Min Shadow (px)</label>
+                                                <input type="number" id="min-shadow" value="2.0" step="0.1" min="0" max="10" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Object 1: Top Left -->
+                            <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <button class="w-full flex items-center justify-between text-left" onclick="toggleSection('object-1')">
+                                    <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300">🔴 Object 1: Top Left</h4>
+                                    <span id="object-1-icon" class="text-gray-500">▶</span>
+                                </button>
+
+                                <div id="object-1" class="mt-3 space-y-3 hidden">
+                                    <!-- Size & Dimensions -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📏 Size & Dimensions</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Size</label>
+                                                <input type="number" id="object-top-left-size" value="4.0" step="0.1" min="0.5" max="20" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Orientation</label>
+                                                <select id="object-top-left-orientation-is-landscape" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1" selected>Landscape</option>
+                                                    <option value="0">Portrait</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Width</label>
+                                                <input type="number" id="object-top-left-aspect-w" value="16.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Height</label>
+                                                <input type="number" id="object-top-left-aspect-h" value="9.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Visual Styling -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🎨 Visual Styling</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Background Color</label>
+                                                <input type="color" id="object-top-left-background" value="#e6194B" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Text Color</label>
+                                                <input type="color" id="object-top-left-text-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Color</label>
+                                                <input type="color" id="object-top-left-border-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Image Path</label>
+                                                <div class="flex gap-1">
+                                                    <input type="text" id="object-top-left-image-url" value="" placeholder="../img/image.jpg" class="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <input type="file" id="object-top-left-image-file" accept="image/*,.svg" class="hidden">
+                                                    <button type="button" onclick="document.getElementById('object-top-left-image-file').click()" class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">📁</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Border & Spacing -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📐 Border & Spacing</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Width</label>
+                                                <input type="number" id="object-top-left-border-width" value="0.05" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Radius</label>
+                                                <input type="number" id="object-top-left-border-radius" value="0.20" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Padding</label>
+                                                <input type="number" id="object-top-left-padding" value="0.00" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Font Size</label>
+                                                <input type="number" id="object-top-left-font-size" value="0.30" step="0.01" min="0.1" max="2" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Visible</label>
+                                                <select id="object-top-left-visible" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1" selected>Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Object 2: Top Center Left -->
+                            <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <button class="w-full flex items-center justify-between text-left" onclick="toggleSection('object-2')">
+                                    <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300">🟢 Object 2: Top Center Left</h4>
+                                    <span id="object-2-icon" class="text-gray-500">▶</span>
+                                </button>
+
+                                <div id="object-2" class="mt-3 space-y-3 hidden">
+                                    <!-- Size & Dimensions -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📏 Size & Dimensions</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Size</label>
+                                                <input type="number" id="object-top-center-left-size" value="4.0" step="0.1" min="0.5" max="20" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Orientation</label>
+                                                <select id="object-top-center-left-orientation-is-landscape" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1" selected>Landscape</option>
+                                                    <option value="0">Portrait</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Width</label>
+                                                <input type="number" id="object-top-center-left-aspect-w" value="16.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Height</label>
+                                                <input type="number" id="object-top-center-left-aspect-h" value="9.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Visual Styling -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🎨 Visual Styling</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Background Color</label>
+                                                <input type="color" id="object-top-center-left-background" value="#3cb44b" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Text Color</label>
+                                                <input type="color" id="object-top-center-left-text-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Color</label>
+                                                <input type="color" id="object-top-center-left-border-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Image Path</label>
+                                                <div class="flex gap-1">
+                                                    <input type="text" id="object-top-center-left-image-url" value="" placeholder="../img/image.jpg" class="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <input type="file" id="object-top-center-left-image-file" accept="image/*,.svg" class="hidden">
+                                                    <button type="button" onclick="document.getElementById('object-top-center-left-image-file').click()" class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">📁</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Border & Spacing -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📐 Border & Spacing</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Width</label>
+                                                <input type="number" id="object-top-center-left-border-width" value="0.05" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Radius</label>
+                                                <input type="number" id="object-top-center-left-border-radius" value="0.20" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Padding</label>
+                                                <input type="number" id="object-top-center-left-padding" value="0.0" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Font Size</label>
+                                                <input type="number" id="object-top-center-left-font-size" value="0.30" step="0.01" min="0.1" max="2" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Visible</label>
+                                                <select id="object-top-center-left-visible" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1" selected>Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Object 3: Top Middle -->
+                            <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <button class="w-full flex items-center justify-between text-left" onclick="toggleSection('object-3')">
+                                    <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300">🟡 Object 3: Top Middle</h4>
+                                    <span id="object-3-icon" class="text-gray-500">▶</span>
+                                </button>
+
+                                <div id="object-3" class="mt-3 space-y-3 hidden">
+                                    <!-- Size & Dimensions -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📏 Size & Dimensions</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Size</label>
+                                                <input type="number" id="object-top-middle-size" value="4.0" step="0.1" min="0.5" max="20" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Orientation</label>
+                                                <select id="object-top-middle-orientation-is-landscape" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1">Landscape</option>
+                                                    <option value="0" selected>Portrait</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Width</label>
+                                                <input type="number" id="object-top-middle-aspect-w" value="9.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Height</label>
+                                                <input type="number" id="object-top-middle-aspect-h" value="16.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Visual Styling -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🎨 Visual Styling</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Background Color</label>
+                                                <input type="color" id="object-top-middle-background" value="#ffe119" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Text Color</label>
+                                                <input type="color" id="object-top-middle-text-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Color</label>
+                                                <input type="color" id="object-top-middle-border-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Image Path</label>
+                                                <div class="flex gap-1">
+                                                    <input type="text" id="object-top-middle-image-url" value="" placeholder="../img/image.jpg" class="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <input type="file" id="object-top-middle-image-file" accept="image/*,.svg" class="hidden">
+                                                    <button type="button" onclick="document.getElementById('object-top-middle-image-file').click()" class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">📁</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Border & Spacing -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📐 Border & Spacing</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Width</label>
+                                                <input type="number" id="object-top-middle-border-width" value="0.05" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Radius</label>
+                                                <input type="number" id="object-top-middle-border-radius" value="0.20" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Padding</label>
+                                                <input type="number" id="object-top-middle-padding" value="0.0" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Font Size</label>
+                                                <input type="number" id="object-top-middle-font-size" value="0.30" step="0.01" min="0.1" max="2" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Visible</label>
+                                                <select id="object-top-middle-visible" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1" selected>Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Object 4: Top Center Right -->
+                            <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <button class="w-full flex items-center justify-between text-left" onclick="toggleSection('object-4')">
+                                    <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300">🔵 Object 4: Top Center Right</h4>
+                                    <span id="object-4-icon" class="text-gray-500">▶</span>
+                                </button>
+
+                                <div id="object-4" class="mt-3 space-y-3 hidden">
+                                    <!-- Size & Dimensions -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📏 Size & Dimensions</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Size</label>
+                                                <input type="number" id="object-top-center-right-size" value="4.0" step="0.1" min="0.5" max="20" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Orientation</label>
+                                                <select id="object-top-center-right-orientation-is-landscape" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1" selected>Landscape</option>
+                                                    <option value="0">Portrait</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Width</label>
+                                                <input type="number" id="object-top-center-right-aspect-w" value="16.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Aspect Height</label>
+                                                <input type="number" id="object-top-center-right-aspect-h" value="9.0" step="0.1" min="1" max="50" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Visual Styling -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🎨 Visual Styling</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Background Color</label>
+                                                <input type="color" id="object-top-center-right-background" value="#4363d8" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Text Color</label>
+                                                <input type="color" id="object-top-center-right-text-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Color</label>
+                                                <input type="color" id="object-top-center-right-border-color" value="#333333" class="w-full h-8 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Image Path</label>
+                                                <div class="flex gap-1">
+                                                    <input type="text" id="object-top-center-right-image-url" value="" placeholder="../img/image.jpg" class="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <input type="file" id="object-top-center-right-image-file" accept="image/*,.svg" class="hidden">
+                                                    <button type="button" onclick="document.getElementById('object-top-center-right-image-file').click()" class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors">📁</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Border & Spacing -->
+                                    <div class="p-2 bg-gray-50 dark:bg-gray-600 rounded">
+                                        <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📐 Border & Spacing</h5>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Width</label>
+                                                <input type="number" id="object-top-center-right-border-width" value="0.05" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Border Radius</label>
+                                                <input type="number" id="object-top-center-right-border-radius" value="0.20" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Padding</label>
+                                                <input type="number" id="object-top-center-right-padding" value="0.0" step="0.01" min="0" max="1" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Font Size</label>
+                                                <input type="number" id="object-top-center-right-font-size" value="0.30" step="0.01" min="0.1" max="2" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Visible</label>
+                                                <select id="object-top-center-right-visible" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                                    <option value="1" selected>Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reset Button -->
+                            <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <button id="reset-grid-values" class="w-full px-3 py-2 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm font-medium">
+                                    Reset to Default Values
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Properties Tab -->
+                    <div id="right-tab-properties" class="right-tab-content hidden">
+                        <div class="space-y-4">
+                        <!-- Element Info -->
+                        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">Element Information</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Type:</span>
+                                    <span class="text-gray-800 dark:text-gray-200">Container</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">ID:</span>
+                                    <span class="text-gray-800 dark:text-gray-200">element-1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Styling Properties -->
+                        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-3">Styling</h4>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Background Color</label>
+                                    <select class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                        <option>white</option>
+                                        <option>gray-100</option>
+                                        <option>blue-100</option>
+                                        <option>green-100</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Min Height</label>
+                                    <input type="text" value="60px" class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Spacing Properties -->
+                        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-medium text-sm text-gray-700 dark:text-gray-300 mb-3">Spacing</h4>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Padding</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="text" placeholder="Top" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                        <input type="text" placeholder="Right" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                        <input type="text" placeholder="Bottom" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                        <input type="text" placeholder="Left" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Margin</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="text" placeholder="Top" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                        <input type="text" placeholder="Right" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                        <input type="text" placeholder="Bottom" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                        <input type="text" placeholder="Left" class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel Resize Handle -->
+                <div class="resize-handle absolute top-0 left-0 w-1 h-full bg-transparent hover:bg-blue-400 transition-colors duration-150 z-10" data-panel="right">
+                    <div class="absolute inset-y-0 -inset-x-1 w-3"></div>
+                </div>
+
+                <!-- Resize Indicator -->
+                <div id="right-resize-indicator" class="absolute inset-0 bg-blue-100 bg-opacity-20 pointer-events-none border-2 border-blue-400 border-dashed hidden">
+                    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-mono z-20">
+                        <span id="right-width-display">350</span>px
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to toggle expandable sections
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const icon = document.getElementById(sectionId + '-icon');
+
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                icon.textContent = '▼';
+            } else {
+                section.classList.add('hidden');
+                icon.textContent = '▶';
+            }
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
