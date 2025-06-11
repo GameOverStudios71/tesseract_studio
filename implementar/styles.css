@@ -338,17 +338,20 @@ html, body {
 }
 
 body {
-  margin: var(--container-margin);
   background-image: url('1357899.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 /* Container principal */
 .container {
+  margin: var(--container-margin);
   width: calc(100vw - var(--double-margin));
   height: calc(100vh - var(--double-margin));
   border: var(--container-border) solid var(--theme-border-container);
   overflow: hidden;
-  background-color: var(--theme-bg-container);
+  background-color: transparent;
 }
 
 .content {
