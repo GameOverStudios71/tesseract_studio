@@ -9,7 +9,7 @@
 
   /* Valores mínimos para elementos proporcionais */
   --min-border: 1px;
-  --min-border-radius: 3px;
+  --min-border-radius: 0px;
   --min-font-size: 8px;
   --min-shadow: 2px;
 
@@ -28,6 +28,79 @@
   /* Posições calculadas para os centros das metades */
   --quarter-position: calc(var(--container-margin) + var(--container-border) + var(--container-inner-width) / 4);
   --three-quarter-position: calc(var(--container-margin) + var(--container-border) + var(--container-inner-width) * 3 / 4);
+
+  /* === 🎨 TEMA E CORES GLOBAIS === */
+  --theme-bg-body: #f0f0f0;
+  --theme-bg-container: #ffffff;
+  --theme-bg-content: #3d3d3d;
+  --theme-bg-content-rgb: 61, 61, 61;
+  --theme-border-container: #cccccc;
+  --theme-border-object: #333333;
+  --theme-shadow-object: rgba(0, 0, 0, 0.3);
+
+  /* === ✨ ESTILOS GLOBAIS DOS OBJETOS === */
+  --object-border-radius-factor: 0.2;
+  --object-border-width-factor: 0.05;
+  --object-shadow-size-factor: 0.08;
+  --object-hover-scale-factor: 1.1;
+  --object-hover-brightness-factor: 1.2;
+
+  /* === 🔮 CONTROLES DO EFEITO GLASSMORPHISM === */
+  --object-bg-alpha: 0.25; /* Opacidade do fundo do objeto (0 a 1) */
+  --object-backdrop-blur-px: 10px; /* Intensidade do desfoque (em pixels) */
+  --object-backdrop-saturate-percent: 120%; /* Saturação do fundo (ex: 180%) */
+  --object-backdrop-brightness-percent: 80%; /* Brilho do fundo (ex: 80%) */
+
+  /* === 🎨 PALETA DE CORES PARA OBJETOS (em formato RGB para transparência) === */
+  --color-1-rgb: 230, 25, 75;   /* Vermelho */
+  --color-2-rgb: 60, 180, 75;   /* Verde */
+  --color-3-rgb: 255, 225, 25;  /* Amarelo */
+  --color-4-rgb: 67, 99, 216;   /* Azul */
+  --color-5-rgb: 245, 130, 49;  /* Laranja */
+  --color-6-rgb: 145, 30, 180;  /* Roxo */
+  --color-7-rgb: 70, 240, 240;  /* Ciano */
+  --color-8-rgb: 240, 50, 230;  /* Magenta */
+  --color-9-rgb: 188, 246, 12;  /* Lima */
+  --color-10-rgb: 250, 190, 190;/* Rosa Claro */
+  --color-11-rgb: 0, 128, 128;  /* Teal */
+  --color-12-rgb: 230, 190, 255;/* Lavanda */
+  --color-13-rgb: 154, 99, 36;  /* Marrom */
+  --color-14-rgb: 255, 250, 200;/* Bege */
+  --color-15-rgb: 128, 0, 0;    /* Marsala */
+
+  /* === 👁️ CONTROLE DE VISIBILIDADE DOS OBJETOS === */
+  --visibility-top-left: visible;
+  --visibility-top-center-left: visible;
+  --visibility-top-middle: visible;
+  --visibility-top-center-right: visible;
+  --visibility-top-right: visible;
+  --visibility-middle-left: visible;
+  --visibility-center-left: visible;
+  --visibility-middle-middle: visible;
+  --visibility-center-right: visible;
+  --visibility-middle-right: visible;
+  --visibility-bottom-left: visible;
+  --visibility-bottom-center-left: visible;
+  --visibility-bottom-middle: visible;
+  --visibility-bottom-center-right: visible;
+  --visibility-bottom-right: visible;
+
+  /* === 🎨 ASSOCIAÇÃO DE CORES (RGB) PARA CADA OBJETO === */
+  --object-top-left-color-rgb: var(--color-1-rgb);
+  --object-top-center-left-color-rgb: var(--color-2-rgb);
+  --object-top-middle-color-rgb: var(--color-3-rgb);
+  --object-top-center-right-color-rgb: var(--color-4-rgb);
+  --object-top-right-color-rgb: var(--color-5-rgb);
+  --object-middle-left-color-rgb: var(--color-6-rgb);
+  --object-center-left-color-rgb: var(--color-7-rgb);
+  --object-middle-middle-color-rgb: var(--color-8-rgb);
+  --object-center-right-color-rgb: var(--color-9-rgb);
+  --object-middle-right-color-rgb: var(--color-10-rgb);
+  --object-bottom-left-color-rgb: var(--color-11-rgb);
+  --object-bottom-center-left-color-rgb: var(--color-12-rgb);
+  --object-bottom-middle-color-rgb: var(--color-13-rgb);
+  --object-bottom-center-right-color-rgb: var(--color-14-rgb);
+  --object-bottom-right-color-rgb: var(--color-15-rgb);
 
   /* === 🎯 CONFIGURAÇÃO DE TAMANHO, ORIENTAÇÃO E PROPORÇÃO PARA CADA OBJETO === */
   /* Para cada objeto:
@@ -68,61 +141,61 @@
   --object-top-right-aspect-h: 9;
 
   /* --- Objeto: middle-left (6) --- */
-  --object-middle-left-size: 5;
+  --object-middle-left-size: 15;
   --object-middle-left-orientation-is-landscape: 0; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
   --object-middle-left-aspect-w: 3;
   --object-middle-left-aspect-h: 4;
 
   /* --- Objeto: center-left (7) --- */
-  --object-center-left-size: 5;
+  --object-center-left-size: 15;
   --object-center-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Quadrado) */
   --object-center-left-aspect-w: 1;
   --object-center-left-aspect-h: 1;
 
   /* --- Objeto: middle-middle (8) --- */
-  --object-middle-middle-size: 8; /* Maior */
+  --object-middle-middle-size: 15; /* Maior */
   --object-middle-middle-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
   --object-middle-middle-aspect-w: 16;
   --object-middle-middle-aspect-h: 9;
 
   /* --- Objeto: center-right (9) --- */
-  --object-center-right-size: 5;
+  --object-center-right-size: 15;
   --object-center-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato (Exemplo Quadrado) */
   --object-center-right-aspect-w: 1;
   --object-center-right-aspect-h: 1;
 
   /* --- Objeto: middle-right (10) --- */
-  --object-middle-right-size: 5;
+  --object-middle-right-size: 15;
   --object-middle-right-orientation-is-landscape: 0; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
   --object-middle-right-aspect-w: 3;
   --object-middle-right-aspect-h: 4;
 
   /* --- Objeto: bottom-left (11) --- */
-  --object-bottom-left-size: 5;
+  --object-bottom-left-size: 15;
   --object-bottom-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
   --object-bottom-left-aspect-w: 16;
   --object-bottom-left-aspect-h: 9;
 
   /* --- Objeto: bottom-center-left (12) --- */
-  --object-bottom-center-left-size: 5;
+  --object-bottom-center-left-size: 15;
   --object-bottom-center-left-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
   --object-bottom-center-left-aspect-w: 16;
   --object-bottom-center-left-aspect-h: 9;
 
   /* --- Objeto: bottom-middle (13) --- */
-  --object-bottom-middle-size: 5;
+  --object-bottom-middle-size: 15;
   --object-bottom-middle-orientation-is-landscape: 0; /* 1 para Paisagem, 0 para Retrato (Exemplo Retrato) */
   --object-bottom-middle-aspect-w: 9;
   --object-bottom-middle-aspect-h: 16;
 
   /* --- Objeto: bottom-center-right (14) --- */
-  --object-bottom-center-right-size: 5;
+  --object-bottom-center-right-size: 15;
   --object-bottom-center-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
   --object-bottom-center-right-aspect-w: 16;
   --object-bottom-center-right-aspect-h: 9;
 
   /* --- Objeto: bottom-right (15) --- */
-  --object-bottom-right-size: 5;
+  --object-bottom-right-size: 15;
   --object-bottom-right-orientation-is-landscape: 1; /* 1 para Paisagem, 0 para Retrato */
   --object-bottom-right-aspect-w: 16;
   --object-bottom-right-aspect-h: 9;
@@ -261,19 +334,21 @@
 html, body {
   height: 100%;
   overflow: hidden; /* Impede scroll no body */
+  background-color: var(--theme-bg-body);
 }
 
 body {
   margin: var(--container-margin);
+  background-image: url('1357899.png');
 }
 
 /* Container principal */
 .container {
   width: calc(100vw - var(--double-margin));
   height: calc(100vh - var(--double-margin));
-  border: var(--container-border) solid #333;
+  border: var(--container-border) solid var(--theme-border-container);
   overflow: hidden;
-  background-color: #f0f0f0;
+  background-color: var(--theme-bg-container);
 }
 
 .content {
@@ -281,7 +356,9 @@ body {
   height: 100%;
   overflow: auto;
   padding: calc(2vw + 1vh); /* Padding responsivo */
-  background-color: white;
+  background-color: rgba(var(--theme-bg-content-rgb), var(--object-bg-alpha));
+  -webkit-backdrop-filter: blur(var(--object-backdrop-blur-px)) saturate(var(--object-backdrop-saturate-percent)) brightness(var(--object-backdrop-brightness-percent));
+  backdrop-filter: blur(var(--object-backdrop-blur-px)) saturate(var(--object-backdrop-saturate-percent)) brightness(var(--object-backdrop-brightness-percent));
 }
 
 /* Estilo base para todos os objetos */
@@ -289,187 +366,163 @@ body {
   position: fixed; /* Fixed para posicionar relativo à viewport */
   transition: all 0.3s ease;
   z-index: 1000; /* Acima do container */
+  /* Estilos de texto e centralização removidos para permitir conteúdo interno. */
 
-  /* Centralização do número */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* Estilo do texto responsivo */
-  font-family: 'Arial', sans-serif;
-  font-weight: bold;
-  color: #333;
-  user-select: none; /* Impede seleção do texto */
+  /* Efeito Glassmorphism */
+  -webkit-backdrop-filter: blur(var(--object-backdrop-blur-px)) saturate(var(--object-backdrop-saturate-percent)) brightness(var(--object-backdrop-brightness-percent));
+  backdrop-filter: blur(var(--object-backdrop-blur-px)) saturate(var(--object-backdrop-saturate-percent)) brightness(var(--object-backdrop-brightness-percent));
 }
 
-/* 🎯 ESTILOS INDIVIDUAIS COM TAMANHOS ESPECÍFICOS E PROPORCIONAIS */
+/* 🎯 ESTILOS INDIVIDUAIS - CONECTADOS ÀS VARIÁVEIS GLOBAIS */
 
-/* Linha Superior */
 #top-left {
-  background: #e6194B;
   width: var(--final-width-top-left);
   height: var(--final-height-top-left);
-  border: max(calc(var(--smaller-dim-top-left) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-top-left) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-top-left) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-top-left) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-top-left) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-top-left) * 0.02), 1px) max(calc(var(--smaller-dim-top-left) * 0.02), 1px) max(calc(var(--smaller-dim-top-left) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-top-left);
+  background-color: rgba(var(--object-top-left-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-top-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-top-left) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-top-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #top-center-left {
-  background: #3cb44b;
   width: var(--final-width-top-center-left);
   height: var(--final-height-top-center-left);
-  border: max(calc(var(--smaller-dim-top-center-left) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-top-center-left) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-top-center-left) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-top-center-left) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-top-center-left) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-top-center-left) * 0.02), 1px) max(calc(var(--smaller-dim-top-center-left) * 0.02), 1px) max(calc(var(--smaller-dim-top-center-left) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-top-center-left);
+  background-color: rgba(var(--object-top-center-left-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-top-center-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-top-center-left) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-top-center-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-center-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #top-middle {
-  background: #ffe119;
   width: var(--final-width-top-middle);
   height: var(--final-height-top-middle);
-  border: max(calc(var(--smaller-dim-top-middle) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-top-middle) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-top-middle) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-top-middle) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-top-middle) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-top-middle) * 0.02), 1px) max(calc(var(--smaller-dim-top-middle) * 0.02), 1px) max(calc(var(--smaller-dim-top-middle) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-top-middle);
+  background-color: rgba(var(--object-top-middle-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-top-middle) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-top-middle) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-top-middle) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-middle) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #top-center-right {
-  background: #4363d8;
   width: var(--final-width-top-center-right);
   height: var(--final-height-top-center-right);
-  border: max(calc(var(--smaller-dim-top-center-right) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-top-center-right) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-top-center-right) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-top-center-right) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-top-center-right) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-top-center-right) * 0.02), 1px) max(calc(var(--smaller-dim-top-center-right) * 0.02), 1px) max(calc(var(--smaller-dim-top-center-right) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-top-center-right);
+  background-color: rgba(var(--object-top-center-right-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-top-center-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-top-center-right) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-top-center-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-center-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #top-right {
-  background: #f58231;
   width: var(--final-width-top-right);
   height: var(--final-height-top-right);
-  border: max(calc(var(--smaller-dim-top-right) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-top-right) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-top-right) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-top-right) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-top-right) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-top-right) * 0.02), 1px) max(calc(var(--smaller-dim-top-right) * 0.02), 1px) max(calc(var(--smaller-dim-top-right) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-top-right);
+  background-color: rgba(var(--object-top-right-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-top-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-top-right) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-top-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
-/* Linha Central */
 #middle-left {
-  background: #911eb4;
   width: var(--final-width-middle-left);
   height: var(--final-height-middle-left);
-  border: max(calc(var(--smaller-dim-middle-left) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-middle-left) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-middle-left) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-middle-left) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-middle-left) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-middle-left) * 0.02), 1px) max(calc(var(--smaller-dim-middle-left) * 0.02), 1px) max(calc(var(--smaller-dim-middle-left) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-middle-left);
+  background-color: rgba(var(--object-middle-left-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-middle-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-middle-left) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-middle-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-middle-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #center-left {
-  background: #46f0f0;
   width: var(--final-width-center-left);
   height: var(--final-height-center-left);
-  border: max(calc(var(--smaller-dim-center-left) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-center-left) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-center-left) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-center-left) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-center-left) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-center-left) * 0.02), 1px) max(calc(var(--smaller-dim-center-left) * 0.02), 1px) max(calc(var(--smaller-dim-center-left) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-center-left);
+  background-color: rgba(var(--object-center-left-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-center-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-center-left) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-center-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-center-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #middle-middle {
-  background: #f032e6;
   width: var(--final-width-middle-middle);
   height: var(--final-height-middle-middle);
-  border: max(calc(var(--smaller-dim-middle-middle) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-middle-middle) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-middle-middle) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-middle-middle) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-middle-middle) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-middle-middle) * 0.02), 1px) max(calc(var(--smaller-dim-middle-middle) * 0.02), 1px) max(calc(var(--smaller-dim-middle-middle) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-middle-middle);
+  background-color: rgba(var(--object-middle-middle-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-middle-middle) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-middle-middle) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-middle-middle) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-middle-middle) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #center-right {
-  background: #bcf60c;
   width: var(--final-width-center-right);
   height: var(--final-height-center-right);
-  border: max(calc(var(--smaller-dim-center-right) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-center-right) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-center-right) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-center-right) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-center-right) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-center-right) * 0.02), 1px) max(calc(var(--smaller-dim-center-right) * 0.02), 1px) max(calc(var(--smaller-dim-center-right) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-center-right);
+  background-color: rgba(var(--object-center-right-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-center-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-center-right) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-center-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-center-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #middle-right {
-  background: #fabebe;
   width: var(--final-width-middle-right);
   height: var(--final-height-middle-right);
-  border: max(calc(var(--smaller-dim-middle-right) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-middle-right) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-middle-right) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-middle-right) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-middle-right) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-middle-right) * 0.02), 1px) max(calc(var(--smaller-dim-middle-right) * 0.02), 1px) max(calc(var(--smaller-dim-middle-right) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-middle-right);
+  background-color: rgba(var(--object-middle-right-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-middle-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-middle-right) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-middle-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-middle-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
-/* Linha Inferior */
 #bottom-left {
-  background: #008080;
   width: var(--final-width-bottom-left);
   height: var(--final-height-bottom-left);
-  border: max(calc(var(--smaller-dim-bottom-left) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-bottom-left) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-bottom-left) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-left) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-bottom-left) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-bottom-left) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-left) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-left) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-bottom-left);
+  background-color: rgba(var(--object-bottom-left-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-bottom-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-bottom-left) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-bottom-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #bottom-center-left {
-  background: #e6beff;
   width: var(--final-width-bottom-center-left);
   height: var(--final-height-bottom-center-left);
-  border: max(calc(var(--smaller-dim-bottom-center-left) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-bottom-center-left) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-bottom-center-left) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-center-left) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-bottom-center-left) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-bottom-center-left) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-center-left) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-center-left) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-bottom-center-left);
+  background-color: rgba(var(--object-bottom-center-left-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-bottom-center-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-bottom-center-left) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-bottom-center-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-center-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #bottom-middle {
-  background: #9a6324;
   width: var(--final-width-bottom-middle);
   height: var(--final-height-bottom-middle);
-  border: max(calc(var(--smaller-dim-bottom-middle) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-bottom-middle) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-bottom-middle) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-middle) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-bottom-middle) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-bottom-middle) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-middle) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-middle) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-bottom-middle);
+  background-color: rgba(var(--object-bottom-middle-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-bottom-middle) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-bottom-middle) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-bottom-middle) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-middle) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #bottom-center-right {
-  background: #fffac8;
   width: var(--final-width-bottom-center-right);
   height: var(--final-height-bottom-center-right);
-  border: max(calc(var(--smaller-dim-bottom-center-right) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-bottom-center-right) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-bottom-center-right) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-center-right) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-bottom-center-right) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-bottom-center-right) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-center-right) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-center-right) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-bottom-center-right);
+  background-color: rgba(var(--object-bottom-center-right-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-bottom-center-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-bottom-center-right) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-bottom-center-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-center-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 #bottom-right {
-  background: #800000;
   width: var(--final-width-bottom-right);
   height: var(--final-height-bottom-right);
-  border: max(calc(var(--smaller-dim-bottom-right) * 0.05), var(--min-border)) solid #333;
-  border-radius: max(calc(var(--smaller-dim-bottom-right) * 0.2), var(--min-border-radius));
-  box-shadow: 0 max(calc(var(--smaller-dim-bottom-right) * 0.08), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-right) * 0.15), calc(var(--min-shadow) * 2)) rgba(0, 0, 0, 0.3);
-  font-size: max(calc(var(--smaller-dim-bottom-right) * 0.3), var(--min-font-size));
-  text-shadow: max(calc(var(--smaller-dim-bottom-right) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-right) * 0.02), 1px) max(calc(var(--smaller-dim-bottom-right) * 0.04), 2px) rgba(255, 255, 255, 0.8);
+  visibility: var(--visibility-bottom-right);
+  background-color: rgba(var(--object-bottom-right-color-rgb), var(--object-bg-alpha));
+  border: max(calc(var(--smaller-dim-bottom-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
+  border-radius: max(calc(var(--smaller-dim-bottom-right) * var(--object-border-radius-factor)), var(--min-border-radius));
+  box-shadow: 0 max(calc(var(--smaller-dim-bottom-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
 }
 
 

@@ -299,7 +299,6 @@ export const useLayoutManager = () => {
 
   return {
     elements,
-    setElements,
     selectedElementId,
     selectedElement,
     rootElementIds,
