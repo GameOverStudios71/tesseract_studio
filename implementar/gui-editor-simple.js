@@ -396,6 +396,137 @@ document.addEventListener('DOMContentLoaded', function() {
       guiContent.style.display === 'none' ? 'block' : 'none';
   });
 
+  // === FUNCIONALIDADE DE DRAG ===
+  let isDragging = false;
+  let dragOffset = { x: 0, y: 0 };
+
+  // Função para iniciar o drag
+  function startDrag(e) {
+    isDragging = true;
+    const rect = panel.getBoundingClientRect();
+    dragOffset.x = e.clientX - rect.left;
+    dragOffset.y = e.clientY - rect.top;
+
+    // Adicionar classe de dragging para cursor
+    document.body.style.cursor = 'grabbing';
+    panel.style.cursor = 'grabbing';
+
+    // Prevenir seleção de texto
+    e.preventDefault();
+  }
+
+  // Função para mover o painel
+  function drag(e) {
+    if (!isDragging) return;
+
+    const x = e.clientX - dragOffset.x;
+    const y = e.clientY - dragOffset.y;
+
+    // Limitar às bordas da janela
+    const maxX = window.innerWidth - panel.offsetWidth;
+    const maxY = window.innerHeight - panel.offsetHeight;
+
+    const boundedX = Math.max(0, Math.min(x, maxX));
+    const boundedY = Math.max(0, Math.min(y, maxY));
+
+    panel.style.left = boundedX + 'px';
+    panel.style.top = boundedY + 'px';
+  }
+
+  // Função para parar o drag
+  function stopDrag() {
+    if (!isDragging) return;
+
+    isDragging = false;
+    document.body.style.cursor = '';
+    panel.style.cursor = '';
+  }
+
+  // Event listeners para drag (mouse)
+  const panelHeader = document.querySelector('.panel-header');
+
+  panelHeader.addEventListener('mousedown', startDrag);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', stopDrag);
+
+  // Event listeners para drag (touch)
+  panelHeader.addEventListener('touchstart', function(e) {
+    const touch = e.touches[0];
+    startDrag({
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      preventDefault: () => e.preventDefault()
+    });
+  });
+
+  document.addEventListener('touchmove', function(e) {
+    if (isDragging) {
+      const touch = e.touches[0];
+      drag({
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      e.preventDefault();
+    }
+  });
+
+  document.addEventListener('touchend', stopDrag);
+
+  // Prevenir drag quando clicar no botão toggle
+  toggleBtn.addEventListener('mousedown', function(e) {
+    e.stopPropagation();
+  });
+
+  toggleBtn.addEventListener('touchstart', function(e) {
+    e.stopPropagation();
+  });
+
+  // === SALVAR/CARREGAR POSIÇÃO ===
+  // Carregar posição salva
+  function loadPanelPosition() {
+    const savedPosition = localStorage.getItem('gui-panel-position');
+    if (savedPosition) {
+      const { x, y } = JSON.parse(savedPosition);
+
+      // Verificar se a posição ainda é válida (janela pode ter mudado de tamanho)
+      const maxX = window.innerWidth - panel.offsetWidth;
+      const maxY = window.innerHeight - panel.offsetHeight;
+
+      const boundedX = Math.max(0, Math.min(x, maxX));
+      const boundedY = Math.max(0, Math.min(y, maxY));
+
+      panel.style.left = boundedX + 'px';
+      panel.style.top = boundedY + 'px';
+    }
+  }
+
+  // Salvar posição
+  function savePanelPosition() {
+    const rect = panel.getBoundingClientRect();
+    const position = {
+      x: rect.left,
+      y: rect.top
+    };
+    localStorage.setItem('gui-panel-position', JSON.stringify(position));
+  }
+
+  // Atualizar função stopDrag para salvar posição
+  const originalStopDrag = stopDrag;
+  stopDrag = function() {
+    originalStopDrag();
+    if (isDragging) {
+      savePanelPosition();
+    }
+  };
+
+  // Carregar posição ao inicializar
+  setTimeout(loadPanelPosition, 100);
+
+  // Salvar posição quando a janela for redimensionada
+  window.addEventListener('resize', function() {
+    setTimeout(loadPanelPosition, 100);
+  });
+
   // Inicializar o painel
   guiContent.style.display = 'block';
 });
