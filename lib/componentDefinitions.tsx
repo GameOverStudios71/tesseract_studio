@@ -58,12 +58,13 @@ const getComponentElementDefaultProps = (type: ElementType, overrides: Partial<E
 export interface PredefinedComponent {
   key: string;
   name: string;
+  type: 'generative' | 'template';
   description: string;
-  visualPreview?: () => React.JSX.Element; // Changed type from React.FC
-  generate: (startIdNum: number, parentIdToAttach: string | null) => {
-    elements: Record<string, LayoutElement>; // All generated elements keyed by their new ID
-    rootId: string; // The ID of the top-level element of this component
-    nextIdNum: number; // The next available ID number
+  visualPreview?: () => React.JSX.Element;
+  generate?: (startIdNum: number, parentIdToAttach: string | null) => {
+    elements: Record<string, LayoutElement>;
+    rootId: string;
+    nextIdNum: number;
   };
 }
 
@@ -75,7 +76,25 @@ const getElementNameForComponent = (baseName: string, type: ElementType, instanc
 
 export const PREDEFINED_COMPONENTS: PredefinedComponent[] = [
   {
+    key: 'ADAPTIVE_GRID_TEMPLATE',
+    type: 'template',
+    name: 'Adaptive Grid Template',
+    description: 'A responsive grid of objects surrounding a central content area.',
+    visualPreview: () => (
+      <div className="w-full h-20 border border-slate-300 p-1 bg-slate-100 rounded shadow-sm text-[10px] leading-tight relative">
+        <div className="absolute top-1 left-1 w-3 h-3 bg-red-300 rounded-sm"></div>
+        <div className="absolute top-1 right-1 w-3 h-3 bg-orange-300 rounded-sm"></div>
+        <div className="absolute bottom-1 left-1 w-3 h-3 bg-teal-300 rounded-sm"></div>
+        <div className="absolute bottom-1 right-1 w-3 h-3 bg-purple-300 rounded-sm"></div>
+        <div className="absolute inset-4 border border-dashed border-slate-400 bg-slate-200 flex items-center justify-center text-slate-500">
+          Content
+        </div>
+      </div>
+    ),
+  },
+  {
     key: 'INFO_CARDS_SECTION',
+    type: 'generative',
     name: 'Info Cards Section',
     description: 'Container with a header and three content cards.',
     visualPreview: () => (

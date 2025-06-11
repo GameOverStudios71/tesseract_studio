@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { LayoutElement, ElementType, ElementProps, Spacing, ContainerSpecificProps, RowSpecificProps, ColSpecificProps, ControlSpecificProps, AllElementPropKeys, PredefinedComponentKey } from '../types';
+import { LayoutElement, ElementType, ElementProps, Spacing, ContainerSpecificProps, RowSpecificProps, ColSpecificProps, ControlSpecificProps, AllElementPropKeys, PredefinedComponentKey, TemplateProps } from '../types';
 import { PREDEFINED_COMPONENTS } from '../lib/componentDefinitions.tsx';
 
 
@@ -50,6 +50,12 @@ const getDefaultProps = (type: ElementType): Partial<ElementProps> => {
         minHeight: 'auto',
         padding: { ...initialSpacing, top: '2', right: '3', bottom: '2', left: '3' },
       } as Partial<ControlSpecificProps & typeof common>;
+    case 'template':
+      return {
+        ...common,
+        templateKey: '' as PredefinedComponentKey,
+        minHeight: '200px',
+      } as Partial<TemplateProps & typeof common>;
     default:
       return common;
   }
@@ -72,7 +78,7 @@ export const useLayoutManager = () => {
     setNextIdNum(prev => prev + 1);
 
     const controlProps = {
-      ...getDefaultProps('control', parentId),
+      ...getDefaultProps('control'),
       controlType: controlData.id,
       ...controlData.defaultProps
     };
@@ -145,28 +151,59 @@ export const useLayoutManager = () => {
       return;
     }
 
-    // Generate the component elements. parentIdToAttach is null for root components for now.
-    // If targetParentId is provided and valid, future logic could attach it there.
-    // For this iteration, components are added as root elements.
-    const { elements: newComponentElements, rootId: newComponentRootId, nextIdNum: updatedNextIdNum } = 
-        componentDefinition.generate(nextIdNum, null /* parentIdToAttach */);
+    if (componentDefinition.type === 'template') {
+      const newId = `el-${nextIdNum}`;
+      setNextIdNum(prev => prev + 1);
 
-    setElements(prevElements => ({
-      ...prevElements,
-      ...newComponentElements,
-      // If targetParentId logic was implemented:
-      // ...(targetParentId && prevElements[targetParentId] && {
-      //   [targetParentId]: {
-      //     ...prevElements[targetParentId],
-      //     children: [...prevElements[targetParentId].children, newComponentRootId],
-      //   },
-      // }),
-    }));
-    
-    setNextIdNum(updatedNextIdNum);
-    setSelectedElementId(newComponentRootId); // Select the root of the newly added component
-  }, [nextIdNum, getElementName]);
+      const newElement: LayoutElement = {
+        id: newId,
+        type: 'template',
+        name: componentDefinition.name,
+        parentId: targetParentId,
+        children: [],
+        props: {
+          ...getDefaultProps('template'),
+          templateKey: componentKey,
+        },
+      };
 
+      setElements(prevElements => {
+        const updatedElements = { ...prevElements, [newId]: newElement };
+        if (targetParentId && updatedElements[targetParentId]) {
+          updatedElements[targetParentId] = {
+            ...updatedElements[targetParentId],
+            children: [...updatedElements[targetParentId].children, newId],
+          };
+        }
+        return updatedElements;
+      });
+      setSelectedElementId(newId);
+
+    } else if (componentDefinition.type === 'generative' && componentDefinition.generate) {
+      const { elements: newComponentElements, rootId: newComponentRootId, nextIdNum: updatedNextIdNum } = 
+          componentDefinition.generate(nextIdNum, targetParentId);
+
+      setElements(prevElements => {
+        const updatedElements = {
+          ...prevElements,
+          ...newComponentElements,
+        };
+        
+        if (targetParentId && updatedElements[targetParentId] && !updatedElements[targetParentId].children.includes(newComponentRootId)) {
+          updatedElements[targetParentId] = {
+            ...updatedElements[targetParentId],
+            children: [...updatedElements[targetParentId].children, newComponentRootId],
+          };
+        }
+        return updatedElements;
+      });
+      
+      setNextIdNum(updatedNextIdNum);
+      setSelectedElementId(newComponentRootId);
+    } else {
+        console.error(`Component with key "${componentKey}" is misconfigured.`);
+    }
+  }, [nextIdNum]);
 
   const updateElementProps = useCallback((id: string, newProps: Partial<ElementProps>) => {
     setElements(prevElements => {

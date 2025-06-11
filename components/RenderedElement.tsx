@@ -1,7 +1,7 @@
-
 import React from 'react';
-import { LayoutElement, ElementProps, ContainerProps, RowProps, ColProps, ControlProps, Spacing } from '../types';
+import { LayoutElement, ContainerProps, RowProps, ColProps, ControlProps, TemplateProps } from '../types';
 import { Container, Row, Col, Control } from './elements';
+import AdaptiveGridTemplate from './templates/AdaptiveGridTemplate';
 
 interface RenderedElementProps {
   element: LayoutElement;
@@ -10,15 +10,13 @@ interface RenderedElementProps {
   selectedElementId: string | null;
 }
 
-
-
 const RenderedElement: React.FC<RenderedElementProps> = ({
   element,
   allElements,
   onSelectElement,
   selectedElementId
 }) => {
-  const { id, type, props, children, name } = element;
+  const { id, type, props, children } = element;
   const isSelected = selectedElementId === id;
 
   // Render children elements
@@ -84,6 +82,40 @@ const RenderedElement: React.FC<RenderedElementProps> = ({
           {childElements}
         </Control>
       );
+
+    case 'template': {
+      const templateProps = props as Partial<TemplateProps>;
+      // A simple wrapper to handle selection, as the template itself is self-contained.
+      const wrapperClasses = [
+        'relative',
+        'p-1',
+        isSelected ? 'outline-2 outline-dashed outline-blue-500' : 'outline-2 outline-dashed outline-transparent hover:outline-gray-300'
+      ].join(' ');
+
+      const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onSelectElement(id);
+      };
+
+      return (
+        <div
+          id={id}
+          onClick={handleClick}
+          className={wrapperClasses}
+          style={{ 
+            minHeight: templateProps.minHeight, 
+            width: '100%', 
+            height: '100%'
+          }}
+        >
+          {templateProps.templateKey === 'ADAPTIVE_GRID_TEMPLATE' ? (
+            <AdaptiveGridTemplate />
+          ) : (
+            <div className="text-red-500">Unknown Template: {templateProps.templateKey}</div>
+          )}
+        </div>
+      );
+    }
 
     default:
       // Fallback for unknown types

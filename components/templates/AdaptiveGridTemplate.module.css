@@ -1,0 +1,96 @@
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: sans-serif;
+  background-color: #f0f0f0;
+
+  --component-width: var(--component-width-val, 1000px);
+  --component-height: var(--component-height-val, 800px);
+  --component-vmin: min(var(--component-width), var(--component-height));
+
+  --container-margin-percent: 3;
+  --container-border-percent: 1;
+  --min-object-size-px: 25px;
+  --min-border: 1px;
+
+  --container-margin: calc(var(--container-margin-percent) * var(--component-vmin) / 100);
+  --container-border: calc(var(--container-border-percent) * var(--component-vmin) / 100);
+  --double-margin: calc(var(--container-margin) * 2);
+  --double-border: calc(var(--container-border) * 2);
+  --half-border: calc(var(--container-border) / 2);
+  --container-inner-width: calc(var(--component-vmin) - var(--double-margin) - var(--double-border));
+
+}
+
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(var(--component-vmin) - var(--double-margin));
+  height: calc(var(--component-vmin) - var(--double-margin));
+  border: max(var(--min-border), var(--container-border)) solid rgba(204, 204, 204, 0.6);
+  border-radius: max(0px, var(--half-border));
+  background-color: #ffffff;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.content {
+  position: absolute;
+  inset: max(var(--min-border), var(--container-border));
+  background-color: #3d3d3d;
+  background-image: linear-gradient(rgba(61, 61, 61, 0.95), rgba(61, 61, 61, 0.95)),
+    url('https://source.unsplash.com/random/1920x1080?space');
+  background-size: cover;
+  background-position: center;
+  overflow: auto;
+  color: white;
+  padding: 20px;
+}
+
+.object {
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+  transform: var(--transform-base) scale(var(--transform-scale, 1));
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform, filter, width, height;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  visibility: var(--visibility, visible);
+  background-color: rgba(var(--color-rgb, 255, 255, 255), 0.25);
+  backdrop-filter: blur(10px) saturate(120%) brightness(80%);
+  border-radius: max(0px, calc(var(--base-size) * 0.2));
+  border: max(var(--min-border), calc(var(--base-size) * 0.05)) solid rgba(204, 204, 204, 0.7);
+  box-shadow: 0 0 max(2px, calc(var(--base-size) * 0.08)) rgba(0, 0, 0, 0.6);
+  width: max(var(--min-object-size-px), var(--w));
+  height: max(var(--min-object-size-px), var(--h));
+}
+
+.object:hover {
+  --transform-scale: 1.1;
+  filter: brightness(1.2);
+  z-index: 100;
+}
+
+.topLeft { --color-rgb: 230, 25, 75; top: 0; left: 0; --transform-base: translate(0, 0); }
+.topCenterLeft { --color-rgb: 60, 180, 75; top: 0; left: 25%; --transform-base: translate(-50%, 0); }
+.topMiddle { --color-rgb: 255, 225, 25; top: 0; left: 50%; --transform-base: translate(-50%, 0); }
+.topCenterRight { --color-rgb: 67, 99, 216; top: 0; left: 75%; --transform-base: translate(-50%, 0); }
+.topRight { --color-rgb: 245, 130, 49; top: 0; right: 0; left: auto; --transform-base: translate(0, 0); }
+
+.middleLeft { --color-rgb: 145, 30, 180; top: 50%; left: 0; --transform-base: translate(0, -50%); }
+.centerLeft { --color-rgb: 70, 240, 240; top: 50%; left: 25%; --transform-base: translate(-50%, -50%); }
+.middleMiddle { --color-rgb: 240, 50, 230; top: 50%; left: 50%; --transform-base: translate(-50%, -50%); }
+.centerRight { --color-rgb: 188, 246, 12; top: 50%; left: 75%; --transform-base: translate(-50%, -50%); }
+.middleRight { --color-rgb: 250, 190, 190; top: 50%; right: 0; left: auto; --transform-base: translate(0, -50%); }
+
+.bottomLeft { --color-rgb: 0, 128, 128; bottom: 0; top: auto; left: 0; --transform-base: translate(0, 0); }
+.bottomCenterLeft { --color-rgb: 230, 190, 255; bottom: 0; top: auto; left: 25%; --transform-base: translate(-50%, 0); }
+.bottomMiddle { --color-rgb: 154, 99, 36; bottom: 0; top: auto; left: 50%; --transform-base: translate(-50%, 0); }
+.bottomCenterRight { --color-rgb: 255, 250, 200; bottom: 0; top: auto; left: 75%; --transform-base: translate(-50%, 0); }
+.bottomRight { --color-rgb: 128, 0, 0; bottom: 0; top: auto; right: 0; left: auto; --transform-base: translate(0, 0); }

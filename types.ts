@@ -1,4 +1,4 @@
-export type ElementType = 'container' | 'row' | 'col' | 'control';
+export type ElementType = 'container' | 'row' | 'col' | 'control' | 'template';
 
 export interface Spacing {
   top: string;
@@ -60,7 +60,12 @@ export interface ControlSpecificProps {
 }
 export type ControlProps = CommonProps & ControlSpecificProps;
 
-export type ElementProps = ContainerProps | RowProps | ColProps | ControlProps;
+export interface TemplateSpecificProps {
+  templateKey: PredefinedComponentKey;
+}
+export type TemplateProps = CommonProps & TemplateSpecificProps;
+
+export type ElementProps = ContainerProps | RowProps | ColProps | ControlProps | TemplateProps;
 
 export interface LayoutElement {
   id: string;
@@ -81,4 +86,4 @@ export type ControlSpecificPropKeys = keyof ControlSpecificProps;
 export type AllElementPropKeys = CommonPropKeys | ContainerSpecificPropKeys | RowSpecificPropKeys | ColSpecificPropKeys | ControlSpecificPropKeys;
 
 // Type for predefined component keys
-export type PredefinedComponentKey = 'INFO_CARDS_SECTION' | string; // Allow for more keys
+export type PredefinedComponentKey = 'INFO_CARDS_SECTION' | 'ADAPTIVE_GRID_TEMPLATE' | string; // Allow for more keys
