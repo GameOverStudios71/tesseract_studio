@@ -42,11 +42,30 @@ document.addEventListener('DOMContentLoaded', function() {
   function createControl(container, label, id, type, min, max, step, defaultValue, unit = '', cssVar = null) {
     const div = document.createElement('div');
     div.className = 'config-item';
-    
+
     const labelEl = document.createElement('label');
     labelEl.htmlFor = id;
     labelEl.textContent = label;
-    
+
+    // Container para os controles do slider
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'slider-controls';
+
+    // Botão MIN
+    const minBtn = document.createElement('button');
+    minBtn.type = 'button';
+    minBtn.className = 'range-btn min-btn';
+    minBtn.textContent = 'MIN';
+    minBtn.title = 'Definir valor mínimo';
+
+    // Input para valor mínimo
+    const minInput = document.createElement('input');
+    minInput.type = 'number';
+    minInput.className = 'range-input min-input';
+    minInput.value = min;
+    minInput.title = 'Valor mínimo do slider';
+    minInput.step = step;
+
     const input = document.createElement('input');
     input.type = type;
     input.id = id;
@@ -54,24 +73,96 @@ document.addEventListener('DOMContentLoaded', function() {
     input.max = max;
     input.step = step;
     input.value = defaultValue;
-    
+
+    // Input para valor máximo
+    const maxInput = document.createElement('input');
+    maxInput.type = 'number';
+    maxInput.className = 'range-input max-input';
+    maxInput.value = max;
+    maxInput.title = 'Valor máximo do slider';
+    maxInput.step = step;
+
+    // Botão MAX
+    const maxBtn = document.createElement('button');
+    maxBtn.type = 'button';
+    maxBtn.className = 'range-btn max-btn';
+    maxBtn.textContent = 'MAX';
+    maxBtn.title = 'Definir valor máximo';
+
     const display = document.createElement('span');
     display.className = 'value-display';
     display.textContent = defaultValue;
-    
-    // Event listener para atualizar CSS e display
+
+    // Event listeners
     input.addEventListener('input', function() {
       display.textContent = this.value;
       if (cssVar) {
         updateCSSVariable(cssVar, this.value, unit);
       }
     });
-    
+
+    // Input MIN - atualiza valor mínimo do slider
+    minInput.addEventListener('input', function() {
+      const newMin = parseFloat(this.value);
+      if (!isNaN(newMin)) {
+        input.min = newMin;
+        // Se o valor atual for menor que o novo mínimo, ajustar
+        if (parseFloat(input.value) < newMin) {
+          input.value = newMin;
+          display.textContent = input.value;
+          if (cssVar) {
+            updateCSSVariable(cssVar, input.value, unit);
+          }
+        }
+      }
+    });
+
+    // Input MAX - atualiza valor máximo do slider
+    maxInput.addEventListener('input', function() {
+      const newMax = parseFloat(this.value);
+      if (!isNaN(newMax)) {
+        input.max = newMax;
+        // Se o valor atual for maior que o novo máximo, ajustar
+        if (parseFloat(input.value) > newMax) {
+          input.value = newMax;
+          display.textContent = input.value;
+          if (cssVar) {
+            updateCSSVariable(cssVar, input.value, unit);
+          }
+        }
+      }
+    });
+
+    // Botão MIN - define valor mínimo
+    minBtn.addEventListener('click', function() {
+      input.value = input.min;
+      display.textContent = input.value;
+      if (cssVar) {
+        updateCSSVariable(cssVar, input.value, unit);
+      }
+    });
+
+    // Botão MAX - define valor máximo
+    maxBtn.addEventListener('click', function() {
+      input.value = input.max;
+      display.textContent = input.value;
+      if (cssVar) {
+        updateCSSVariable(cssVar, input.value, unit);
+      }
+    });
+
+    // Montar os controles
+    controlsContainer.appendChild(minBtn);
+    controlsContainer.appendChild(minInput);
+    controlsContainer.appendChild(input);
+    controlsContainer.appendChild(maxInput);
+    controlsContainer.appendChild(maxBtn);
+
     div.appendChild(labelEl);
-    div.appendChild(input);
+    div.appendChild(controlsContainer);
     div.appendChild(display);
     container.appendChild(div);
-    
+
     return input;
   }
 
