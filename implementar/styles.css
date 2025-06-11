@@ -104,6 +104,23 @@
   --object-bottom-center-right-color-rgb: var(--color-14-rgb);
   --object-bottom-right-color-rgb: var(--color-15-rgb);
 
+  /* === 🎨 IMAGENS PARA CADA OBJETO === */
+  --bg-top-left: url('');
+  --bg-top-center-left: url('');
+  --bg-top-middle: url('');
+  --bg-top-center-right: url('');
+  --bg-top-right: url('');
+  --bg-middle-left: url('');
+  --bg-center-left: url('');
+  --bg-middle-middle: url('');
+  --bg-center-right: url('');
+  --bg-middle-right: url('');
+  --bg-bottom-left: url('');
+  --bg-bottom-center-left: url('');
+  --bg-bottom-middle: url('');
+  --bg-bottom-center-right: url('');
+  --bg-bottom-right: url('');
+
   /* === 🎯 CONFIGURAÇÃO DE TAMANHO, ORIENTAÇÃO E PROPORÇÃO PARA CADA OBJETO === */
   /* Para cada objeto:
      - --object-NAME-size: Percentual (relativo a 1vmin) para a maior dimensão.
@@ -388,6 +405,10 @@ body {
   border: max(calc(var(--smaller-dim-top-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-top-left) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-top-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-top-left);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #top-center-left {
@@ -398,6 +419,10 @@ body {
   border: max(calc(var(--smaller-dim-top-center-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-top-center-left) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-top-center-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-center-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-top-center-left);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #top-middle {
@@ -408,6 +433,10 @@ body {
   border: max(calc(var(--smaller-dim-top-middle) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-top-middle) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-top-middle) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-middle) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-top-middle);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #top-center-right {
@@ -418,6 +447,10 @@ body {
   border: max(calc(var(--smaller-dim-top-center-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-top-center-right) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-top-center-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-center-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-top-center-right);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #top-right {
@@ -428,6 +461,10 @@ body {
   border: max(calc(var(--smaller-dim-top-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-top-right) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-top-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-top-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-top-right);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #middle-left {
@@ -438,6 +475,10 @@ body {
   border: max(calc(var(--smaller-dim-middle-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-middle-left) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-middle-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-middle-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-middle-left);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #center-left {
@@ -448,6 +489,10 @@ body {
   border: max(calc(var(--smaller-dim-center-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-center-left) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-center-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-center-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-center-left);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #middle-middle {
@@ -458,6 +503,10 @@ body {
   border: max(calc(var(--smaller-dim-middle-middle) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-middle-middle) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-middle-middle) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-middle-middle) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-middle-middle);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #center-right {
@@ -468,6 +517,10 @@ body {
   border: max(calc(var(--smaller-dim-center-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-center-right) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-center-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-center-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-center-right);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #middle-right {
@@ -478,6 +531,10 @@ body {
   border: max(calc(var(--smaller-dim-middle-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-middle-right) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-middle-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-middle-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-middle-right);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #bottom-left {
@@ -488,6 +545,10 @@ body {
   border: max(calc(var(--smaller-dim-bottom-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-bottom-left) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-bottom-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-bottom-left);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #bottom-center-left {
@@ -498,6 +559,10 @@ body {
   border: max(calc(var(--smaller-dim-bottom-center-left) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-bottom-center-left) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-bottom-center-left) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-center-left) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-bottom-center-left);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #bottom-middle {
@@ -508,6 +573,10 @@ body {
   border: max(calc(var(--smaller-dim-bottom-middle) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-bottom-middle) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-bottom-middle) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-middle) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-bottom-middle);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #bottom-center-right {
@@ -518,6 +587,10 @@ body {
   border: max(calc(var(--smaller-dim-bottom-center-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-bottom-center-right) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-bottom-center-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-center-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-bottom-center-right);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #bottom-right {
@@ -528,6 +601,10 @@ body {
   border: max(calc(var(--smaller-dim-bottom-right) * var(--object-border-width-factor)), var(--min-border)) solid var(--theme-border-object);
   border-radius: max(calc(var(--smaller-dim-bottom-right) * var(--object-border-radius-factor)), var(--min-border-radius));
   box-shadow: 0 max(calc(var(--smaller-dim-bottom-right) * var(--object-shadow-size-factor)), var(--min-shadow)) max(calc(var(--smaller-dim-bottom-right) * var(--object-shadow-size-factor) * 2), calc(var(--min-shadow) * 2)) var(--theme-shadow-object);
+  background-image: var(--bg-bottom-right);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 
