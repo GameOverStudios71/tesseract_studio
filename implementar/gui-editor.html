@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎛️ Editor Avançado - Grid de Objetos</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos específicos para o GUI Editor */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Menu lateral fixo - similar ao index.html */
+        #gui-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 420px;
+            max-height: 90vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 12px;
+            z-index: 2000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-header {
+            padding: 15px 15px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            border-radius: 12px 12px 0 0;
+            z-index: 1;
+        }
+
+        #gui-panel h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        #toggle-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+            float: right;
+        }
+
+        #toggle-panel:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        #gui-content {
+            max-height: calc(90vh - 80px);
+            overflow-y: auto;
+            padding: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+        }
+
+        /* Estilizar a scrollbar para Webkit */
+        #gui-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #gui-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        #gui-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #gui-content::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
+        }
+
+        /* Tabs do menu */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 10px 8px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #ffd700;
+            border-bottom-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .tab-button:hover {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Canvas principal */
+        .main-canvas {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* === 📦 GRUPOS E CONTROLES === */
+        .config-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        .config-subgroup {
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 3px solid rgba(255, 215, 0, 0.5);
+        }
+
+        .config-item {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .config-item label {
+            font-size: 13px;
+            color: #e0e0e0;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .config-group h4 {
+            margin: 20px 0 12px;
+            font-size: 16px;
+            color: #ffd700;
+            font-weight: 500;
+            border-left: 3px solid #ffd700;
+            padding-left: 8px;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 8px 8px 8px 12px;
+            border-radius: 4px;
+        }
+
+        .config-group h5 {
+            margin: 15px 0 8px;
+            font-size: 14px;
+            color: #ccc;
+            border-top: 1px dotted rgba(255, 255, 255, 0.3);
+            padding-top: 10px;
+            font-weight: 500;
+        }
+
+        /* === 🎚️ CONTROLES RANGE === */
+        .config-item input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 100%);
+            outline: none;
+            -webkit-appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .config-item input[type="range"]:hover {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.3) 100%);
+        }
+
+        .config-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .config-item input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        .config-item input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        /* === 📊 DISPLAY DE VALORES === */
+        .value-display {
+            font-size: 12px;
+            color: #ffd700;
+            font-weight: 600;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
+            padding: 4px 8px;
+            border-radius: 6px;
+            min-width: 45px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* === ☑️ CONTROLES DE CHECKBOX === */
+        .visibility-toggle {
+            flex-direction: row !important;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .visibility-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .visibility-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+
+        .visibility-toggle label {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* === 🎨 CONTROLES DE COR === */
+        .color-control {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .color-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+
+        .color-input {
+            flex: 1;
+            height: 6px !important;
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin: 8px 0 4px;
+        }
+
+        .color-display {
+            font-size: 11px;
+            color: #ccc;
+            font-family: monospace;
+        }
+
+        /* === 🎯 GRUPOS DE OBJETOS INDIVIDUAIS === */
+        .object-group {
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.05) 0%, rgba(255, 215, 0, 0.02) 100%);
+            margin-bottom: 30px;
+        }
+
+        .object-group h4 {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+            margin: -15px -15px 15px -15px;
+            padding: 12px 15px;
+            border-radius: 10px 10px 0 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* === 🖼️ CONTROLES DE IMAGEM === */
+        .image-control {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 8px;
+        }
+
+        .image-path-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .image-path-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+        }
+
+        .image-path-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .image-mode-select {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .image-mode-select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .image-mode-select option {
+            background: #333;
+            color: white;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 4px;
+        }
+
+        .clear-image-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+
+        .clear-image-btn:hover {
+            background: linear-gradient(135deg, #ee5a52 0%, #ff6b6b 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Lateral Fixo -->
+    <div id="gui-panel">
+        <div class="panel-header">
+            <h3>🎛️ Editor Avançado</h3>
+            <button id="toggle-panel">Mostrar/Ocultar</button>
+        </div>
+        <div id="gui-content">
+            <!-- Navegação por Tabs -->
+            <div class="tab-nav">
+                <button class="tab-button active" data-tab="global">🌐 Global</button>
+                <button class="tab-button" data-tab="effects">✨ Efeitos</button>
+                <button class="tab-button" data-tab="objects">🎯 Objetos</button>
+                <button class="tab-button" data-tab="advanced">🔧 Avançado</button>
+            </div>
+
+            <!-- Tab: Global -->
+            <div id="tab-global" class="tab-content active">
+                <div id="global-controls-container">
+                    <!-- Controles globais serão inseridos aqui pelo JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tab: Effects -->
+            <div id="tab-effects" class="tab-content">
+                <div id="effects-controls-container">
+                    <!-- Controles de efeitos serão inseridos aqui pelo JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tab: Objects -->
+            <div id="tab-objects" class="tab-content">
+                <div id="objects-controls-container">
+                    <!-- Controles dos objetos serão inseridos aqui pelo JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tab: Advanced -->
+            <div id="tab-advanced" class="tab-content">
+                <div id="advanced-controls-container">
+                    <!-- Controles avançados serão inseridos aqui pelo JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas Principal -->
+    <div class="main-canvas">
+        <!-- Objetos posicionados fora do container -->
+        <!-- Linha Superior -->
+        <div class="object" id="top-left">1</div>
+        <div class="object" id="top-center-left">2</div>
+        <div class="object" id="top-middle">3</div>
+        <div class="object" id="top-center-right">4</div>
+        <div class="object" id="top-right">5</div>
+
+        <!-- Linha Central -->
+        <div class="object" id="middle-left">6</div>
+        <div class="object" id="center-left">7</div>
+        <div class="object" id="middle-middle">8</div>
+        <div class="object" id="center-right">9</div>
+        <div class="object" id="middle-right">10</div>
+
+        <!-- Linha Inferior -->
+        <div class="object" id="bottom-left">11</div>
+        <div class="object" id="bottom-center-left">12</div>
+        <div class="object" id="bottom-middle">13</div>
+        <div class="object" id="bottom-center-right">14</div>
+        <div class="object" id="bottom-right">15</div>
+
+        <!-- Container principal -->
+        <div class="container">
+            <div class="content">
+                <!-- Conteúdo com scroll aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script src="gui-editor-simple.js"></script>
+</body>
+</html>
