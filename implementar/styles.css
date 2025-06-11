@@ -34,7 +34,8 @@
   --theme-bg-container: #ffffff;
   --theme-bg-content: #3d3d3d;
   --theme-bg-content-rgb: 61, 61, 61;
-  --theme-border-container: #cccccc;
+  --theme-border-container-opacity: .5;
+  --theme-border-container: rgba(204, 204, 204, var(--theme-border-container-opacity));
   --theme-border-object: #333333;
   --theme-shadow-object: rgba(0, 0, 0, 0.3);
 
