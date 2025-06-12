@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Texto com Fontes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .container {
+            display: flex;
+            padding: 1rem;
+            gap: 1rem;
+        }
+        .editor {
+            flex: 1;
+        }
+        .preview {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            min-height: 300px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 0.5rem;
+        }
+        .presets {
+            margin-top: 1rem;
+        }
+        #fontSelect {
+            padding: 0.5rem;
+        }
+        details {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Editor de Texto</h1>
+        <div>
+            <label for="fontSelect">Fonte:</label>
+            <select id="fontSelect"></select>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="editor">
+            <textarea id="textInput" placeholder="Digite seu texto aqui..."></textarea>
+            <div class="presets">
+                <input type="text" id="presetName" placeholder="Nome do preset">
+                <button id="savePreset">Salvar Preset</button>
+                
+                <details>
+                    <summary>Presets Salvos</summary>
+                    <div id="presetList"></div>
+                </details>
+            </div>
+        </div>
+        <div class="preview" id="textPreview"></div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const fontSelect = document.getElementById('fontSelect');
+        const textInput = document.getElementById('textInput');
+        const textPreview = document.getElementById('textPreview');
+        const savePresetBtn = document.getElementById('savePreset');
+        const presetNameInput = document.getElementById('presetName');
+        const presetList = document.getElementById('presetList');
+        
+        // Carregar fontes do diretório (simulado - na prática precisaria de backend)
+        const fontsFromDirectory = [
+            'Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia'
+            // Na implementação real, isso viria do backend
+        ];
+        
+        // Preencher o dropdown de fontes
+        fontsFromDirectory.forEach(font => {
+            const option = document.createElement('option');
+            option.value = font;
+            option.textContent = font;
+            fontSelect.appendChild(option);
+        });
+        
+        // Atualizar preview quando o texto mudar
+        textInput.addEventListener('input', updatePreview);
+        fontSelect.addEventListener('change', updatePreview);
+        
+        function updatePreview() {
+            textPreview.style.fontFamily = fontSelect.value;
+            textPreview.textContent = textInput.value;
+        }
+        
+        // Sistema de presets
+        let presets = JSON.parse(localStorage.getItem('textPresets')) || [];
+        
+        savePresetBtn.addEventListener('click', () => {
+            const name = presetNameInput.value.trim();
+            if (!name) {
+                alert('Por favor, dê um nome ao preset');
+                return;
+            }
+            
+            const preset = {
+                name,
+                text: textInput.value,
+                font: fontSelect.value
+            };
+            
+            presets.push(preset);
+            localStorage.setItem('textPresets', JSON.stringify(presets));
+            
+            presetNameInput.value = '';
+            renderPresets();
+        });
+        
+        function renderPresets() {
+            presetList.innerHTML = '';
+            
+            presets.forEach((preset, index) => {
+                const presetItem = document.createElement('div');
+                presetItem.innerHTML = `
+                    <p><strong>${preset.name}</strong> (${preset.font})</p>
+                    <button data-index="${index}" class="loadPreset">Carregar</button>
+                    <button data-index="${index}" class="deletePreset">Excluir</button>
+                    <hr>
+                `;
+                presetList.appendChild(presetItem);
+            });
+            
+            // Adicionar event listeners
+            document.querySelectorAll('.loadPreset').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.dataset.index;
+                    const preset = presets[index];
+                    
+                    textInput.value = preset.text;
+                    fontSelect.value = preset.font;
+                    updatePreview();
+                });
+            });
+            
+            document.querySelectorAll('.deletePreset').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.dataset.index;
+                    presets.splice(index, 1);
+                    localStorage.setItem('textPresets', JSON.stringify(presets));
+                    renderPresets();
+                });
+            });
+        }
+        
+        // Inicializar
+        renderPresets();
+        updatePreview();
+    </script>
+</body>
+</html>

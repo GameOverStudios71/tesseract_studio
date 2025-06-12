@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Texto com Fontes</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --header-bg: #333333;
+            --header-text: #ffffff;
+            --border-color: #cccccc;
+            --input-bg: #ffffff;
+            --input-text: #000000;
+            --button-bg: #f0f0f0;
+            --button-text: #000000;
+            --button-hover: #e0e0e0;
+            --info-text: #666666;
+            --preview-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --header-bg: #2d2d2d;
+            --header-text: #ffffff;
+            --border-color: #444444;
+            --input-bg: #2d2d2d;
+            --input-text: #e0e0e0;
+            --button-bg: #3d3d3d;
+            --button-text: #e0e0e0;
+            --button-hover: #4d4d4d;
+            --info-text: #aaaaaa;
+            --preview-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            padding: 1rem;
+            gap: 0;
+            height: calc(100vh - 120px);
+            position: relative;
+        }
+
+        .editor {
+            flex: 0 0 50%;
+            min-width: 200px;
+            max-width: 80%;
+            padding-right: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--preview-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .editor-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .editor-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .editor-content::-webkit-scrollbar-track {
+            background: var(--input-bg);
+            border-radius: 4px;
+        }
+
+        .editor-content::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .editor-content::-webkit-scrollbar-thumb:hover {
+            background: var(--button-hover);
+        }
+
+        .editor-header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .editor-header h3 {
+            margin: 0;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .resizer {
+            width: 8px;
+            background-color: var(--border-color);
+            cursor: col-resize;
+            position: relative;
+            transition: background-color 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .resizer:hover {
+            background-color: var(--button-hover);
+        }
+
+        .resizer::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 3px;
+            height: 30px;
+            background-color: var(--text-color);
+            opacity: 0.3;
+            border-radius: 2px;
+        }
+
+        .preview {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            min-height: 300px;
+            background-color: var(--preview-bg);
+            border-radius: 4px;
+            font-family: 'Courier New', 'Lucida Console', 'DejaVu Sans Mono', monospace;
+            white-space: pre;
+            overflow: auto;
+            line-height: 1.0;
+            font-size: 14px;
+            letter-spacing: 0;
+            word-spacing: 0;
+            text-rendering: optimizeSpeed;
+            font-feature-settings: "liga" 0;
+            font-variant-ligatures: none;
+            margin-left: 0.5rem;
+        }
+
+        /* Estilos específicos para ASCII art */
+        .preview.ascii-mode {
+            background-color: #000000;
+            color: #c0c0c0;
+            font-size: 12px;
+            line-height: 1.0;
+            padding: 0.5rem;
+        }
+
+        [data-theme="dark"] .preview.ascii-mode {
+            background-color: #000000;
+            color: #c0c0c0;
+        }
+
+        .textarea-section {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .textarea-section label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: var(--text-color);
+            background-color: var(--button-bg);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            max-height: 300px;
+            padding: 0.5rem;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 0.5rem;
+        }
+
+        #textInput {
+            min-height: 150px;
+        }
+
+        #presetInput {
+            min-height: 100px;
+        }
+
+        .copy-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .copy-buttons button {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85em;
+            border-radius: 3px;
+        }
+
+        .presets {
+            margin-top: 1rem;
+            flex-shrink: 0;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        #fontSelect, #asciiSelect {
+            padding: 0.5rem;
+            min-width: 250px;
+            max-width: 400px;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .theme-toggle {
+            font-size: 1.2em;
+            padding: 0.5rem;
+            min-width: 40px;
+            border-radius: 50%;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        details {
+            margin-top: 1rem;
+        }
+
+        details summary {
+            cursor: pointer;
+            padding: 0.5rem;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .preset-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--preview-bg);
+            transition: all 0.2s ease;
+        }
+
+        .preset-item:hover {
+            border-color: var(--button-hover);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .preset-thumbnail {
+            flex: 0 0 200px;
+            height: 120px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            font-family: 'Courier New', 'Lucida Console', monospace;
+            font-size: 8px;
+            line-height: 1.0;
+            padding: 4px;
+            overflow: hidden;
+            white-space: pre;
+            color: var(--text-color);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .preset-thumbnail.ascii-mode {
+            background-color: #000000;
+            color: #c0c0c0;
+        }
+
+        .preset-thumbnail::after {
+            content: '👁️ Clique para carregar';
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .preset-thumbnail:hover::after {
+            opacity: 1;
+        }
+
+        .preset-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .preset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .preset-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .preset-font {
+            font-size: 0.85em;
+            color: var(--info-text);
+            font-style: italic;
+        }
+
+        .preset-stats {
+            font-size: 0.8em;
+            color: var(--info-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .preset-actions button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85em;
+        }
+
+        /* Modal para visualização em tela cheia */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--preview-bg);
+            margin: 2% auto;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 90%;
+            height: 85%;
+            max-width: 1200px;
+            overflow: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.0;
+            color: var(--text-color);
+        }
+
+        .modal-content.ascii-mode {
+            background-color: #000000;
+            color: #c0c0c0;
+        }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background-color: var(--preview-bg);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .modal-header.ascii-mode {
+            background-color: #000000;
+            border-bottom-color: #333;
+        }
+
+        .close {
+            color: var(--text-color);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .loading {
+            color: var(--info-text);
+            font-style: italic;
+        }
+
+        .font-info {
+            margin-top: 0.5rem;
+            font-size: 0.9em;
+            color: var(--info-text);
+        }
+
+        /* Estilos para as fontes carregadas dinamicamente */
+        .font-preview {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--preview-bg);
+        }
+
+        input[type="text"] {
+            padding: 0.5rem;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: bold;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .editor {
+                flex: none;
+                max-width: none;
+                padding-right: 0;
+                margin-bottom: 1rem;
+                height: auto;
+                max-height: 70vh;
+            }
+
+            .editor-content {
+                max-height: 65vh;
+            }
+
+            .resizer {
+                display: none;
+            }
+
+            .preview {
+                margin-left: 0;
+                min-height: 200px;
+            }
+
+            header > div {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            #fontSelect, #asciiSelect {
+                min-width: 200px;
+                max-width: 100%;
+            }
+
+            #textInput {
+                min-height: 150px;
+            }
+
+            #presetInput {
+                min-height: 100px;
+            }
+
+            .copy-buttons {
+                flex-wrap: wrap;
+            }
+
+            .copy-buttons button {
+                font-size: 0.8em;
+                padding: 0.25rem 0.6rem;
+            }
+
+            .preset-item {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .preset-thumbnail {
+                flex: none;
+                width: 100%;
+                height: 100px;
+                font-size: 7px;
+            }
+
+            .preset-actions {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            header {
+                padding: 0.5rem;
+            }
+
+            #fontSelect, #asciiSelect {
+                min-width: 150px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Editor de Texto</h1>
+        <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+            <div>
+                <label for="asciiSelect">Arquivo ASCII:</label>
+                <select id="asciiSelect">
+                    <option value="">Carregando arquivos...</option>
+                </select>
+            </div>
+            <div>
+                <label for="fontSelect">Fonte:</label>
+                <select id="fontSelect">
+                    <option value="">Carregando fontes...</option>
+                </select>
+                <div id="fontInfo" class="font-info"></div>
+            </div>
+            <div>
+                <button id="themeToggle" class="theme-toggle" title="Alternar tema">
+                    🌙
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="editor">
+            <div class="editor-header">
+                <h3>📝 Painel de Edição</h3>
+            </div>
+            <div class="editor-content">
+                <div class="textarea-section">
+                    <label for="textInput">Área de Trabalho (carregamento de arquivos):</label>
+                    <textarea id="textInput" placeholder="Digite seu texto aqui ou carregue um arquivo ASCII...">Exemplo de texto para testar as fontes!
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789
+!@#$%^&*()_+-=[]{}|;:,.<>?</textarea>
+                </div>
+
+                <div class="textarea-section">
+                    <label for="presetInput">Área de Preset (copie e cole aqui para salvar):</label>
+                    <textarea id="presetInput" placeholder="Cole aqui o texto que deseja salvar como preset..."></textarea>
+                    <div class="copy-buttons">
+                        <button id="copyFromMain" title="Copiar da área de trabalho">📋 Copiar de Cima</button>
+                        <button id="clearPreset" title="Limpar área de preset">🗑️ Limpar</button>
+                    </div>
+                </div>
+
+                <div class="presets">
+                    <input type="text" id="presetName" placeholder="Nome do preset (opcional - será gerado automaticamente)">
+                    <button id="savePreset">Salvar Preset</button>
+
+                    <details>
+                        <summary>Presets Salvos</summary>
+                        <div id="presetList"></div>
+                    </details>
+                </div>
+            </div>
+        </div>
+        <div class="resizer" id="resizer"></div>
+        <div class="preview" id="textPreview"></div>
+    </div>
+
+    <!-- Modal para visualização em tela cheia -->
+    <div id="presetModal" class="modal">
+        <div id="modalContent" class="modal-content">
+            <div id="modalHeader" class="modal-header">
+                <h3 id="modalTitle">Visualização do Preset</h3>
+                <button class="close" id="closeModal">&times;</button>
+            </div>
+            <div id="modalText"></div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const fontSelect = document.getElementById('fontSelect');
+        const asciiSelect = document.getElementById('asciiSelect');
+        const textInput = document.getElementById('textInput');
+        const presetInput = document.getElementById('presetInput');
+        const textPreview = document.getElementById('textPreview');
+        const savePresetBtn = document.getElementById('savePreset');
+        const presetNameInput = document.getElementById('presetName');
+        const presetList = document.getElementById('presetList');
+        const fontInfo = document.getElementById('fontInfo');
+        const themeToggle = document.getElementById('themeToggle');
+        const resizer = document.getElementById('resizer');
+        const editor = document.querySelector('.editor');
+        const container = document.querySelector('.container');
+        const copyFromMainBtn = document.getElementById('copyFromMain');
+        const clearPresetBtn = document.getElementById('clearPreset');
+        const presetModal = document.getElementById('presetModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalHeader = document.getElementById('modalHeader');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const closeModal = document.getElementById('closeModal');
+
+        // Variáveis globais
+        let availableFonts = [];
+        let availableAsciiFiles = [];
+        let loadedFonts = new Set();
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let isResizing = false;
+
+        // Funções para gerenciar tema
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            themeToggle.title = theme === 'dark' ? 'Alternar para modo claro' : 'Alternar para modo escuro';
+        }
+
+        function toggleTheme() {
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        // Funções para gerenciar as textareas
+        function copyFromMainToPreset() {
+            presetInput.value = textInput.value;
+            // Mostrar feedback visual
+            copyFromMainBtn.textContent = '✅ Copiado!';
+            setTimeout(() => {
+                copyFromMainBtn.textContent = '📋 Copiar de Cima';
+            }, 1500);
+        }
+
+        function clearPresetArea() {
+            presetInput.value = '';
+            // Mostrar feedback visual
+            clearPresetBtn.textContent = '✅ Limpo!';
+            setTimeout(() => {
+                clearPresetBtn.textContent = '🗑️ Limpar';
+            }, 1500);
+        }
+
+        // Função para gerar nome automático do preset
+        function generatePresetName(text) {
+            const now = new Date();
+            const timestamp = now.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replace(/[\/\s:]/g, '');
+
+            // Tentar extrair uma palavra significativa do texto
+            let baseName = 'Preset';
+
+            if (text && text.trim()) {
+                // Pegar as primeiras palavras não vazias
+                const words = text.trim().split(/\s+/).filter(word =>
+                    word.length > 2 &&
+                    !/^[^\w\s]/.test(word) && // Não começar com símbolos
+                    !/^\d+$/.test(word) // Não ser apenas números
+                );
+
+                if (words.length > 0) {
+                    baseName = words.slice(0, 2).join(' ');
+                    // Limitar tamanho
+                    if (baseName.length > 20) {
+                        baseName = baseName.substring(0, 20) + '...';
+                    }
+                }
+            }
+
+            return `${baseName} ${timestamp}`;
+        }
+
+        // Funções para o modal
+        function showPresetModal(preset) {
+            modalTitle.textContent = `Preset: ${preset.name}`;
+            modalText.style.fontFamily = preset.font || 'Courier New';
+
+            const processedText = processAnsiText(preset.text || '');
+            modalText.innerHTML = processedText;
+
+            // Aplicar modo ASCII se necessário
+            if (isAsciiArt(preset.text || '')) {
+                modalContent.classList.add('ascii-mode');
+                modalHeader.classList.add('ascii-mode');
+            } else {
+                modalContent.classList.remove('ascii-mode');
+                modalHeader.classList.remove('ascii-mode');
+            }
+
+            presetModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevenir scroll da página
+        }
+
+        function hidePresetModal() {
+            presetModal.style.display = 'none';
+            document.body.style.overflow = ''; // Restaurar scroll da página
+        }
+
+        // Funções para redimensionamento
+        function initResizer() {
+            let startX = 0;
+            let startWidth = 0;
+
+            // Eventos de mouse
+            resizer.addEventListener('mousedown', startResizing);
+
+            // Eventos de touch para dispositivos móveis
+            resizer.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                startResizing({
+                    clientX: touch.clientX,
+                    preventDefault: () => e.preventDefault()
+                });
+            });
+
+            function startResizing(e) {
+                isResizing = true;
+                startX = e.clientX;
+                startWidth = editor.offsetWidth;
+
+                document.addEventListener('mousemove', handleResize);
+                document.addEventListener('mouseup', stopResize);
+                document.addEventListener('touchmove', handleTouchResize);
+                document.addEventListener('touchend', stopResize);
+
+                // Prevenir seleção de texto durante o redimensionamento
+                document.body.style.userSelect = 'none';
+                document.body.style.cursor = 'col-resize';
+
+                e.preventDefault();
+            }
+
+            function handleResize(e) {
+                if (!isResizing) return;
+
+                const deltaX = e.clientX - startX;
+                const containerWidth = container.offsetWidth;
+                const newWidth = startWidth + deltaX;
+
+                // Limitar o tamanho mínimo e máximo
+                const minWidth = 200;
+                const maxWidth = containerWidth - 200; // Deixar pelo menos 200px para o preview
+
+                if (newWidth >= minWidth && newWidth <= maxWidth) {
+                    const percentage = (newWidth / containerWidth) * 100;
+                    editor.style.flex = `0 0 ${percentage}%`;
+                }
+            }
+
+            function handleTouchResize(e) {
+                if (!isResizing) return;
+                const touch = e.touches[0];
+                handleResize({ clientX: touch.clientX });
+                e.preventDefault();
+            }
+
+            function stopResize() {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleResize);
+                document.removeEventListener('mouseup', stopResize);
+                document.removeEventListener('touchmove', handleTouchResize);
+                document.removeEventListener('touchend', stopResize);
+
+                // Restaurar cursor e seleção
+                document.body.style.userSelect = '';
+                document.body.style.cursor = '';
+
+                // Salvar a largura no localStorage
+                const percentage = (editor.offsetWidth / container.offsetWidth) * 100;
+                localStorage.setItem('editorWidth', percentage.toString());
+            }
+
+            // Restaurar largura salva
+            const savedWidth = localStorage.getItem('editorWidth');
+            if (savedWidth) {
+                editor.style.flex = `0 0 ${savedWidth}%`;
+            }
+        }
+
+        // Mapeamento completo CP437 para Unicode
+        const cp437ToUnicode = {
+            128: 'Ç', 129: 'ü', 130: 'é', 131: 'â', 132: 'ä', 133: 'à', 134: 'å', 135: 'ç',
+            136: 'ê', 137: 'ë', 138: 'è', 139: 'ï', 140: 'î', 141: 'ì', 142: 'Ä', 143: 'Å',
+            144: 'É', 145: 'æ', 146: 'Æ', 147: 'ô', 148: 'ö', 149: 'ò', 150: 'û', 151: 'ù',
+            152: 'ÿ', 153: 'Ö', 154: 'Ü', 155: '¢', 156: '£', 157: '¥', 158: '₧', 159: 'ƒ',
+            160: 'á', 161: 'í', 162: 'ó', 163: 'ú', 164: 'ñ', 165: 'Ñ', 166: 'ª', 167: 'º',
+            168: '¿', 169: '⌐', 170: '¬', 171: '½', 172: '¼', 173: '¡', 174: '«', 175: '»',
+            176: '░', 177: '▒', 178: '▓', 179: '│', 180: '┤', 181: '╡', 182: '╢', 183: '╖',
+            184: '╕', 185: '╣', 186: '║', 187: '╗', 188: '╝', 189: '╜', 190: '╛', 191: '┐',
+            192: '└', 193: '┴', 194: '┬', 195: '├', 196: '─', 197: '┼', 198: '╞', 199: '╟',
+            200: '╚', 201: '╔', 202: '╩', 203: '╦', 204: '╠', 205: '═', 206: '╬', 207: '╧',
+            208: '╨', 209: '╤', 210: '╥', 211: '╙', 212: '╘', 213: '╒', 214: '╓', 215: '╫',
+            216: '╪', 217: '┘', 218: '┌', 219: '█', 220: '▄', 221: '▌', 222: '▐', 223: '▀',
+            224: 'α', 225: 'ß', 226: 'Γ', 227: 'π', 228: 'Σ', 229: 'σ', 230: 'µ', 231: 'τ',
+            232: 'Φ', 233: 'Θ', 234: 'Ω', 235: 'δ', 236: '∞', 237: 'φ', 238: 'ε', 239: '∩',
+            240: '≡', 241: '±', 242: '≥', 243: '≤', 244: '⌠', 245: '⌡', 246: '÷', 247: '≈',
+            248: '°', 249: '∙', 250: '·', 251: '√', 252: 'ⁿ', 253: '²', 254: '■', 255: ' '
+        };
+
+        // Função para converter CP437 para Unicode
+        function convertCP437ToUnicode(text) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                const charCode = text.charCodeAt(i);
+                if (charCode >= 128 && charCode <= 255 && cp437ToUnicode[charCode]) {
+                    result += cp437ToUnicode[charCode];
+                } else {
+                    result += text.charAt(i);
+                }
+            }
+            return result;
+        }
+
+        // Função para processar texto ASCII/ANSI
+        function processAnsiText(text) {
+            if (!text) return '';
+
+            // Converter caracteres CP437 para Unicode
+            let processedText = convertCP437ToUnicode(text);
+
+            // Escapar HTML para evitar problemas de segurança
+            processedText = processedText
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            // Remover códigos de escape ANSI básicos (cores, posicionamento, etc)
+            processedText = processedText
+                .replace(/\x1b\[[0-9;]*[mHJKhlp]/g, '') // Códigos ANSI comuns
+                .replace(/\x1b\[[0-9;]*[ABCD]/g, '')    // Movimentação do cursor
+                .replace(/\x1b\[2J/g, '')               // Clear screen
+                .replace(/\x1b\[H/g, '')                // Home cursor
+                .replace(/\x1b\[\?[0-9]+[hl]/g, '');    // Modos de terminal
+
+            // Remover outros caracteres de controle problemáticos, mas manter quebras de linha
+            processedText = processedText
+                .replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '') // Remove controles, mantém \n (\x0A) e \r (\x0D)
+                .replace(/\r\n/g, '\n')  // Normalizar quebras de linha Windows
+                .replace(/\r/g, '\n');   // Normalizar quebras de linha Mac antigas
+
+            // Remover caracteres de substituição restantes
+            processedText = processedText.replace(/�/g, '');
+
+            return processedText;
+        }
+        
+        // Função para carregar uma fonte dinamicamente
+        function loadFont(fontData) {
+            if (loadedFonts.has(fontData.name)) {
+                return Promise.resolve();
+            }
+            
+            return new Promise((resolve, reject) => {
+                const fontFace = new FontFace(fontData.name, `url('/fonts/${fontData.path}')`);
+                
+                fontFace.load().then((loadedFace) => {
+                    document.fonts.add(loadedFace);
+                    loadedFonts.add(fontData.name);
+                    console.log(`Fonte carregada: ${fontData.name}`);
+                    resolve();
+                }).catch((error) => {
+                    console.error(`Erro ao carregar fonte ${fontData.name}:`, error);
+                    reject(error);
+                });
+            });
+        }
+        
+        // Função para buscar fontes do servidor
+        async function loadAvailableFonts() {
+            try {
+                const response = await fetch('/api/fonts');
+                const fonts = await response.json();
+
+                availableFonts = fonts;
+
+                // Limpar dropdown
+                fontSelect.innerHTML = '<option value="">Selecione uma fonte...</option>';
+
+                // Adicionar fontes padrão do sistema
+                const systemFonts = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia'];
+                systemFonts.forEach(font => {
+                    const option = document.createElement('option');
+                    option.value = font;
+                    option.textContent = `${font} (Sistema)`;
+                    fontSelect.appendChild(option);
+                });
+
+                // Adicionar fontes do diretório
+                fonts.forEach(font => {
+                    const option = document.createElement('option');
+                    option.value = font.name;
+                    option.textContent = `${font.name} (${font.path})`;
+                    option.dataset.fontPath = font.path;
+                    fontSelect.appendChild(option);
+                });
+
+                console.log(`${fonts.length} fontes carregadas do servidor`);
+
+            } catch (error) {
+                console.error('Erro ao carregar fontes:', error);
+                fontSelect.innerHTML = '<option value="">Erro ao carregar fontes</option>';
+            }
+        }
+
+        // Função para buscar arquivos ASCII do servidor
+        async function loadAvailableAsciiFiles() {
+            try {
+                const response = await fetch('/api/ascii');
+                const files = await response.json();
+
+                availableAsciiFiles = files;
+
+                // Limpar dropdown
+                asciiSelect.innerHTML = '<option value="">Selecione um arquivo ASCII...</option>';
+
+                // Adicionar arquivos ASCII
+                files.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file.name;
+                    option.textContent = `${file.path} (${Math.round(file.size / 1024)}KB)`;
+                    option.dataset.filePath = file.path;
+                    asciiSelect.appendChild(option);
+                });
+
+                console.log(`${files.length} arquivos ASCII carregados do servidor`);
+
+            } catch (error) {
+                console.error('Erro ao carregar arquivos ASCII:', error);
+                asciiSelect.innerHTML = '<option value="">Erro ao carregar arquivos ASCII</option>';
+            }
+        }
+
+        // Função para detectar se é ASCII art
+        function isAsciiArt(text) {
+            if (!text) return false;
+
+            // Caracteres típicos de ASCII art
+            const asciiArtChars = /[│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀░▒▓■□▪▫☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼]/;
+
+            // Se contém muitos caracteres de desenho ou tem linhas muito longas (típico de ASCII art)
+            const hasAsciiChars = asciiArtChars.test(text);
+            const lines = text.split('\n');
+            const hasLongLines = lines.some(line => line.length > 60);
+            const hasMultipleLines = lines.length > 5;
+
+            return hasAsciiChars || (hasLongLines && hasMultipleLines);
+        }
+
+        // Função para carregar conteúdo de um arquivo ASCII
+        async function loadAsciiFile(filename) {
+            try {
+                const response = await fetch(`/api/ascii/${encodeURIComponent(filename)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    textInput.value = data.content;
+
+                    // Detectar se é ASCII art e aplicar modo especial
+                    if (isAsciiArt(data.content)) {
+                        textPreview.classList.add('ascii-mode');
+                    } else {
+                        textPreview.classList.remove('ascii-mode');
+                    }
+
+                    updatePreview();
+                    console.log(`Arquivo ASCII carregado: ${filename}`);
+                } else {
+                    alert(`Erro ao carregar arquivo: ${data.error}`);
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar arquivo ASCII:', error);
+                alert('Erro ao carregar arquivo ASCII');
+            }
+        }
+        
+        // Atualizar preview quando o texto ou fonte mudar
+        async function updatePreview() {
+            const selectedFont = fontSelect.value;
+            const selectedOption = fontSelect.options[fontSelect.selectedIndex];
+
+            if (selectedFont && selectedOption.dataset.fontPath) {
+                // É uma fonte customizada, precisa carregar
+                const fontData = availableFonts.find(f => f.name === selectedFont);
+                if (fontData && !loadedFonts.has(selectedFont)) {
+                    try {
+                        fontInfo.textContent = 'Carregando fonte...';
+                        await loadFont(fontData);
+                        fontInfo.textContent = `Fonte: ${selectedFont}`;
+                    } catch (error) {
+                        fontInfo.textContent = 'Erro ao carregar fonte';
+                        return;
+                    }
+                } else {
+                    fontInfo.textContent = `Fonte: ${selectedFont}`;
+                }
+            } else if (selectedFont) {
+                // Fonte do sistema
+                fontInfo.textContent = `Fonte: ${selectedFont} (Sistema)`;
+            } else {
+                fontInfo.textContent = '';
+            }
+
+            textPreview.style.fontFamily = selectedFont || 'Courier New';
+
+            // Processar texto para ASCII/ANSI art (usar a textarea principal)
+            const rawText = textInput.value;
+
+            // Detectar se é ASCII art e aplicar modo especial
+            if (isAsciiArt(rawText)) {
+                textPreview.classList.add('ascii-mode');
+            } else {
+                textPreview.classList.remove('ascii-mode');
+            }
+
+            const processedText = processAnsiText(rawText);
+            textPreview.innerHTML = processedText;
+        }
+        
+        // Event listeners
+        textInput.addEventListener('input', updatePreview);
+        fontSelect.addEventListener('change', updatePreview);
+        asciiSelect.addEventListener('change', async (e) => {
+            const selectedFile = e.target.value;
+            if (selectedFile) {
+                await loadAsciiFile(selectedFile);
+            }
+        });
+        themeToggle.addEventListener('click', toggleTheme);
+        copyFromMainBtn.addEventListener('click', copyFromMainToPreset);
+        clearPresetBtn.addEventListener('click', clearPresetArea);
+
+        // Event listeners para o modal
+        closeModal.addEventListener('click', hidePresetModal);
+        presetModal.addEventListener('click', (e) => {
+            if (e.target === presetModal) {
+                hidePresetModal();
+            }
+        });
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && presetModal.style.display === 'block') {
+                hidePresetModal();
+            }
+        });
+        
+        // Sistema de presets
+        let presets = JSON.parse(localStorage.getItem('textPresets')) || [];
+        
+        savePresetBtn.addEventListener('click', () => {
+            if (!presetInput.value.trim()) {
+                alert('Por favor, adicione algum texto na área de preset antes de salvar');
+                return;
+            }
+
+            // Usar nome fornecido ou gerar automaticamente
+            let name = presetNameInput.value.trim();
+            if (!name) {
+                name = generatePresetName(presetInput.value);
+            }
+
+            const preset = {
+                name,
+                text: presetInput.value,
+                font: fontSelect.value,
+                createdAt: new Date().toISOString()
+            };
+
+            presets.push(preset);
+            localStorage.setItem('textPresets', JSON.stringify(presets));
+
+            presetNameInput.value = '';
+            renderPresets();
+
+            // Mostrar feedback visual
+            savePresetBtn.textContent = '✅ Salvo!';
+            setTimeout(() => {
+                savePresetBtn.textContent = 'Salvar Preset';
+            }, 1500);
+        });
+        
+        function renderPresets() {
+            presetList.innerHTML = '';
+
+            if (presets.length === 0) {
+                presetList.innerHTML = '<p style="color: var(--info-text); font-style: italic;">Nenhum preset salvo ainda.</p>';
+                return;
+            }
+
+            presets.forEach((preset, index) => {
+                const presetItem = document.createElement('div');
+                presetItem.className = 'preset-item';
+
+                // Criar miniatura
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'preset-thumbnail';
+                thumbnail.style.fontFamily = preset.font || 'Courier New';
+
+                // Processar texto para a miniatura
+                const processedText = processAnsiText(preset.text || '');
+                const truncatedText = truncateTextForThumbnail(processedText);
+                thumbnail.innerHTML = truncatedText;
+
+                // Detectar se é ASCII art para aplicar estilo especial
+                if (isAsciiArt(preset.text || '')) {
+                    thumbnail.classList.add('ascii-mode');
+                }
+
+                // Calcular estatísticas do preset
+                const lines = (preset.text || '').split('\n').length;
+                const chars = (preset.text || '').length;
+                const words = (preset.text || '').split(/\s+/).filter(w => w.length > 0).length;
+
+                // Criar área de informações
+                const info = document.createElement('div');
+                info.className = 'preset-info';
+                info.innerHTML = `
+                    <div class="preset-header">
+                        <h4 class="preset-title">${preset.name}</h4>
+                    </div>
+                    <div class="preset-font">Fonte: ${preset.font || 'Padrão'}</div>
+                    <div class="preset-stats">${lines} linhas • ${words} palavras • ${chars} caracteres</div>
+                    <div class="preset-actions">
+                        <button data-index="${index}" class="loadPreset">📂 Carregar</button>
+                        <button data-index="${index}" class="viewPreset">👁️ Visualizar</button>
+                        <button data-index="${index}" class="deletePreset">🗑️ Excluir</button>
+                    </div>
+                `;
+
+                // Adicionar click na miniatura para carregar
+                thumbnail.addEventListener('click', () => {
+                    loadPresetByIndex(index);
+                });
+
+                presetItem.appendChild(thumbnail);
+                presetItem.appendChild(info);
+                presetList.appendChild(presetItem);
+            });
+
+            // Adicionar event listeners para botões
+            document.querySelectorAll('.loadPreset').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    await loadPresetByIndex(index);
+
+                    // Mostrar feedback visual
+                    e.target.textContent = '✅ Carregado!';
+                    setTimeout(() => {
+                        e.target.textContent = '📂 Carregar';
+                    }, 1500);
+                });
+            });
+
+            document.querySelectorAll('.viewPreset').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    const preset = presets[index];
+                    showPresetModal(preset);
+                });
+            });
+
+            document.querySelectorAll('.deletePreset').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    const preset = presets[index];
+
+                    if (confirm(`Tem certeza que deseja excluir o preset "${preset.name}"?`)) {
+                        presets.splice(index, 1);
+                        localStorage.setItem('textPresets', JSON.stringify(presets));
+                        renderPresets();
+                    }
+                });
+            });
+        }
+
+        // Função para truncar texto para miniatura
+        function truncateTextForThumbnail(text) {
+            const lines = text.split('\n');
+            const maxLines = 15;
+            const maxCharsPerLine = 25;
+
+            let result = [];
+            for (let i = 0; i < Math.min(lines.length, maxLines); i++) {
+                let line = lines[i];
+                if (line.length > maxCharsPerLine) {
+                    line = line.substring(0, maxCharsPerLine - 1) + '…';
+                }
+                result.push(line);
+            }
+
+            if (lines.length > maxLines) {
+                result.push('...');
+            }
+
+            return result.join('\n');
+        }
+
+        // Função para carregar preset por índice
+        async function loadPresetByIndex(index) {
+            const preset = presets[index];
+            textInput.value = preset.text;
+            fontSelect.value = preset.font;
+            await updatePreview();
+        }
+        
+        // Inicializar aplicação
+        async function init() {
+            // Aplicar tema salvo
+            setTheme(currentTheme);
+
+            // Inicializar redimensionador
+            initResizer();
+
+            await Promise.all([
+                loadAvailableFonts(),
+                loadAvailableAsciiFiles()
+            ]);
+            renderPresets();
+            updatePreview();
+        }
+        
+        // Iniciar quando a página carregar
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
