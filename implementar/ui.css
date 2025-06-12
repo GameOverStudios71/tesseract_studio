@@ -1056,13 +1056,15 @@
 
         /* === 🎯 CONTROLES DENTRO DE LAYOUTS === */
         .layout-control {
-            margin: 8px;
+            display: inline-block;
+            margin: 4px;
             padding: 6px 8px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
             position: relative;
             transition: all 0.2s ease;
+            vertical-align: top;
         }
 
         .layout-control:hover {
@@ -1123,36 +1125,71 @@
         }
 
         /* === 🎨 COMPONENTES TAILWIND === */
-        .tw-button {
-            @apply px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors;
+        .layout-control button,
+        .layout-control input,
+        .layout-control select,
+        .layout-control label,
+        .layout-control p,
+        .layout-control span,
+        .layout-control div:not(.control-badge):not(.control-delete) {
+            display: inline-block;
+            margin: 2px;
+            vertical-align: middle;
         }
 
-        .tw-input {
-            @apply px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500;
+        .layout-control input[type="range"] {
+            width: 120px;
+            display: inline-block;
         }
 
-        .tw-select {
-            @apply px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500;
+        .layout-control label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        .tw-checkbox {
-            @apply flex items-center space-x-2;
+        .layout-control p {
+            display: inline;
+            margin: 0;
         }
 
-        .tw-slider {
-            @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+        /* Componentes específicos com larguras controladas */
+        .layout-control .component-button,
+        .layout-control button {
+            min-width: auto;
+            white-space: nowrap;
         }
 
-        .tw-text {
-            @apply text-gray-800;
+        .layout-control .component-input,
+        .layout-control input[type="text"],
+        .layout-control input[type="email"],
+        .layout-control input[type="password"] {
+            width: 120px;
+            display: inline-block;
         }
 
-        .tw-badge {
-            @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800;
+        .layout-control .component-select,
+        .layout-control select {
+            width: 100px;
+            display: inline-block;
         }
 
-        .tw-alert {
-            @apply p-4 mb-4 text-sm rounded-lg bg-blue-50 text-blue-800 border border-blue-200;
+        .layout-control .component-checkbox,
+        .layout-control label {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .layout-control .component-badge,
+        .layout-control span {
+            display: inline;
+        }
+
+        .layout-control .component-alert,
+        .layout-control div.alert {
+            display: inline-block;
+            max-width: 200px;
         }
 
         /* === 📱 RESPONSIVE INDICATORS === */
@@ -1219,23 +1256,38 @@
         }
 
         /* === 📱 MELHOR RESPONSIVIDADE === */
-        .layout-container[data-layout-type="row"] .layout-content {
+        .layout-content {
             display: flex;
-            flex-direction: row;
-            gap: 8px;
             flex-wrap: wrap;
+            gap: 4px;
+            align-items: flex-start;
+            align-content: flex-start;
+        }
+
+        .layout-container[data-layout-type="row"] .layout-content {
+            flex-direction: row;
         }
 
         .layout-container[data-layout-type="column"] .layout-content {
-            display: flex;
             flex-direction: column;
+            align-items: stretch;
+        }
+
+        .layout-container[data-layout-type="grid-fluid"] .layout-content,
+        .layout-container[data-layout-type="grid-12"] .layout-content,
+        .layout-container[data-layout-type="grid-auto"] .layout-content {
+            display: grid;
             gap: 8px;
         }
 
-        .layout-container[data-layout-type="grid"] .layout-content {
-            display: grid;
+        .layout-container[data-layout-type="grid-fluid"] .layout-content {
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 8px;
+        }
+
+        .layout-container[data-layout-type="card"] .layout-content,
+        .layout-container[data-layout-type="container"] .layout-content,
+        .layout-container[data-layout-type="section"] .layout-content {
+            flex-direction: row;
         }
 
         /* === 🎯 INDICADORES VISUAIS === */

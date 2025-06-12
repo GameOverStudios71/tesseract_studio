@@ -1721,21 +1721,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const controls = {
       button: () => {
         const btn = document.createElement('button');
-        btn.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium';
+        btn.className = 'component-button px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium text-sm';
         btn.textContent = 'Button';
         btn.onclick = () => alert('Button clicked!');
         return btn;
       },
       input: () => {
         const input = document.createElement('input');
-        input.className = 'px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-full';
+        input.className = 'component-input px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm';
         input.placeholder = 'Enter text...';
         input.type = 'text';
+        input.style.width = '120px';
         return input;
       },
       select: () => {
         const select = document.createElement('select');
-        select.className = 'px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-full';
+        select.className = 'component-select px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm';
+        select.style.width = '100px';
         select.innerHTML = `
           <option>Option 1</option>
           <option>Option 2</option>
@@ -1745,12 +1747,12 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       checkbox: () => {
         const wrapper = document.createElement('label');
-        wrapper.className = 'flex items-center space-x-2 cursor-pointer';
+        wrapper.className = 'component-checkbox inline-flex items-center gap-1 cursor-pointer text-sm';
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.className = 'w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500';
+        checkbox.className = 'w-3 h-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500';
         const text = document.createElement('span');
-        text.textContent = 'Checkbox option';
+        text.textContent = 'Check';
         text.className = 'text-gray-700';
         wrapper.appendChild(checkbox);
         wrapper.appendChild(text);
@@ -1758,41 +1760,44 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       slider: () => {
         const wrapper = document.createElement('div');
-        wrapper.className = 'w-full';
+        wrapper.className = 'inline-block';
+        wrapper.style.width = '120px';
         const slider = document.createElement('input');
         slider.type = 'range';
-        slider.className = 'w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider';
+        slider.className = 'component-slider w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer';
         slider.min = '0';
         slider.max = '100';
         slider.value = '50';
+        slider.style.width = '100px';
         const label = document.createElement('div');
-        label.className = 'text-sm text-gray-600 mt-1';
-        label.textContent = 'Value: 50';
-        slider.oninput = () => label.textContent = `Value: ${slider.value}`;
+        label.className = 'text-xs text-gray-600 text-center mt-1';
+        label.textContent = '50';
+        slider.oninput = () => label.textContent = slider.value;
         wrapper.appendChild(slider);
         wrapper.appendChild(label);
         return wrapper;
       },
       text: () => {
-        const text = document.createElement('p');
-        text.className = 'text-gray-800 leading-relaxed';
-        text.textContent = 'Sample text content';
+        const text = document.createElement('span');
+        text.className = 'component-text text-gray-800 text-sm';
+        text.textContent = 'Text';
         if (editMode) {
           text.contentEditable = true;
-          text.className += ' border-dashed border-2 border-gray-300 p-2 rounded';
+          text.className += ' border-dashed border-1 border-gray-300 px-1 rounded';
         }
         return text;
       },
       badge: () => {
         const badge = document.createElement('span');
-        badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+        badge.className = 'component-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
         badge.textContent = 'Badge';
         return badge;
       },
       alert: () => {
         const alert = document.createElement('div');
-        alert.className = 'p-4 mb-4 text-sm rounded-lg bg-blue-50 text-blue-800 border border-blue-200';
-        alert.innerHTML = '<strong>Info:</strong> This is an alert message.';
+        alert.className = 'component-alert inline-block px-3 py-1 text-xs rounded bg-blue-50 text-blue-800 border border-blue-200';
+        alert.style.maxWidth = '150px';
+        alert.innerHTML = '<strong>Info:</strong> Alert message';
         return alert;
       }
     };
