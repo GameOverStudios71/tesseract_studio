@@ -319,10 +319,27 @@
             background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 100%);
             outline: none;
             -webkit-appearance: none;
+            cursor: pointer;
         }
 
         .config-item input[type="range"]:hover {
             background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.3) 100%);
+            box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Indicador visual para wheel scroll */
+        .config-item input[type="range"]:hover::after {
+            content: '🖱️';
+            position: absolute;
+            right: -20px;
+            top: -2px;
+            font-size: 10px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .slider-controls {
+            position: relative;
         }
 
         .config-item input[type="range"]::-webkit-slider-thumb {
@@ -593,6 +610,16 @@
 
         .preset-save-btn[style*="FF9800"]:hover {
             background: linear-gradient(135deg, #F57C00 0%, #FF9800 100%) !important;
+        }
+
+        /* === 🖱️ DICA DE WHEEL SCROLL === */
+        .wheel-tip {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin-top: 4px;
+            font-family: 'Exo 2', sans-serif;
+            line-height: 1.2;
         }
 
         .presets-gallery {

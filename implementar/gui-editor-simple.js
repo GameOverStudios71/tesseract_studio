@@ -101,6 +101,44 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
+    // Event listener para wheel (scroll do mouse)
+    input.addEventListener('wheel', function(e) {
+      e.preventDefault(); // Prevenir scroll da página
+
+      const currentValue = parseFloat(this.value);
+      const min = parseFloat(this.min);
+      const max = parseFloat(this.max);
+      let step = parseFloat(this.step);
+
+      // Modificadores de velocidade
+      if (e.shiftKey) {
+        step *= 10; // Shift = 10x mais rápido
+      } else if (e.ctrlKey) {
+        step *= 0.1; // Ctrl = 10x mais lento (precisão)
+      }
+
+      // Determinar direção do scroll
+      const delta = e.deltaY > 0 ? -step : step; // Invertido: scroll up = aumenta
+
+      // Calcular novo valor
+      let newValue = currentValue + delta;
+
+      // Aplicar limites
+      newValue = Math.max(min, Math.min(max, newValue));
+
+      // Arredondar para o step original mais próximo
+      const originalStep = parseFloat(this.step);
+      newValue = Math.round(newValue / originalStep) * originalStep;
+
+      // Atualizar valor
+      this.value = newValue;
+      display.textContent = newValue;
+
+      if (cssVar) {
+        updateCSSVariable(cssVar, newValue, unit);
+      }
+    });
+
     // Input MIN - atualiza valor mínimo do slider
     minInput.addEventListener('input', function() {
       const newMin = parseFloat(this.value);
@@ -245,6 +283,33 @@ document.addEventListener('DOMContentLoaded', function() {
     rInput.addEventListener('input', updateColor);
     gInput.addEventListener('input', updateColor);
     bInput.addEventListener('input', updateColor);
+
+    // Adicionar wheel aos sliders RGB
+    [rInput, gInput, bInput].forEach(slider => {
+      slider.addEventListener('wheel', function(e) {
+        e.preventDefault();
+
+        const currentValue = parseFloat(this.value);
+        const min = parseFloat(this.min);
+        const max = parseFloat(this.max);
+        let step = 1; // RGB sempre step 1
+
+        // Modificadores de velocidade para RGB
+        if (e.shiftKey) {
+          step = 10; // Shift = saltos de 10
+        } else if (e.ctrlKey) {
+          step = 1; // Ctrl = precisão (já é 1)
+        }
+
+        const delta = e.deltaY > 0 ? -step : step;
+        let newValue = currentValue + delta;
+
+        newValue = Math.max(min, Math.min(max, newValue));
+
+        this.value = newValue;
+        updateColor();
+      });
+    });
     
     colorContainer.appendChild(document.createTextNode('R: '));
     colorContainer.appendChild(rInput);
@@ -799,7 +864,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const effectsContainer = document.getElementById('effects-controls-container');
   const objectsContainer = document.getElementById('objects-controls-container');
   const advancedContainer = document.getElementById('advanced-controls-container');
-  
+
+  // Adicionar dica sobre wheel scroll
+  const wheelTip = document.createElement('div');
+  wheelTip.className = 'wheel-tip';
+  wheelTip.innerHTML = '🖱️ Use a roda do mouse nos sliders<br>Shift = 10x mais rápido | Ctrl = 10x mais lento';
+  globalContainer.appendChild(wheelTip);
+
   // === CONFIGURAÇÕES PRINCIPAIS ===
   const mainGroup = document.createElement('div');
   mainGroup.className = 'config-group';
