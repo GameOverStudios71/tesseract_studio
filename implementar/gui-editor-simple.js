@@ -1124,6 +1124,273 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(loadPanelPosition, 100);
   });
 
+  // === SISTEMA DE CONTROLES NO VIEWPORT ===
+  let controlCounter = 0;
+  let selectedControl = null;
+  let editMode = false;
+
+  // Inicializar sistema de controles
+  function initializeControlsSystem() {
+    const addControlBtns = document.querySelectorAll('.add-control-btn');
+    const clearViewportBtn = document.getElementById('clear-viewport');
+    const toggleEditModeBtn = document.getElementById('toggle-edit-mode');
+    const contentArea = document.querySelector('.content');
+
+    if (!contentArea) return;
+
+    // Event listeners para botões de adicionar controles
+    addControlBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const controlType = this.dataset.control;
+        addControlToViewport(controlType, contentArea);
+      });
+    });
+
+    // Limpar viewport
+    clearViewportBtn?.addEventListener('click', function() {
+      if (confirm('Tem certeza que deseja limpar todos os controles do viewport?')) {
+        clearAllControls(contentArea);
+      }
+    });
+
+    // Toggle modo edição
+    toggleEditModeBtn?.addEventListener('click', function() {
+      editMode = !editMode;
+      this.textContent = editMode ? '👁️ Modo Visualização' : '✏️ Modo Edição';
+      this.style.background = editMode ?
+        'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)' :
+        'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)';
+
+      // Atualizar visibilidade dos handles
+      updateControlHandles(contentArea);
+    });
+
+    // Event listener para cliques no viewport
+    contentArea.addEventListener('click', function(e) {
+      if (!editMode) return;
+
+      const control = e.target.closest('.viewport-control');
+      if (control) {
+        selectControl(control);
+      } else {
+        deselectAllControls();
+      }
+    });
+
+    // Event listener para tecla Delete
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Delete' && selectedControl && editMode) {
+        deleteControl(selectedControl);
+      }
+    });
+  }
+
+  function addControlToViewport(type, container) {
+    controlCounter++;
+    const controlId = `viewport-control-${type}-${controlCounter}`;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'viewport-control';
+    wrapper.dataset.controlType = type;
+    wrapper.dataset.controlId = controlId;
+
+    // Posição inicial aleatória
+    const x = Math.random() * (container.offsetWidth - 200);
+    const y = Math.random() * (container.offsetHeight - 100);
+    wrapper.style.left = x + 'px';
+    wrapper.style.top = y + 'px';
+
+    // Handle para mover
+    const moveHandle = document.createElement('div');
+    moveHandle.className = 'control-handle';
+    moveHandle.innerHTML = '⋮⋮';
+
+    // Handle para deletar
+    const deleteHandle = document.createElement('div');
+    deleteHandle.className = 'delete-handle';
+    deleteHandle.innerHTML = '×';
+    deleteHandle.onclick = (e) => {
+      e.stopPropagation();
+      deleteControl(wrapper);
+    };
+
+    // Criar o controle específico
+    const control = createViewportControl(type, controlId);
+
+    wrapper.appendChild(moveHandle);
+    wrapper.appendChild(deleteHandle);
+    wrapper.appendChild(control);
+
+    container.appendChild(wrapper);
+
+    // Tornar arrastável
+    makeControlDraggable(wrapper);
+
+    // Selecionar automaticamente se estiver em modo edição
+    if (editMode) {
+      selectControl(wrapper);
+    }
+
+    console.log(`✅ Controle ${type} adicionado ao viewport`);
+  }
+
+  function createViewportControl(type, id) {
+    const controls = {
+      button: () => {
+        const btn = document.createElement('button');
+        btn.className = 'control-button';
+        btn.textContent = 'Botão';
+        btn.onclick = () => alert('Botão clicado!');
+        return btn;
+      },
+      input: () => {
+        const input = document.createElement('input');
+        input.className = 'control-input';
+        input.placeholder = 'Digite aqui...';
+        input.type = 'text';
+        return input;
+      },
+      select: () => {
+        const select = document.createElement('select');
+        select.className = 'control-select';
+        select.innerHTML = `
+          <option>Opção 1</option>
+          <option>Opção 2</option>
+          <option>Opção 3</option>
+        `;
+        return select;
+      },
+      checkbox: () => {
+        const wrapper = document.createElement('label');
+        wrapper.className = 'control-checkbox';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        const text = document.createElement('span');
+        text.textContent = 'Checkbox';
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(text);
+        return wrapper;
+      },
+      slider: () => {
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.className = 'control-slider';
+        slider.min = '0';
+        slider.max = '100';
+        slider.value = '50';
+        return slider;
+      },
+      text: () => {
+        const text = document.createElement('p');
+        text.className = 'control-text';
+        text.textContent = 'Texto de exemplo';
+        text.contentEditable = editMode;
+        return text;
+      }
+    };
+
+    return controls[type] ? controls[type]() : document.createElement('div');
+  }
+
+  function makeControlDraggable(element) {
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+
+    const handle = element.querySelector('.control-handle');
+    if (!handle) return;
+
+    handle.addEventListener('mousedown', startDrag);
+
+    function startDrag(e) {
+      if (!editMode) return;
+
+      isDragging = true;
+      const rect = element.getBoundingClientRect();
+      const containerRect = element.parentElement.getBoundingClientRect();
+
+      dragOffset.x = e.clientX - rect.left;
+      dragOffset.y = e.clientY - rect.top;
+
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', stopDrag);
+
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function drag(e) {
+      if (!isDragging || !editMode) return;
+
+      const containerRect = element.parentElement.getBoundingClientRect();
+      const x = e.clientX - containerRect.left - dragOffset.x;
+      const y = e.clientY - containerRect.top - dragOffset.y;
+
+      // Limitar às bordas do container
+      const maxX = element.parentElement.offsetWidth - element.offsetWidth;
+      const maxY = element.parentElement.offsetHeight - element.offsetHeight;
+
+      const boundedX = Math.max(0, Math.min(x, maxX));
+      const boundedY = Math.max(0, Math.min(y, maxY));
+
+      element.style.left = boundedX + 'px';
+      element.style.top = boundedY + 'px';
+    }
+
+    function stopDrag() {
+      isDragging = false;
+      document.removeEventListener('mousemove', drag);
+      document.removeEventListener('mouseup', stopDrag);
+    }
+  }
+
+  function selectControl(control) {
+    deselectAllControls();
+    control.classList.add('selected');
+    selectedControl = control;
+    console.log(`🎯 Controle selecionado: ${control.dataset.controlType}`);
+  }
+
+  function deselectAllControls() {
+    document.querySelectorAll('.viewport-control').forEach(ctrl => {
+      ctrl.classList.remove('selected');
+    });
+    selectedControl = null;
+  }
+
+  function deleteControl(control) {
+    if (control === selectedControl) {
+      selectedControl = null;
+    }
+    control.remove();
+    console.log(`🗑️ Controle removido`);
+  }
+
+  function clearAllControls(container) {
+    container.querySelectorAll('.viewport-control').forEach(ctrl => {
+      ctrl.remove();
+    });
+    selectedControl = null;
+    console.log(`🧹 Todos os controles removidos do viewport`);
+  }
+
+  function updateControlHandles(container) {
+    container.querySelectorAll('.viewport-control').forEach(ctrl => {
+      const handles = ctrl.querySelectorAll('.control-handle, .delete-handle');
+      handles.forEach(handle => {
+        handle.style.display = editMode ? 'flex' : 'none';
+      });
+
+      // Atualizar contentEditable para textos
+      const textControl = ctrl.querySelector('.control-text');
+      if (textControl) {
+        textControl.contentEditable = editMode;
+      }
+    });
+  }
+
+  // Inicializar sistema de controles quando a página carregar
+  setTimeout(initializeControlsSystem, 500);
+
   // Inicializar o painel
   guiContent.style.display = 'block';
 });
