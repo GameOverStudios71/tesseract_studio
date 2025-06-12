@@ -72,16 +72,63 @@
                             <h5 style="color: #ffd700; font-size: 12px; margin-bottom: 8px;">📐 Layout Containers</h5>
                             <div class="layout-buttons">
                                 <button class="add-layout-btn" data-layout="row">
-                                    <span>📏</span> Adicionar Row
+                                    <span>📏</span> Row
                                 </button>
                                 <button class="add-layout-btn" data-layout="column">
-                                    <span>📐</span> Adicionar Column
+                                    <span>📐</span> Column
                                 </button>
-                                <button class="add-layout-btn" data-layout="grid">
-                                    <span>⊞</span> Adicionar Grid
+                                <button class="add-layout-btn" data-layout="grid-fluid">
+                                    <span>🌊</span> Grid Fluido
                                 </button>
+                                <button class="add-layout-btn" data-layout="grid-12">
+                                    <span>⊞</span> Grid 12 Cols
+                                </button>
+                            </div>
+                            <div class="layout-buttons" style="margin-top: 6px;">
                                 <button class="add-layout-btn" data-layout="card">
-                                    <span>🃏</span> Adicionar Card
+                                    <span>🃏</span> Card
+                                </button>
+                                <button class="add-layout-btn" data-layout="container">
+                                    <span>📦</span> Container
+                                </button>
+                                <button class="add-layout-btn" data-layout="section">
+                                    <span>📄</span> Section
+                                </button>
+                                <button class="add-layout-btn" data-layout="grid-auto">
+                                    <span>🔄</span> Auto Grid
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Seção de Grid Items (aparece quando grid-12 selecionado) -->
+                        <div id="grid-items-section" class="layout-section" style="display: none;">
+                            <h5 style="color: #4CAF50; font-size: 12px; margin-bottom: 8px;">📐 Grid Items (Bootstrap-style)</h5>
+                            <div class="layout-buttons">
+                                <button class="add-layout-btn" data-layout="col-1">
+                                    <span>1</span> Col-1
+                                </button>
+                                <button class="add-layout-btn" data-layout="col-2">
+                                    <span>2</span> Col-2
+                                </button>
+                                <button class="add-layout-btn" data-layout="col-3">
+                                    <span>3</span> Col-3
+                                </button>
+                                <button class="add-layout-btn" data-layout="col-4">
+                                    <span>4</span> Col-4
+                                </button>
+                            </div>
+                            <div class="layout-buttons" style="margin-top: 6px;">
+                                <button class="add-layout-btn" data-layout="col-6">
+                                    <span>6</span> Col-6
+                                </button>
+                                <button class="add-layout-btn" data-layout="col-8">
+                                    <span>8</span> Col-8
+                                </button>
+                                <button class="add-layout-btn" data-layout="col-12">
+                                    <span>12</span> Col-12
+                                </button>
+                                <button class="add-layout-btn" data-layout="col-auto">
+                                    <span>🔄</span> Auto
                                 </button>
                             </div>
                         </div>

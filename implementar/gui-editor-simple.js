@@ -1156,7 +1156,10 @@ document.addEventListener('DOMContentLoaded', function() {
           } else if (layoutType === 'row' && parentType === 'column') {
             // Adicionar row dentro de column
             addRowToColumn(selectedElement);
-          } else if ((layoutType === 'row' || layoutType === 'column') && (parentType === 'grid' || parentType === 'card')) {
+          } else if (layoutType.startsWith('col-') && parentType === 'grid-12') {
+            // Adicionar item de grid de 12 colunas
+            addGridItem(selectedElement, layoutType);
+          } else if ((layoutType === 'row' || layoutType === 'column') && (parentType.includes('grid') || parentType === 'card')) {
             // Adicionar row/column dentro de grid/card
             addLayoutToContainer(layoutType, selectedElement);
           } else {
@@ -1567,15 +1570,107 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(`✅ Layout ${layoutType} adicionado ao container ${parentContainer.dataset.layoutType}`);
   }
 
+  function addGridItem(gridContainer, colSize = 'col-6') {
+    layoutCounter++;
+    const itemId = `grid-item-${layoutCounter}`;
+
+    const itemDiv = document.createElement('div');
+    itemDiv.className = `layout-control grid-item ${getGridColClass(colSize)}`;
+    itemDiv.dataset.controlType = 'grid-item';
+    itemDiv.dataset.controlId = itemId;
+    itemDiv.dataset.colSize = colSize;
+
+    // Badge do item
+    const badge = document.createElement('div');
+    badge.className = 'control-badge';
+    badge.textContent = colSize.toUpperCase();
+
+    // Botão de delete
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'control-delete';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteElement(itemDiv);
+    };
+
+    // Conteúdo do item
+    const content = document.createElement('div');
+    content.className = 'grid-item-content p-4 bg-gray-100 rounded min-h-[60px] border-2 border-dashed border-gray-300';
+    content.innerHTML = `<div class="text-center text-gray-500 text-sm">${colSize.toUpperCase()}<br>Arraste controles aqui</div>`;
+
+    itemDiv.appendChild(badge);
+    itemDiv.appendChild(deleteBtn);
+    itemDiv.appendChild(content);
+
+    // Adicionar ao grid
+    const gridContent = gridContainer.querySelector('.layout-content');
+    const emptyState = gridContent.querySelector('.layout-empty');
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    gridContent.appendChild(itemDiv);
+
+    // Configurar como drop zone
+    setupGridItemDropZone(itemDiv);
+
+    // Selecionar automaticamente se estiver em modo edição
+    if (editMode) {
+      selectElement(itemDiv);
+    }
+
+    console.log(`✅ Grid item ${colSize} adicionado ao grid ${gridContainer.dataset.layoutId}`);
+  }
+
+  function getGridColClass(colSize) {
+    const classes = {
+      'col-1': 'col-span-1',
+      'col-2': 'col-span-2',
+      'col-3': 'col-span-3',
+      'col-4': 'col-span-4',
+      'col-6': 'col-span-6',
+      'col-8': 'col-span-8',
+      'col-12': 'col-span-12',
+      'col-auto': 'col-auto'
+    };
+    return classes[colSize] || 'col-span-6';
+  }
+
+  function setupGridItemDropZone(gridItem) {
+    const contentArea = gridItem.querySelector('.grid-item-content');
+    if (!contentArea) return;
+
+    contentArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('drag-over');
+    });
+
+    contentArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+    });
+
+    contentArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      // Implementar drop de controles aqui se necessário
+    });
+  }
+
 
 
   // === FUNÇÕES AUXILIARES ===
   function getTailwindClasses(type) {
     const classes = {
-      row: 'flex flex-row gap-4 p-4',
+      row: 'flex flex-col sm:flex-row gap-4 p-4',
       column: 'flex flex-col gap-4 p-4',
-      grid: 'grid grid-cols-2 gap-4 p-4',
-      card: 'bg-white rounded-lg shadow-md p-6 border'
+      'grid-fluid': 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4',
+      'grid-12': 'grid grid-cols-12 gap-2 p-4',
+      'grid-auto': 'grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 p-4',
+      card: 'bg-white rounded-lg shadow-md p-6 border',
+      container: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
+      section: 'py-8 px-4'
     };
     return classes[type] || 'p-4';
   }
@@ -1584,8 +1679,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const icons = {
       row: '📏',
       column: '📐',
-      grid: '⊞',
-      card: '🃏'
+      'grid-fluid': '🌊',
+      'grid-12': '⊞',
+      'grid-auto': '🔄',
+      card: '🃏',
+      container: '📦',
+      section: '📄'
     };
     return icons[type] || '📦';
   }
@@ -1606,12 +1705,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function getResponsiveInfo(type) {
     const info = {
-      row: 'flex-row → flex-col (mobile)',
-      column: 'flex-col',
-      grid: 'grid-cols-2 → grid-cols-1 (mobile)',
-      card: 'responsive padding'
+      row: 'col → row (sm+)',
+      column: 'sempre col',
+      'grid-fluid': '1→2→3→4 cols',
+      'grid-12': '12 colunas fixas',
+      'grid-auto': 'auto-fit 200px+',
+      card: 'padding responsivo',
+      container: 'max-width responsivo',
+      section: 'padding vertical'
     };
-    return info[type] || 'responsive';
+    return info[type] || 'responsivo';
   }
 
   function createTailwindControl(type, id) {
@@ -1701,6 +1804,17 @@ document.addEventListener('DOMContentLoaded', function() {
     deselectAllElements();
     element.classList.add('selected');
     selectedElement = element;
+
+    // Mostrar/esconder seção de grid items baseado na seleção
+    const gridItemsSection = document.getElementById('grid-items-section');
+    if (gridItemsSection) {
+      if (element.dataset.layoutType === 'grid-12') {
+        gridItemsSection.style.display = 'block';
+      } else {
+        gridItemsSection.style.display = 'none';
+      }
+    }
+
     console.log(`🎯 Elemento selecionado: ${element.dataset.layoutType || element.dataset.controlType}`);
   }
 
