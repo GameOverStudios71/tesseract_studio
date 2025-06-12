@@ -1222,17 +1222,14 @@ document.addEventListener('DOMContentLoaded', function() {
     contentArea.addEventListener('click', function(e) {
       if (!editMode) return;
 
-      // Verificar se clicou em um controle individual (button, input, etc.)
-      const individualControl = e.target.closest('.grid-control-item, .layout-control button, .layout-control input, .layout-control select, .layout-control label, .layout-control span, .layout-control p, .layout-control div:not(.control-badge):not(.control-delete)');
-      const layoutContainer = e.target.closest('.layout-container');
+      // Verificar se clicou em um wrapper de controle ou controle individual
       const layoutControl = e.target.closest('.layout-control');
+      const layoutContainer = e.target.closest('.layout-container');
       const gridItem = e.target.closest('.grid-item');
 
-      if (individualControl && !e.target.closest('.control-badge, .control-delete')) {
-        // Selecionar controle individual
-        selectIndividualControl(individualControl);
-      } else if (layoutControl) {
-        selectElement(layoutControl);
+      if (layoutControl && !e.target.closest('.control-badge, .control-delete')) {
+        // Selecionar wrapper do controle (que contém badge + delete + controle)
+        selectIndividualControl(layoutControl);
       } else if (gridItem) {
         selectElement(gridItem);
       } else if (layoutContainer) {
@@ -1255,6 +1252,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Configurar drag and drop
     setupDragAndDrop(contentArea);
+
+    // Configurar drag and drop para controles
+    setupControlDragAndDrop(contentArea);
   }
 
   function addLayoutToViewport(type, container) {
@@ -1361,6 +1361,7 @@ document.addEventListener('DOMContentLoaded', function() {
     controlWrapper.className = 'layout-control';
     controlWrapper.dataset.controlType = type;
     controlWrapper.dataset.controlId = controlId;
+    controlWrapper.draggable = true; // Tornar o wrapper draggable
 
     // Badge do tipo
     const badge = document.createElement('div');
@@ -1378,6 +1379,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Criar o controle com Tailwind
     const control = createTailwindControl(type, controlId);
+    // Remover draggable do controle individual, pois o wrapper será draggable
+    control.draggable = false;
 
     controlWrapper.appendChild(badge);
     controlWrapper.appendChild(deleteBtn);
@@ -1399,34 +1402,34 @@ document.addEventListener('DOMContentLoaded', function() {
     controlCounter++;
     const controlId = `control-${type}-${controlCounter}`;
 
-    // Criar apenas o controle, sem wrapper
-    const control = createTailwindControl(type, controlId);
-    control.dataset.controlType = type;
-    control.dataset.controlId = controlId;
-    control.className += ' grid-control-item';
+    // Criar wrapper para o controle
+    const controlWrapper = document.createElement('div');
+    controlWrapper.className = 'layout-control grid-control-item';
+    controlWrapper.dataset.controlType = type;
+    controlWrapper.dataset.controlId = controlId;
+    controlWrapper.draggable = true;
 
-    // Adicionar badge e delete diretamente no controle
+    // Badge do tipo
     const badge = document.createElement('div');
     badge.className = 'control-badge';
     badge.textContent = getControlIcon(type);
-    badge.style.position = 'absolute';
-    badge.style.top = '-6px';
-    badge.style.left = '-6px';
 
+    // Botão de delete
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'control-delete';
     deleteBtn.innerHTML = '×';
-    deleteBtn.style.position = 'absolute';
-    deleteBtn.style.top = '-6px';
-    deleteBtn.style.right = '-6px';
     deleteBtn.onclick = (e) => {
       e.stopPropagation();
-      deleteElement(control);
+      deleteElement(controlWrapper);
     };
 
-    control.style.position = 'relative';
-    control.appendChild(badge);
-    control.appendChild(deleteBtn);
+    // Criar o controle com Tailwind
+    const control = createTailwindControl(type, controlId);
+    control.draggable = false; // Wrapper será draggable
+
+    controlWrapper.appendChild(badge);
+    controlWrapper.appendChild(deleteBtn);
+    controlWrapper.appendChild(control);
 
     // Adicionar ao grid
     const contentArea = gridContainer.querySelector('.layout-content');
@@ -1435,7 +1438,7 @@ document.addEventListener('DOMContentLoaded', function() {
       emptyState.remove();
     }
 
-    contentArea.appendChild(control);
+    contentArea.appendChild(controlWrapper);
 
     console.log(`✅ Controle ${type} adicionado à célula do grid ${gridContainer.dataset.layoutType}`);
   }
@@ -1444,34 +1447,34 @@ document.addEventListener('DOMContentLoaded', function() {
     controlCounter++;
     const controlId = `control-${type}-${controlCounter}`;
 
-    // Criar apenas o controle, sem wrapper
-    const control = createTailwindControl(type, controlId);
-    control.dataset.controlType = type;
-    control.dataset.controlId = controlId;
-    control.className += ' grid-control-item';
+    // Criar wrapper para o controle
+    const controlWrapper = document.createElement('div');
+    controlWrapper.className = 'layout-control grid-control-item';
+    controlWrapper.dataset.controlType = type;
+    controlWrapper.dataset.controlId = controlId;
+    controlWrapper.draggable = true;
 
-    // Adicionar badge e delete diretamente no controle
+    // Badge do tipo
     const badge = document.createElement('div');
     badge.className = 'control-badge';
     badge.textContent = getControlIcon(type);
-    badge.style.position = 'absolute';
-    badge.style.top = '-6px';
-    badge.style.left = '-6px';
 
+    // Botão de delete
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'control-delete';
     deleteBtn.innerHTML = '×';
-    deleteBtn.style.position = 'absolute';
-    deleteBtn.style.top = '-6px';
-    deleteBtn.style.right = '-6px';
     deleteBtn.onclick = (e) => {
       e.stopPropagation();
-      deleteElement(control);
+      deleteElement(controlWrapper);
     };
 
-    control.style.position = 'relative';
-    control.appendChild(badge);
-    control.appendChild(deleteBtn);
+    // Criar o controle com Tailwind
+    const control = createTailwindControl(type, controlId);
+    control.draggable = false; // Wrapper será draggable
+
+    controlWrapper.appendChild(badge);
+    controlWrapper.appendChild(deleteBtn);
+    controlWrapper.appendChild(control);
 
     // Adicionar ao grid item
     const contentArea = gridItem.querySelector('.grid-item-content');
@@ -1480,7 +1483,7 @@ document.addEventListener('DOMContentLoaded', function() {
       emptyState.remove();
     }
 
-    contentArea.appendChild(control);
+    contentArea.appendChild(controlWrapper);
 
     console.log(`✅ Controle ${type} adicionado ao grid item ${gridItem.dataset.colSize}`);
   }
@@ -1862,6 +1865,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.className = 'component-button px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium text-sm';
         btn.textContent = 'Button';
         btn.onclick = () => alert('Button clicked!');
+        // Draggable será controlado pelo wrapper
         return btn;
       },
       input: () => {
@@ -1870,6 +1874,7 @@ document.addEventListener('DOMContentLoaded', function() {
         input.placeholder = 'Enter text...';
         input.type = 'text';
         input.style.width = '120px';
+        // Draggable será controlado pelo wrapper
         return input;
       },
       select: () => {
@@ -1881,11 +1886,13 @@ document.addEventListener('DOMContentLoaded', function() {
           <option>Option 2</option>
           <option>Option 3</option>
         `;
+        // Draggable será controlado pelo wrapper
         return select;
       },
       checkbox: () => {
         const wrapper = document.createElement('label');
         wrapper.className = 'component-checkbox inline-flex items-center gap-1 cursor-pointer text-sm';
+        // Draggable será controlado pelo wrapper pai
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'w-3 h-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500';
@@ -1900,6 +1907,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const wrapper = document.createElement('div');
         wrapper.className = 'inline-block';
         wrapper.style.width = '120px';
+        // Draggable será controlado pelo wrapper pai
         const slider = document.createElement('input');
         slider.type = 'range';
         slider.className = 'component-slider w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer';
@@ -1919,6 +1927,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const text = document.createElement('span');
         text.className = 'component-text text-gray-800 text-sm';
         text.textContent = 'Text';
+        // Draggable será controlado pelo wrapper
         if (editMode) {
           text.contentEditable = true;
           text.className += ' border-dashed border-1 border-gray-300 px-1 rounded';
@@ -1929,6 +1938,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const badge = document.createElement('span');
         badge.className = 'component-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
         badge.textContent = 'Badge';
+        // Draggable será controlado pelo wrapper
         return badge;
       },
       alert: () => {
@@ -1936,6 +1946,7 @@ document.addEventListener('DOMContentLoaded', function() {
         alert.className = 'component-alert inline-block px-3 py-1 text-xs rounded bg-blue-50 text-blue-800 border border-blue-200';
         alert.style.maxWidth = '150px';
         alert.innerHTML = '<strong>Info:</strong> Alert message';
+        // Draggable será controlado pelo wrapper
         return alert;
       }
     };
@@ -1970,6 +1981,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Criar indicadores visuais para controle individual
     addControlSelectionIndicators(control);
+
+    // Mostrar dica de delete
+    showDeleteHint();
 
     console.log(`🎯 Controle individual selecionado: ${control.tagName} (${control.dataset.controlType || 'unknown'})`);
   }
@@ -2054,6 +2068,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Desselecionar controles individuais
     removeControlSelectionIndicators();
+
+    // Esconder dica de delete
+    hideDeleteHint();
 
     selectedElement = null;
   }
@@ -2140,6 +2157,104 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  function setupControlDragAndDrop(container) {
+    let draggedControl = null;
+
+    // Event listeners para drag start
+    container.addEventListener('dragstart', function(e) {
+      if (!editMode) {
+        e.preventDefault();
+        return;
+      }
+
+      // Verificar se é um wrapper de controle draggable
+      const control = e.target.closest('.layout-control[draggable="true"]');
+      if (control && control.dataset.controlType) {
+        draggedControl = control;
+        control.style.opacity = '0.5';
+        control.classList.add('dragging');
+
+        // Adicionar dados do drag
+        e.dataTransfer.setData('text/plain', control.dataset.controlType);
+        e.dataTransfer.setData('control-id', control.dataset.controlId);
+
+        console.log(`🎯 Iniciando drag do controle: ${control.dataset.controlType}`);
+      }
+    });
+
+    // Event listeners para drag end
+    container.addEventListener('dragend', function(e) {
+      if (draggedControl) {
+        draggedControl.style.opacity = '1';
+        draggedControl.classList.remove('dragging');
+        draggedControl = null;
+      }
+
+      // Remover indicadores visuais de drop
+      document.querySelectorAll('.drop-target').forEach(el => {
+        el.classList.remove('drop-target');
+      });
+    });
+
+    // Event listeners para drag over (permitir drop)
+    container.addEventListener('dragover', function(e) {
+      if (!draggedControl || !editMode) return;
+
+      e.preventDefault();
+
+      // Encontrar container válido para drop
+      const dropTarget = e.target.closest('.layout-content, .grid-item-content');
+      if (dropTarget && dropTarget !== draggedControl.parentElement) {
+        dropTarget.classList.add('drop-target');
+      }
+    });
+
+    // Event listeners para drag leave
+    container.addEventListener('dragleave', function(e) {
+      const dropTarget = e.target.closest('.layout-content, .grid-item-content');
+      if (dropTarget) {
+        dropTarget.classList.remove('drop-target');
+      }
+    });
+
+    // Event listeners para drop
+    container.addEventListener('drop', function(e) {
+      if (!draggedControl || !editMode) return;
+
+      e.preventDefault();
+
+      // Encontrar container de destino
+      const dropTarget = e.target.closest('.layout-content, .grid-item-content');
+      if (dropTarget && dropTarget !== draggedControl.parentElement) {
+
+        // Mover o controle para o novo container
+        const originalParent = draggedControl.parentElement;
+        dropTarget.appendChild(draggedControl);
+
+        // Remover empty state se existir
+        const emptyState = dropTarget.querySelector('.layout-empty, div[style*="text-center"]');
+        if (emptyState && emptyState.textContent.includes('Arraste controles aqui')) {
+          emptyState.remove();
+        }
+
+        // Adicionar empty state ao container original se ficou vazio
+        if (originalParent && originalParent.children.length === 0) {
+          const emptyDiv = document.createElement('div');
+          emptyDiv.className = 'layout-empty';
+          emptyDiv.textContent = 'Arraste controles aqui';
+          originalParent.appendChild(emptyDiv);
+        }
+
+        console.log(`✅ Controle movido para novo container`);
+      }
+
+      // Remover indicadores visuais
+      document.querySelectorAll('.drop-target').forEach(el => {
+        el.classList.remove('drop-target');
+      });
+    });
+  }
+
   function showLayoutSettings(layoutContainer) {
     const type = layoutContainer.dataset.layoutType;
     const settings = prompt(`Configurações do ${type}:\n\nClasses Tailwind atuais: ${layoutContainer.className}\n\nDigite novas classes:`, '');
@@ -2209,6 +2324,37 @@ document.addEventListener('DOMContentLoaded', function() {
       indicator.className = 'edit-mode-indicator';
       indicator.innerHTML = '✏️ MODO EDIÇÃO ATIVO<br><small>Clique nos controles para selecioná-los</small>';
       document.body.appendChild(indicator);
+    }
+  }
+
+  function showDeleteHint() {
+    // Remover dica existente
+    hideDeleteHint();
+
+    // Criar nova dica
+    const hint = document.createElement('div');
+    hint.className = 'delete-hint';
+    hint.innerHTML = '🗑️ Pressione DELETE para apagar ou arraste para mover';
+    document.body.appendChild(hint);
+
+    // Mostrar com delay
+    setTimeout(() => {
+      hint.classList.add('show');
+    }, 100);
+
+    // Esconder automaticamente após 3 segundos
+    setTimeout(() => {
+      hideDeleteHint();
+    }, 3000);
+  }
+
+  function hideDeleteHint() {
+    const existingHint = document.querySelector('.delete-hint');
+    if (existingHint) {
+      existingHint.classList.remove('show');
+      setTimeout(() => {
+        existingHint.remove();
+      }, 300);
     }
   }
 
