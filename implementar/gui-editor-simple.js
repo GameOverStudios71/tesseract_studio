@@ -1201,6 +1201,13 @@ document.addEventListener('DOMContentLoaded', function() {
         'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)' :
         'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)';
 
+      // Adicionar/remover classe no body para CSS
+      if (editMode) {
+        document.body.classList.add('edit-mode');
+      } else {
+        document.body.classList.remove('edit-mode');
+      }
+
       // Atualizar visibilidade dos controles de edição
       updateEditModeVisibility(contentArea);
 
@@ -1255,6 +1262,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Configurar drag and drop para controles
     setupControlDragAndDrop(contentArea);
+
+    // Configurar drag and drop do menu
+    setupMenuDragAndDrop(contentArea);
   }
 
   function addLayoutToViewport(type, container) {
@@ -1902,8 +1912,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const btn = document.createElement('button');
         btn.className = 'component-button px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium text-sm';
         btn.textContent = 'Button';
-        btn.onclick = () => alert('Button clicked!');
-        // Draggable será controlado pelo wrapper
+
+        // Funcionalidade apenas quando não estiver em modo edição
+        btn.onclick = (e) => {
+          if (!editMode) {
+            console.log('Button clicked!');
+            // Aqui você pode adicionar funcionalidade real do botão
+          } else {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        };
+
         return btn;
       },
       input: () => {
@@ -1912,7 +1932,15 @@ document.addEventListener('DOMContentLoaded', function() {
         input.placeholder = 'Enter text...';
         input.type = 'text';
         input.style.width = '120px';
-        // Draggable será controlado pelo wrapper
+
+        // Desabilitar interação em modo edição
+        input.onfocus = (e) => {
+          if (editMode) {
+            e.target.blur();
+            e.preventDefault();
+          }
+        };
+
         return input;
       },
       select: () => {
@@ -1924,16 +1952,33 @@ document.addEventListener('DOMContentLoaded', function() {
           <option>Option 2</option>
           <option>Option 3</option>
         `;
-        // Draggable será controlado pelo wrapper
+
+        // Desabilitar interação em modo edição
+        select.onfocus = (e) => {
+          if (editMode) {
+            e.target.blur();
+            e.preventDefault();
+          }
+        };
+
         return select;
       },
       checkbox: () => {
         const wrapper = document.createElement('label');
         wrapper.className = 'component-checkbox inline-flex items-center gap-1 cursor-pointer text-sm';
-        // Draggable será controlado pelo wrapper pai
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'w-3 h-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500';
+
+        // Desabilitar interação em modo edição
+        checkbox.onclick = (e) => {
+          if (editMode) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        };
+
         const text = document.createElement('span');
         text.textContent = 'Check';
         text.className = 'text-gray-700';
@@ -1945,7 +1990,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const wrapper = document.createElement('div');
         wrapper.className = 'inline-block';
         wrapper.style.width = '120px';
-        // Draggable será controlado pelo wrapper pai
+
         const slider = document.createElement('input');
         slider.type = 'range';
         slider.className = 'component-slider w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer';
@@ -1953,10 +1998,27 @@ document.addEventListener('DOMContentLoaded', function() {
         slider.max = '100';
         slider.value = '50';
         slider.style.width = '100px';
+
         const label = document.createElement('div');
         label.className = 'text-xs text-gray-600 text-center mt-1';
         label.textContent = '50';
-        slider.oninput = () => label.textContent = slider.value;
+
+        // Funcionalidade apenas quando não estiver em modo edição
+        slider.oninput = (e) => {
+          if (!editMode) {
+            label.textContent = slider.value;
+          } else {
+            e.preventDefault();
+          }
+        };
+
+        // Desabilitar interação em modo edição
+        slider.onmousedown = (e) => {
+          if (editMode) {
+            e.preventDefault();
+          }
+        };
+
         wrapper.appendChild(slider);
         wrapper.appendChild(label);
         return wrapper;
@@ -1965,11 +2027,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const text = document.createElement('span');
         text.className = 'component-text text-gray-800 text-sm';
         text.textContent = 'Text';
-        // Draggable será controlado pelo wrapper
-        if (editMode) {
-          text.contentEditable = true;
-          text.className += ' border-dashed border-1 border-gray-300 px-1 rounded';
-        }
+
+        // Texto editável apenas quando não estiver em modo edição
+        text.onclick = (e) => {
+          if (!editMode) {
+            text.contentEditable = true;
+            text.focus();
+            text.className += ' border-dashed border-1 border-gray-300 px-1 rounded';
+          } else {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        };
+
+        text.onblur = () => {
+          text.contentEditable = false;
+          text.className = text.className.replace(' border-dashed border-1 border-gray-300 px-1 rounded', '');
+        };
+
         return text;
       },
       badge: () => {
@@ -2329,6 +2404,158 @@ document.addEventListener('DOMContentLoaded', function() {
         el.classList.remove('drop-target');
       });
     });
+  }
+
+  function setupMenuDragAndDrop(contentArea) {
+    const menuButtons = document.querySelectorAll('.add-control-btn[draggable="true"], .add-layout-btn[draggable="true"]');
+    let draggedMenuButton = null;
+
+    menuButtons.forEach(button => {
+      // Event listener para drag start dos botões do menu
+      button.addEventListener('dragstart', function(e) {
+        draggedMenuButton = this;
+
+        // Adicionar dados do drag
+        const controlType = this.dataset.control;
+        const layoutType = this.dataset.layout;
+
+        if (controlType) {
+          e.dataTransfer.setData('menu-type', 'control');
+          e.dataTransfer.setData('control-type', controlType);
+        } else if (layoutType) {
+          e.dataTransfer.setData('menu-type', 'layout');
+          e.dataTransfer.setData('layout-type', layoutType);
+        }
+
+        // Efeito visual no botão
+        this.style.opacity = '0.5';
+        this.style.transform = 'scale(0.9)';
+
+        console.log(`🎯 Iniciando drag do menu: ${controlType || layoutType}`);
+      });
+
+      // Event listener para drag end dos botões do menu
+      button.addEventListener('dragend', function(e) {
+        // Restaurar aparência do botão
+        this.style.opacity = '1';
+        this.style.transform = 'scale(1)';
+        draggedMenuButton = null;
+
+        // Remover indicadores visuais de drop
+        document.querySelectorAll('.menu-drop-target').forEach(el => {
+          el.classList.remove('menu-drop-target');
+        });
+      });
+    });
+
+    // Event listeners para o viewport aceitar drops do menu
+    contentArea.addEventListener('dragover', function(e) {
+      if (!draggedMenuButton) return;
+
+      e.preventDefault();
+
+      // Encontrar container válido para drop
+      const dropTarget = e.target.closest('.layout-content, .grid-item-content, .content');
+      if (dropTarget) {
+        dropTarget.classList.add('menu-drop-target');
+      }
+    });
+
+    contentArea.addEventListener('dragleave', function(e) {
+      if (!draggedMenuButton) return;
+
+      const dropTarget = e.target.closest('.layout-content, .grid-item-content, .content');
+      if (dropTarget) {
+        dropTarget.classList.remove('menu-drop-target');
+      }
+    });
+
+    contentArea.addEventListener('drop', function(e) {
+      if (!draggedMenuButton) return;
+
+      e.preventDefault();
+
+      const menuType = e.dataTransfer.getData('menu-type');
+      const controlType = e.dataTransfer.getData('control-type');
+      const layoutType = e.dataTransfer.getData('layout-type');
+
+      // Encontrar container de destino
+      const dropTarget = e.target.closest('.layout-content, .grid-item-content');
+      const mainContent = e.target.closest('.content');
+
+      if (menuType === 'control' && controlType) {
+        if (dropTarget) {
+          // Adicionar controle ao container específico
+          addControlToDropTarget(controlType, dropTarget);
+        } else {
+          alert('Arraste o controle para dentro de um container (Row, Column, Grid, etc.)');
+        }
+      } else if (menuType === 'layout' && layoutType) {
+        if (dropTarget) {
+          // Adicionar layout dentro de outro layout
+          addLayoutToDropTarget(layoutType, dropTarget);
+        } else if (mainContent) {
+          // Adicionar layout ao viewport principal
+          addLayoutToViewport(layoutType, mainContent);
+        }
+      }
+
+      // Remover indicadores visuais
+      document.querySelectorAll('.menu-drop-target').forEach(el => {
+        el.classList.remove('menu-drop-target');
+      });
+
+      console.log(`✅ Item do menu ${controlType || layoutType} adicionado via drag and drop`);
+    });
+  }
+
+  function addControlToDropTarget(controlType, dropTarget) {
+    // Auto-ativar modo edição se não estiver ativo
+    if (!editMode) {
+      const toggleBtn = document.querySelector('.toggle-edit-mode');
+      if (toggleBtn) toggleBtn.click();
+    }
+
+    // Determinar o tipo de container
+    const layoutContainer = dropTarget.closest('.layout-container');
+    const gridItem = dropTarget.closest('.grid-item');
+
+    if (gridItem) {
+      // Adicionar ao grid item
+      addControlToGridItem(controlType, gridItem);
+    } else if (layoutContainer) {
+      const layoutType = layoutContainer.dataset.layoutType;
+
+      if (layoutType === 'grid-fluid' || layoutType === 'grid-auto') {
+        addControlToGridCell(controlType, layoutContainer);
+      } else {
+        addControlToFlexContainer(controlType, layoutContainer);
+      }
+    }
+  }
+
+  function addLayoutToDropTarget(layoutType, dropTarget) {
+    // Auto-ativar modo edição se não estiver ativo
+    if (!editMode) {
+      const toggleBtn = document.querySelector('.toggle-edit-mode');
+      if (toggleBtn) toggleBtn.click();
+    }
+
+    const layoutContainer = dropTarget.closest('.layout-container');
+
+    if (layoutContainer) {
+      const parentType = layoutContainer.dataset.layoutType;
+
+      if (layoutType === 'column' && parentType === 'row') {
+        addColumnToRow(layoutContainer);
+      } else if (layoutType === 'row' && parentType === 'column') {
+        addRowToColumn(layoutContainer);
+      } else if (layoutType.startsWith('col-') && parentType === 'grid-12') {
+        addGridItem(layoutContainer, layoutType);
+      } else {
+        addLayoutToContainer(layoutType, layoutContainer);
+      }
+    }
   }
 
   function showLayoutSettings(layoutContainer) {

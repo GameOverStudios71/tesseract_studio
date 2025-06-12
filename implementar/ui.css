@@ -1558,6 +1558,59 @@
             border-radius: 4px;
         }
 
+        /* === 🔒 CONTROLES EM MODO EDIÇÃO === */
+        body.edit-mode .component-button,
+        body.edit-mode .component-input,
+        body.edit-mode .component-select,
+        body.edit-mode .component-checkbox,
+        body.edit-mode .component-slider {
+            pointer-events: none;
+            opacity: 0.8;
+            position: relative;
+        }
+
+        body.edit-mode .component-button::after,
+        body.edit-mode .component-input::after,
+        body.edit-mode .component-select::after,
+        body.edit-mode .component-checkbox::after,
+        body.edit-mode .component-slider::after {
+            content: '✏️';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            font-size: 8px;
+            background: rgba(255, 215, 0, 0.9);
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        /* === 🎯 CONTROLES FUNCIONAIS (MODO VISUALIZAÇÃO) === */
+        body:not(.edit-mode) .component-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        body:not(.edit-mode) .component-input:focus,
+        body:not(.edit-mode) .component-select:focus {
+            ring: 2px;
+            ring-color: #3b82f6;
+            ring-opacity: 0.5;
+        }
+
+        body:not(.edit-mode) .component-text {
+            cursor: text;
+        }
+
+        body:not(.edit-mode) .component-text:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
         /* === 📱 RESPONSIVIDADE PARA CONTROLES === */
         @media (max-width: 640px) {
             .layout-control,
@@ -1583,6 +1636,97 @@
 
             .sortable-drag {
                 transform: rotate(3deg) scale(0.95) !important;
+            }
+        }
+
+        /* === 🎯 DRAG AND DROP DO MENU === */
+        .add-control-btn[draggable="true"],
+        .add-layout-btn[draggable="true"] {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+
+        .add-control-btn[draggable="true"]:active,
+        .add-layout-btn[draggable="true"]:active {
+            cursor: grabbing;
+        }
+
+        .add-control-btn[draggable="true"]:hover,
+        .add-layout-btn[draggable="true"]:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* === 📥 DROP ZONES DO MENU === */
+        .menu-drop-target {
+            background: rgba(76, 175, 80, 0.15) !important;
+            border: 2px dashed #4CAF50 !important;
+            border-radius: 6px !important;
+            position: relative;
+        }
+
+        .menu-drop-target::before {
+            content: '📥 Solte aqui para adicionar';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(76, 175, 80, 0.95);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 1000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* === 🎨 ESTADOS VISUAIS DO MENU === */
+        .add-control-btn[style*="opacity: 0.5"],
+        .add-layout-btn[style*="opacity: 0.5"] {
+            background: rgba(255, 215, 0, 0.2) !important;
+            border: 1px solid #ffd700 !important;
+        }
+
+        /* === 🔧 INDICADORES DE TIPO === */
+        .menu-drop-target.layout-content::after {
+            content: '📐 Layout Container';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            z-index: 1001;
+        }
+
+        .menu-drop-target.grid-item-content::after {
+            content: '⊞ Grid Item';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            z-index: 1001;
+        }
+
+        /* === 📱 RESPONSIVIDADE PARA DRAG DO MENU === */
+        @media (max-width: 640px) {
+            .menu-drop-target::before {
+                font-size: 9px;
+                padding: 4px 8px;
+            }
+
+            .add-control-btn[draggable="true"],
+            .add-layout-btn[draggable="true"] {
+                font-size: 10px;
+                padding: 4px 6px;
             }
         }
 
