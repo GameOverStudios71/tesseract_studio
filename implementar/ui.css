@@ -1501,6 +1501,63 @@
             opacity: 1;
         }
 
+        /* === 🔄 SORTABLE.JS STYLES === */
+        .sortable-ghost {
+            opacity: 0.4 !important;
+            background: rgba(255, 215, 0, 0.2) !important;
+            border: 2px dashed #ffd700 !important;
+            border-radius: 4px !important;
+        }
+
+        .sortable-chosen {
+            background: rgba(255, 215, 0, 0.1) !important;
+            border: 1px solid #ffd700 !important;
+            border-radius: 4px !important;
+        }
+
+        .sortable-drag {
+            opacity: 0.8 !important;
+            transform: rotate(5deg) !important;
+            z-index: 1000 !important;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* === 🎯 REORDENAÇÃO VISUAL === */
+        .layout-content.sortable-active {
+            background: rgba(76, 175, 80, 0.05) !important;
+            border: 1px dashed #4CAF50 !important;
+            border-radius: 4px !important;
+        }
+
+        .grid-item-content.sortable-active {
+            background: rgba(76, 175, 80, 0.05) !important;
+            border: 1px dashed #4CAF50 !important;
+            border-radius: 4px !important;
+        }
+
+        /* === 📍 INDICADORES DE POSIÇÃO === */
+        .sortable-fallback {
+            display: none !important;
+        }
+
+        .layout-control.dragging {
+            opacity: 0.5 !important;
+            transform: rotate(3deg) scale(1.05) !important;
+            z-index: 1000 !important;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4) !important;
+        }
+
+        /* === 🎮 HOVER DURANTE REORDENAÇÃO === */
+        .layout-content:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
+        }
+
+        .grid-item-content:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
+        }
+
         /* === 📱 RESPONSIVIDADE PARA CONTROLES === */
         @media (max-width: 640px) {
             .layout-control,
@@ -1518,6 +1575,14 @@
             .drop-target::before {
                 font-size: 9px;
                 padding: 2px 4px;
+            }
+
+            .sortable-ghost {
+                opacity: 0.6 !important;
+            }
+
+            .sortable-drag {
+                transform: rotate(3deg) scale(0.95) !important;
             }
         }
 

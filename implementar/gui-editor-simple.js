@@ -1782,6 +1782,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const contentArea = gridItem.querySelector('.grid-item-content');
     if (!contentArea) return;
 
+    // Configurar Sortable.js para reordenação de controles dentro do grid item
+    if (typeof Sortable !== 'undefined') {
+      new Sortable(contentArea, {
+        group: 'controls', // Permite mover entre diferentes containers
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        filter: '.layout-empty, div[style*="text-center"]', // Ignorar elementos vazios
+        onStart: function(evt) {
+          console.log('🎯 Iniciando reordenação no grid item:', evt.item.dataset.controlType);
+          evt.item.classList.add('dragging');
+        },
+        onEnd: function(evt) {
+          const item = evt.item;
+          const fromContainer = evt.from;
+          const toContainer = evt.to;
+
+          item.classList.remove('dragging');
+
+          // Remover empty state do container de destino se necessário
+          const emptyState = toContainer.querySelector('div[style*="text-center"]');
+          if (emptyState && emptyState.textContent.includes('Arraste controles aqui') && toContainer.children.length > 1) {
+            emptyState.remove();
+          }
+
+          // Adicionar empty state ao container de origem se ficou vazio
+          if (fromContainer !== toContainer && fromContainer.children.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.style.cssText = 'text-center text-gray-500 text-sm';
+            emptyDiv.innerHTML = `${gridItem.dataset.colSize?.toUpperCase() || 'GRID'}<br>Arraste controles aqui`;
+            fromContainer.appendChild(emptyDiv);
+          }
+
+          console.log(`✅ Controle ${item.dataset.controlType} reordenado no grid item`);
+        }
+      });
+    }
+
     contentArea.addEventListener('dragover', function(e) {
       e.preventDefault();
       this.classList.add('drag-over');
@@ -1795,7 +1834,6 @@ document.addEventListener('DOMContentLoaded', function() {
     contentArea.addEventListener('drop', function(e) {
       e.preventDefault();
       this.classList.remove('drag-over');
-      // Implementar drop de controles aqui se necessário
     });
   }
 
@@ -2126,6 +2164,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const contentArea = layoutContainer.querySelector('.layout-content');
     if (!contentArea) return;
 
+    // Configurar Sortable.js para reordenação de controles
+    if (typeof Sortable !== 'undefined') {
+      new Sortable(contentArea, {
+        group: 'controls', // Permite mover entre diferentes containers
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        filter: '.layout-empty', // Ignorar elementos vazios
+        onStart: function(evt) {
+          console.log('🎯 Iniciando reordenação:', evt.item.dataset.controlType);
+          evt.item.classList.add('dragging');
+        },
+        onEnd: function(evt) {
+          const item = evt.item;
+          const fromContainer = evt.from;
+          const toContainer = evt.to;
+
+          item.classList.remove('dragging');
+
+          // Remover empty state do container de destino se necessário
+          const emptyState = toContainer.querySelector('.layout-empty');
+          if (emptyState && toContainer.children.length > 1) {
+            emptyState.remove();
+          }
+
+          // Adicionar empty state ao container de origem se ficou vazio
+          if (fromContainer !== toContainer && fromContainer.children.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'layout-empty';
+            emptyDiv.textContent = 'Arraste controles aqui';
+            fromContainer.appendChild(emptyDiv);
+          }
+
+          console.log(`✅ Controle ${item.dataset.controlType} reordenado`);
+        }
+      });
+    }
+
     contentArea.addEventListener('dragover', function(e) {
       e.preventDefault();
       this.classList.add('drag-over');
@@ -2139,7 +2216,6 @@ document.addEventListener('DOMContentLoaded', function() {
     contentArea.addEventListener('drop', function(e) {
       e.preventDefault();
       this.classList.remove('drag-over');
-      // Implementar drop de controles aqui se necessário
     });
   }
 
