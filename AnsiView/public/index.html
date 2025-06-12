@@ -237,6 +237,29 @@
             padding: 1rem;
         }
 
+        .preset-save-section {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .preset-actions-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            flex-wrap: wrap;
+        }
+
+        .preset-actions-bar button {
+            font-size: 0.85em;
+            padding: 0.4rem 0.8rem;
+        }
+
         #fontSelect, #asciiSelect {
             padding: 0.5rem;
             min-width: 250px;
@@ -300,15 +323,15 @@
         }
 
         .preset-thumbnail {
-            flex: 0 0 200px;
-            height: 120px;
+            flex: 0 0 300px;
+            height: 150px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             background-color: var(--input-bg);
             font-family: 'Courier New', 'Lucida Console', monospace;
-            font-size: 8px;
+            font-size: 9px;
             line-height: 1.0;
-            padding: 4px;
+            padding: 6px;
             overflow: hidden;
             white-space: pre;
             color: var(--text-color);
@@ -550,8 +573,18 @@
             .preset-thumbnail {
                 flex: none;
                 width: 100%;
-                height: 100px;
-                font-size: 7px;
+                height: 120px;
+                font-size: 8px;
+            }
+
+            .preset-actions-bar {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .preset-actions-bar button {
+                font-size: 0.8em;
+                padding: 0.3rem 0.6rem;
             }
 
             .preset-actions {
@@ -625,11 +658,18 @@ abcdefghijklmnopqrstuvwxyz
                 </div>
 
                 <div class="presets">
-                    <input type="text" id="presetName" placeholder="Nome do preset (opcional - será gerado automaticamente)">
-                    <button id="savePreset">Salvar Preset</button>
+                    <div class="preset-save-section">
+                        <input type="text" id="presetName" placeholder="Nome do preset (opcional - será gerado automaticamente)">
+                        <button id="savePreset">Salvar Preset</button>
+                    </div>
 
                     <details>
                         <summary>Presets Salvos</summary>
+                        <div class="preset-actions-bar">
+                            <button id="exportPresets" title="Exportar todos os presets para arquivo JSON">📤 Exportar Todos</button>
+                            <button id="importPresets" title="Importar presets de arquivo JSON">📥 Importar</button>
+                            <input type="file" id="importFile" accept=".json" style="display: none;">
+                        </div>
                         <div id="presetList"></div>
                     </details>
                 </div>
@@ -667,6 +707,9 @@ abcdefghijklmnopqrstuvwxyz
         const container = document.querySelector('.container');
         const copyFromMainBtn = document.getElementById('copyFromMain');
         const clearPresetBtn = document.getElementById('clearPreset');
+        const exportPresetsBtn = document.getElementById('exportPresets');
+        const importPresetsBtn = document.getElementById('importPresets');
+        const importFile = document.getElementById('importFile');
         const presetModal = document.getElementById('presetModal');
         const modalContent = document.getElementById('modalContent');
         const modalHeader = document.getElementById('modalHeader');
@@ -746,6 +789,75 @@ abcdefghijklmnopqrstuvwxyz
             }
 
             return `${baseName} ${timestamp}`;
+        }
+
+        // Funções para exportar/importar presets
+        function exportPresets() {
+            if (presets.length === 0) {
+                alert('Não há presets para exportar.');
+                return;
+            }
+
+            const exportData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                totalPresets: presets.length,
+                presets: presets
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `presets_backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+
+            // Mostrar feedback visual
+            exportPresetsBtn.textContent = '✅ Exportado!';
+            setTimeout(() => {
+                exportPresetsBtn.textContent = '📤 Exportar Todos';
+            }, 2000);
+        }
+
+        function importPresets(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importData = JSON.parse(e.target.result);
+
+                    // Validar estrutura do arquivo
+                    if (!importData.presets || !Array.isArray(importData.presets)) {
+                        throw new Error('Formato de arquivo inválido');
+                    }
+
+                    // Confirmar importação
+                    const confirmMsg = `Importar ${importData.presets.length} presets?\n\nIsso irá adicionar aos presets existentes (${presets.length} presets atuais).`;
+
+                    if (confirm(confirmMsg)) {
+                        // Adicionar presets importados
+                        const importedCount = importData.presets.length;
+                        presets.push(...importData.presets);
+
+                        localStorage.setItem('textPresets', JSON.stringify(presets));
+                        renderPresets();
+
+                        alert(`${importedCount} presets importados com sucesso!`);
+
+                        // Mostrar feedback visual
+                        importPresetsBtn.textContent = '✅ Importado!';
+                        setTimeout(() => {
+                            importPresetsBtn.textContent = '📥 Importar';
+                        }, 2000);
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao importar presets:', error);
+                    alert('Erro ao importar arquivo. Verifique se é um arquivo de backup válido.');
+                }
+            };
+
+            reader.readAsText(file);
         }
 
         // Funções para o modal
@@ -1107,6 +1219,15 @@ abcdefghijklmnopqrstuvwxyz
         themeToggle.addEventListener('click', toggleTheme);
         copyFromMainBtn.addEventListener('click', copyFromMainToPreset);
         clearPresetBtn.addEventListener('click', clearPresetArea);
+        exportPresetsBtn.addEventListener('click', exportPresets);
+        importPresetsBtn.addEventListener('click', () => importFile.click());
+        importFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                importPresets(file);
+                e.target.value = ''; // Limpar input para permitir reimportar o mesmo arquivo
+            }
+        });
 
         // Event listeners para o modal
         closeModal.addEventListener('click', hidePresetModal);
@@ -1255,8 +1376,8 @@ abcdefghijklmnopqrstuvwxyz
         // Função para truncar texto para miniatura
         function truncateTextForThumbnail(text) {
             const lines = text.split('\n');
-            const maxLines = 15;
-            const maxCharsPerLine = 25;
+            const maxLines = 18;
+            const maxCharsPerLine = 40;
 
             let result = [];
             for (let i = 0; i < Math.min(lines.length, maxLines); i++) {
