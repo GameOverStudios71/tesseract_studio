@@ -9,6 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="ui.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Sortable.js para drag and drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
     <!-- Menu Suspenso Compacto -->
@@ -53,38 +59,71 @@
             <div id="tab-controls" class="tab-content">
                 <div id="controls-container">
                     <div class="controls-section">
-                        <h4>🎛️ Adicionar Controles ao Viewport</h4>
+                        <h4>🎛️ Layout Builder com Tailwind</h4>
                         <p style="font-size: 11px; color: #aaa; margin-bottom: 15px;">
-                            Clique nos botões abaixo para adicionar controles diretamente no viewport principal
+                            Crie layouts responsivos usando rows, columns e controles
                         </p>
 
-                        <div class="control-buttons">
-                            <button class="add-control-btn" data-control="button">
-                                <span>🔘</span> Adicionar Botão
-                            </button>
-                            <button class="add-control-btn" data-control="input">
-                                <span>📝</span> Adicionar Input
-                            </button>
-                            <button class="add-control-btn" data-control="select">
-                                <span>📋</span> Adicionar Select
-                            </button>
-                            <button class="add-control-btn" data-control="checkbox">
-                                <span>☑️</span> Adicionar Checkbox
-                            </button>
-                            <button class="add-control-btn" data-control="slider">
-                                <span>🎚️</span> Adicionar Slider
-                            </button>
-                            <button class="add-control-btn" data-control="text">
-                                <span>📄</span> Adicionar Texto
-                            </button>
+                        <!-- Seção de Layout -->
+                        <div class="layout-section">
+                            <h5 style="color: #ffd700; font-size: 12px; margin-bottom: 8px;">📐 Layout Containers</h5>
+                            <div class="layout-buttons">
+                                <button class="add-layout-btn" data-layout="row">
+                                    <span>📏</span> Adicionar Row
+                                </button>
+                                <button class="add-layout-btn" data-layout="column">
+                                    <span>📐</span> Adicionar Column
+                                </button>
+                                <button class="add-layout-btn" data-layout="grid">
+                                    <span>⊞</span> Adicionar Grid
+                                </button>
+                                <button class="add-layout-btn" data-layout="card">
+                                    <span>🃏</span> Adicionar Card
+                                </button>
+                            </div>
                         </div>
 
+                        <!-- Seção de Controles -->
+                        <div class="controls-section-inner">
+                            <h5 style="color: #ffd700; font-size: 12px; margin-bottom: 8px;">🎛️ Controles</h5>
+                            <div class="control-buttons">
+                                <button class="add-control-btn" data-control="button">
+                                    <span>🔘</span> Button
+                                </button>
+                                <button class="add-control-btn" data-control="input">
+                                    <span>📝</span> Input
+                                </button>
+                                <button class="add-control-btn" data-control="select">
+                                    <span>📋</span> Select
+                                </button>
+                                <button class="add-control-btn" data-control="checkbox">
+                                    <span>☑️</span> Checkbox
+                                </button>
+                                <button class="add-control-btn" data-control="slider">
+                                    <span>🎚️</span> Slider
+                                </button>
+                                <button class="add-control-btn" data-control="text">
+                                    <span>📄</span> Text
+                                </button>
+                                <button class="add-control-btn" data-control="badge">
+                                    <span>🏷️</span> Badge
+                                </button>
+                                <button class="add-control-btn" data-control="alert">
+                                    <span>⚠️</span> Alert
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Ações -->
                         <div class="control-actions">
                             <button id="clear-viewport" class="action-btn danger">
-                                🗑️ Limpar Viewport
+                                🗑️ Limpar Tudo
                             </button>
                             <button id="toggle-edit-mode" class="action-btn">
                                 ✏️ Modo Edição
+                            </button>
+                            <button id="export-layout" class="action-btn">
+                                📤 Exportar HTML
                             </button>
                         </div>
                     </div>

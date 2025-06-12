@@ -923,3 +923,270 @@
             line-height: 1.4;
             font-family: 'Exo 2', sans-serif;
         }
+
+        /* === 📐 LAYOUT BUILDERS === */
+        .layout-section {
+            margin-bottom: 15px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .layout-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .add-layout-btn {
+            padding: 6px 8px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Exo 2', sans-serif;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .add-layout-btn:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(102, 126, 234, 0.2) 100%);
+            border-color: rgba(102, 126, 234, 0.5);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .controls-section-inner {
+            margin-bottom: 15px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* === 🏗️ LAYOUT CONTAINERS NO VIEWPORT === */
+        .layout-container {
+            min-height: 60px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            position: relative;
+            margin: 10px 0;
+            transition: all 0.2s ease;
+        }
+
+        .layout-container:hover {
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .layout-container.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .layout-container.drop-target {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .layout-header {
+            position: absolute;
+            top: -12px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffd700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            font-family: 'Exo 2', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .layout-controls {
+            position: absolute;
+            top: -12px;
+            right: 8px;
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .layout-container:hover .layout-controls,
+        .layout-container.selected .layout-controls {
+            opacity: 1;
+        }
+
+        .layout-control-btn {
+            width: 16px;
+            height: 16px;
+            border: none;
+            border-radius: 2px;
+            font-size: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .layout-delete-btn {
+            background: rgba(255, 0, 0, 0.7);
+        }
+
+        .layout-delete-btn:hover {
+            background: rgba(255, 0, 0, 0.9);
+        }
+
+        .layout-settings-btn {
+            background: rgba(102, 126, 234, 0.7);
+        }
+
+        .layout-settings-btn:hover {
+            background: rgba(102, 126, 234, 0.9);
+        }
+
+        /* === 🎯 CONTROLES DENTRO DE LAYOUTS === */
+        .layout-control {
+            margin: 8px;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .layout-control:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .layout-control.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .layout-control .control-badge {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            background: #ffd700;
+            color: #000;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .layout-control:hover .control-badge,
+        .layout-control.selected .control-badge {
+            opacity: 1;
+        }
+
+        .layout-control .control-delete {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .layout-control:hover .control-delete,
+        .layout-control.selected .control-delete {
+            opacity: 1;
+        }
+
+        /* === 🎨 COMPONENTES TAILWIND === */
+        .tw-button {
+            @apply px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors;
+        }
+
+        .tw-input {
+            @apply px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500;
+        }
+
+        .tw-select {
+            @apply px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500;
+        }
+
+        .tw-checkbox {
+            @apply flex items-center space-x-2;
+        }
+
+        .tw-slider {
+            @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+        }
+
+        .tw-text {
+            @apply text-gray-800;
+        }
+
+        .tw-badge {
+            @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800;
+        }
+
+        .tw-alert {
+            @apply p-4 mb-4 text-sm rounded-lg bg-blue-50 text-blue-800 border border-blue-200;
+        }
+
+        /* === 📱 RESPONSIVE INDICATORS === */
+        .responsive-indicator {
+            position: absolute;
+            bottom: -12px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #4CAF50;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 8px;
+            font-family: 'Exo 2', sans-serif;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .layout-container:hover .responsive-indicator {
+            opacity: 1;
+        }
+
+        /* === 🔧 EMPTY STATES === */
+        .layout-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            text-align: center;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .layout-empty.drag-over {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }

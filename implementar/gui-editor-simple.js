@@ -1124,32 +1124,43 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(loadPanelPosition, 100);
   });
 
-  // === SISTEMA DE CONTROLES NO VIEWPORT ===
+  // === SISTEMA DE LAYOUT BUILDER COM TAILWIND ===
+  let layoutCounter = 0;
   let controlCounter = 0;
-  let selectedControl = null;
+  let selectedElement = null;
   let editMode = false;
 
-  // Inicializar sistema de controles
-  function initializeControlsSystem() {
+  // Inicializar sistema de layout builder
+  function initializeLayoutBuilder() {
+    const addLayoutBtns = document.querySelectorAll('.add-layout-btn');
     const addControlBtns = document.querySelectorAll('.add-control-btn');
     const clearViewportBtn = document.getElementById('clear-viewport');
     const toggleEditModeBtn = document.getElementById('toggle-edit-mode');
+    const exportLayoutBtn = document.getElementById('export-layout');
     const contentArea = document.querySelector('.content');
 
     if (!contentArea) return;
 
-    // Event listeners para botões de adicionar controles
+    // Event listeners para botões de layout
+    addLayoutBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const layoutType = this.dataset.layout;
+        addLayoutToViewport(layoutType, contentArea);
+      });
+    });
+
+    // Event listeners para botões de controles
     addControlBtns.forEach(btn => {
       btn.addEventListener('click', function() {
         const controlType = this.dataset.control;
-        addControlToViewport(controlType, contentArea);
+        addControlToLayout(controlType);
       });
     });
 
     // Limpar viewport
     clearViewportBtn?.addEventListener('click', function() {
-      if (confirm('Tem certeza que deseja limpar todos os controles do viewport?')) {
-        clearAllControls(contentArea);
+      if (confirm('Tem certeza que deseja limpar todo o layout?')) {
+        clearAllLayouts(contentArea);
       }
     });
 
@@ -1161,235 +1172,442 @@ document.addEventListener('DOMContentLoaded', function() {
         'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)' :
         'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)';
 
-      // Atualizar visibilidade dos handles
-      updateControlHandles(contentArea);
+      // Atualizar visibilidade dos controles de edição
+      updateEditModeVisibility(contentArea);
+    });
+
+    // Exportar layout
+    exportLayoutBtn?.addEventListener('click', function() {
+      exportLayoutAsHTML(contentArea);
     });
 
     // Event listener para cliques no viewport
     contentArea.addEventListener('click', function(e) {
       if (!editMode) return;
 
-      const control = e.target.closest('.viewport-control');
-      if (control) {
-        selectControl(control);
+      const layoutContainer = e.target.closest('.layout-container');
+      const layoutControl = e.target.closest('.layout-control');
+
+      if (layoutControl) {
+        selectElement(layoutControl);
+      } else if (layoutContainer) {
+        selectElement(layoutContainer);
       } else {
-        deselectAllControls();
+        deselectAllElements();
       }
     });
 
     // Event listener para tecla Delete
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Delete' && selectedControl && editMode) {
-        deleteControl(selectedControl);
+      if (e.key === 'Delete' && selectedElement && editMode) {
+        deleteElement(selectedElement);
       }
     });
+
+    // Configurar drag and drop
+    setupDragAndDrop(contentArea);
   }
 
-  function addControlToViewport(type, container) {
-    controlCounter++;
-    const controlId = `viewport-control-${type}-${controlCounter}`;
+  function addLayoutToViewport(type, container) {
+    layoutCounter++;
+    const layoutId = `layout-${type}-${layoutCounter}`;
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'viewport-control';
-    wrapper.dataset.controlType = type;
-    wrapper.dataset.controlId = controlId;
+    const layoutContainer = document.createElement('div');
+    layoutContainer.className = 'layout-container';
+    layoutContainer.dataset.layoutType = type;
+    layoutContainer.dataset.layoutId = layoutId;
 
-    // Posição inicial aleatória
-    const x = Math.random() * (container.offsetWidth - 200);
-    const y = Math.random() * (container.offsetHeight - 100);
-    wrapper.style.left = x + 'px';
-    wrapper.style.top = y + 'px';
+    // Aplicar classes Tailwind baseadas no tipo
+    const tailwindClasses = getTailwindClasses(type);
+    layoutContainer.className += ` ${tailwindClasses}`;
 
-    // Handle para mover
-    const moveHandle = document.createElement('div');
-    moveHandle.className = 'control-handle';
-    moveHandle.innerHTML = '⋮⋮';
+    // Header do layout
+    const header = document.createElement('div');
+    header.className = 'layout-header';
+    header.innerHTML = `${getLayoutIcon(type)} ${type.toUpperCase()}`;
 
-    // Handle para deletar
-    const deleteHandle = document.createElement('div');
-    deleteHandle.className = 'delete-handle';
-    deleteHandle.innerHTML = '×';
-    deleteHandle.onclick = (e) => {
+    // Controles do layout
+    const controls = document.createElement('div');
+    controls.className = 'layout-controls';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'layout-control-btn layout-delete-btn';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.onclick = (e) => {
       e.stopPropagation();
-      deleteControl(wrapper);
+      deleteElement(layoutContainer);
     };
 
-    // Criar o controle específico
-    const control = createViewportControl(type, controlId);
+    const settingsBtn = document.createElement('button');
+    settingsBtn.className = 'layout-control-btn layout-settings-btn';
+    settingsBtn.innerHTML = '⚙';
+    settingsBtn.onclick = (e) => {
+      e.stopPropagation();
+      showLayoutSettings(layoutContainer);
+    };
 
-    wrapper.appendChild(moveHandle);
-    wrapper.appendChild(deleteHandle);
-    wrapper.appendChild(control);
+    controls.appendChild(settingsBtn);
+    controls.appendChild(deleteBtn);
 
-    container.appendChild(wrapper);
+    // Área de conteúdo
+    const content = document.createElement('div');
+    content.className = 'layout-content';
+    content.innerHTML = '<div class="layout-empty">Arraste controles aqui</div>';
 
-    // Tornar arrastável
-    makeControlDraggable(wrapper);
+    // Indicador responsivo
+    const indicator = document.createElement('div');
+    indicator.className = 'responsive-indicator';
+    indicator.textContent = getResponsiveInfo(type);
+
+    layoutContainer.appendChild(header);
+    layoutContainer.appendChild(controls);
+    layoutContainer.appendChild(content);
+    layoutContainer.appendChild(indicator);
+
+    container.appendChild(layoutContainer);
+
+    // Configurar como drop zone
+    setupLayoutDropZone(layoutContainer);
 
     // Selecionar automaticamente se estiver em modo edição
     if (editMode) {
-      selectControl(wrapper);
+      selectElement(layoutContainer);
     }
 
-    console.log(`✅ Controle ${type} adicionado ao viewport`);
+    console.log(`✅ Layout ${type} adicionado ao viewport`);
   }
 
-  function createViewportControl(type, id) {
+  function addControlToLayout(type) {
+    if (!selectedElement || !selectedElement.classList.contains('layout-container')) {
+      alert('Selecione um layout container primeiro!');
+      return;
+    }
+
+    controlCounter++;
+    const controlId = `control-${type}-${controlCounter}`;
+
+    const controlWrapper = document.createElement('div');
+    controlWrapper.className = 'layout-control';
+    controlWrapper.dataset.controlType = type;
+    controlWrapper.dataset.controlId = controlId;
+
+    // Badge do tipo
+    const badge = document.createElement('div');
+    badge.className = 'control-badge';
+    badge.textContent = getControlIcon(type);
+
+    // Botão de delete
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'control-delete';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteElement(controlWrapper);
+    };
+
+    // Criar o controle com Tailwind
+    const control = createTailwindControl(type, controlId);
+
+    controlWrapper.appendChild(badge);
+    controlWrapper.appendChild(deleteBtn);
+    controlWrapper.appendChild(control);
+
+    // Adicionar ao layout selecionado
+    const contentArea = selectedElement.querySelector('.layout-content');
+    const emptyState = contentArea.querySelector('.layout-empty');
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    contentArea.appendChild(controlWrapper);
+
+    console.log(`✅ Controle ${type} adicionado ao layout ${selectedElement.dataset.layoutType}`);
+  }
+
+
+
+  // === FUNÇÕES AUXILIARES ===
+  function getTailwindClasses(type) {
+    const classes = {
+      row: 'flex flex-row gap-4 p-4',
+      column: 'flex flex-col gap-4 p-4',
+      grid: 'grid grid-cols-2 gap-4 p-4',
+      card: 'bg-white rounded-lg shadow-md p-6 border'
+    };
+    return classes[type] || 'p-4';
+  }
+
+  function getLayoutIcon(type) {
+    const icons = {
+      row: '📏',
+      column: '📐',
+      grid: '⊞',
+      card: '🃏'
+    };
+    return icons[type] || '📦';
+  }
+
+  function getControlIcon(type) {
+    const icons = {
+      button: '🔘',
+      input: '📝',
+      select: '📋',
+      checkbox: '☑',
+      slider: '🎚',
+      text: '📄',
+      badge: '🏷',
+      alert: '⚠'
+    };
+    return icons[type] || '🎛';
+  }
+
+  function getResponsiveInfo(type) {
+    const info = {
+      row: 'flex-row → flex-col (mobile)',
+      column: 'flex-col',
+      grid: 'grid-cols-2 → grid-cols-1 (mobile)',
+      card: 'responsive padding'
+    };
+    return info[type] || 'responsive';
+  }
+
+  function createTailwindControl(type, id) {
     const controls = {
       button: () => {
         const btn = document.createElement('button');
-        btn.className = 'control-button';
-        btn.textContent = 'Botão';
-        btn.onclick = () => alert('Botão clicado!');
+        btn.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors font-medium';
+        btn.textContent = 'Button';
+        btn.onclick = () => alert('Button clicked!');
         return btn;
       },
       input: () => {
         const input = document.createElement('input');
-        input.className = 'control-input';
-        input.placeholder = 'Digite aqui...';
+        input.className = 'px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-full';
+        input.placeholder = 'Enter text...';
         input.type = 'text';
         return input;
       },
       select: () => {
         const select = document.createElement('select');
-        select.className = 'control-select';
+        select.className = 'px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-full';
         select.innerHTML = `
-          <option>Opção 1</option>
-          <option>Opção 2</option>
-          <option>Opção 3</option>
+          <option>Option 1</option>
+          <option>Option 2</option>
+          <option>Option 3</option>
         `;
         return select;
       },
       checkbox: () => {
         const wrapper = document.createElement('label');
-        wrapper.className = 'control-checkbox';
+        wrapper.className = 'flex items-center space-x-2 cursor-pointer';
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
+        checkbox.className = 'w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500';
         const text = document.createElement('span');
-        text.textContent = 'Checkbox';
+        text.textContent = 'Checkbox option';
+        text.className = 'text-gray-700';
         wrapper.appendChild(checkbox);
         wrapper.appendChild(text);
         return wrapper;
       },
       slider: () => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'w-full';
         const slider = document.createElement('input');
         slider.type = 'range';
-        slider.className = 'control-slider';
+        slider.className = 'w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider';
         slider.min = '0';
         slider.max = '100';
         slider.value = '50';
-        return slider;
+        const label = document.createElement('div');
+        label.className = 'text-sm text-gray-600 mt-1';
+        label.textContent = 'Value: 50';
+        slider.oninput = () => label.textContent = `Value: ${slider.value}`;
+        wrapper.appendChild(slider);
+        wrapper.appendChild(label);
+        return wrapper;
       },
       text: () => {
         const text = document.createElement('p');
-        text.className = 'control-text';
-        text.textContent = 'Texto de exemplo';
-        text.contentEditable = editMode;
+        text.className = 'text-gray-800 leading-relaxed';
+        text.textContent = 'Sample text content';
+        if (editMode) {
+          text.contentEditable = true;
+          text.className += ' border-dashed border-2 border-gray-300 p-2 rounded';
+        }
         return text;
+      },
+      badge: () => {
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+        badge.textContent = 'Badge';
+        return badge;
+      },
+      alert: () => {
+        const alert = document.createElement('div');
+        alert.className = 'p-4 mb-4 text-sm rounded-lg bg-blue-50 text-blue-800 border border-blue-200';
+        alert.innerHTML = '<strong>Info:</strong> This is an alert message.';
+        return alert;
       }
     };
 
     return controls[type] ? controls[type]() : document.createElement('div');
   }
 
-  function makeControlDraggable(element) {
-    let isDragging = false;
-    let dragOffset = { x: 0, y: 0 };
-
-    const handle = element.querySelector('.control-handle');
-    if (!handle) return;
-
-    handle.addEventListener('mousedown', startDrag);
-
-    function startDrag(e) {
-      if (!editMode) return;
-
-      isDragging = true;
-      const rect = element.getBoundingClientRect();
-      const containerRect = element.parentElement.getBoundingClientRect();
-
-      dragOffset.x = e.clientX - rect.left;
-      dragOffset.y = e.clientY - rect.top;
-
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', stopDrag);
-
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    function drag(e) {
-      if (!isDragging || !editMode) return;
-
-      const containerRect = element.parentElement.getBoundingClientRect();
-      const x = e.clientX - containerRect.left - dragOffset.x;
-      const y = e.clientY - containerRect.top - dragOffset.y;
-
-      // Limitar às bordas do container
-      const maxX = element.parentElement.offsetWidth - element.offsetWidth;
-      const maxY = element.parentElement.offsetHeight - element.offsetHeight;
-
-      const boundedX = Math.max(0, Math.min(x, maxX));
-      const boundedY = Math.max(0, Math.min(y, maxY));
-
-      element.style.left = boundedX + 'px';
-      element.style.top = boundedY + 'px';
-    }
-
-    function stopDrag() {
-      isDragging = false;
-      document.removeEventListener('mousemove', drag);
-      document.removeEventListener('mouseup', stopDrag);
-    }
+  function selectElement(element) {
+    deselectAllElements();
+    element.classList.add('selected');
+    selectedElement = element;
+    console.log(`🎯 Elemento selecionado: ${element.dataset.layoutType || element.dataset.controlType}`);
   }
 
-  function selectControl(control) {
-    deselectAllControls();
-    control.classList.add('selected');
-    selectedControl = control;
-    console.log(`🎯 Controle selecionado: ${control.dataset.controlType}`);
-  }
-
-  function deselectAllControls() {
-    document.querySelectorAll('.viewport-control').forEach(ctrl => {
-      ctrl.classList.remove('selected');
+  function deselectAllElements() {
+    document.querySelectorAll('.layout-container, .layout-control').forEach(el => {
+      el.classList.remove('selected');
     });
-    selectedControl = null;
+    selectedElement = null;
   }
 
-  function deleteControl(control) {
-    if (control === selectedControl) {
-      selectedControl = null;
+  function deleteElement(element) {
+    if (element === selectedElement) {
+      selectedElement = null;
     }
-    control.remove();
-    console.log(`🗑️ Controle removido`);
+
+    // Se for um layout container, verificar se tem controles
+    if (element.classList.contains('layout-container')) {
+      const controls = element.querySelectorAll('.layout-control');
+      if (controls.length > 0) {
+        if (!confirm(`Este layout tem ${controls.length} controle(s). Deseja realmente deletar?`)) {
+          return;
+        }
+      }
+    }
+
+    element.remove();
+    console.log(`🗑️ Elemento removido`);
   }
 
-  function clearAllControls(container) {
-    container.querySelectorAll('.viewport-control').forEach(ctrl => {
-      ctrl.remove();
+  function clearAllLayouts(container) {
+    container.querySelectorAll('.layout-container').forEach(layout => {
+      layout.remove();
     });
-    selectedControl = null;
-    console.log(`🧹 Todos os controles removidos do viewport`);
+    selectedElement = null;
+    console.log(`🧹 Todos os layouts removidos do viewport`);
   }
 
-  function updateControlHandles(container) {
-    container.querySelectorAll('.viewport-control').forEach(ctrl => {
-      const handles = ctrl.querySelectorAll('.control-handle, .delete-handle');
-      handles.forEach(handle => {
-        handle.style.display = editMode ? 'flex' : 'none';
+  function updateEditModeVisibility(container) {
+    container.querySelectorAll('.layout-container, .layout-control').forEach(el => {
+      const controls = el.querySelectorAll('.layout-controls, .control-badge, .control-delete');
+      controls.forEach(control => {
+        control.style.display = editMode ? 'flex' : 'none';
       });
 
       // Atualizar contentEditable para textos
-      const textControl = ctrl.querySelector('.control-text');
-      if (textControl) {
-        textControl.contentEditable = editMode;
-      }
+      const textControls = el.querySelectorAll('[contenteditable]');
+      textControls.forEach(text => {
+        text.contentEditable = editMode;
+        if (editMode) {
+          text.className += ' border-dashed border-2 border-gray-300 p-2 rounded';
+        } else {
+          text.className = text.className.replace(' border-dashed border-2 border-gray-300 p-2 rounded', '');
+        }
+      });
     });
   }
 
-  // Inicializar sistema de controles quando a página carregar
-  setTimeout(initializeControlsSystem, 500);
+  function setupLayoutDropZone(layoutContainer) {
+    const contentArea = layoutContainer.querySelector('.layout-content');
+    if (!contentArea) return;
+
+    contentArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('drag-over');
+    });
+
+    contentArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+    });
+
+    contentArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      // Implementar drop de controles aqui se necessário
+    });
+  }
+
+  function setupDragAndDrop(container) {
+    // Implementar sistema de drag and drop com Sortable.js se necessário
+    if (typeof Sortable !== 'undefined') {
+      new Sortable(container, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd: function(evt) {
+          console.log('Layout reordenado');
+        }
+      });
+    }
+  }
+
+  function showLayoutSettings(layoutContainer) {
+    const type = layoutContainer.dataset.layoutType;
+    const settings = prompt(`Configurações do ${type}:\n\nClasses Tailwind atuais: ${layoutContainer.className}\n\nDigite novas classes:`, '');
+
+    if (settings !== null) {
+      // Manter classes essenciais e adicionar novas
+      const essentialClasses = 'layout-container';
+      const tailwindClasses = getTailwindClasses(type);
+      layoutContainer.className = `${essentialClasses} ${tailwindClasses} ${settings}`;
+      console.log(`⚙️ Configurações do layout ${type} atualizadas`);
+    }
+  }
+
+  function exportLayoutAsHTML(container) {
+    const layouts = container.querySelectorAll('.layout-container');
+
+    let html = '<!DOCTYPE html>\n<html lang="pt-br">\n<head>\n';
+    html += '  <meta charset="UTF-8">\n';
+    html += '  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+    html += '  <title>Layout Exportado</title>\n';
+    html += '  <script src="https://cdn.tailwindcss.com"></script>\n';
+    html += '</head>\n<body class="bg-gray-100 p-8">\n\n';
+
+    layouts.forEach(layout => {
+      const layoutContent = layout.querySelector('.layout-content');
+      const controls = layoutContent.querySelectorAll('.layout-control');
+
+      html += `  <!-- ${layout.dataset.layoutType.toUpperCase()} Layout -->\n`;
+      html += `  <div class="${layout.className.replace('layout-container', '').replace('selected', '').trim()}">\n`;
+
+      controls.forEach(control => {
+        const controlElement = control.querySelector('button, input, select, label, p, span, div');
+        if (controlElement) {
+          html += `    ${controlElement.outerHTML}\n`;
+        }
+      });
+
+      html += '  </div>\n\n';
+    });
+
+    html += '</body>\n</html>';
+
+    // Criar e baixar arquivo
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'layout-exported.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log('📤 Layout exportado como HTML');
+  }
+
+  // Inicializar sistema de layout builder quando a página carregar
+  setTimeout(initializeLayoutBuilder, 500);
 
   // Inicializar o painel
   guiContent.style.display = 'block';
