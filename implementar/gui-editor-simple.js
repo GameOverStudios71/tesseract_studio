@@ -1146,27 +1146,49 @@ document.addEventListener('DOMContentLoaded', function() {
       btn.addEventListener('click', function() {
         const layoutType = this.dataset.layout;
 
+        // Auto-ativar modo edição se não estiver ativo
+        if (!editMode) {
+          toggleEditModeBtn?.click();
+        }
+
+        // Debug: verificar estado da seleção
+        console.log('🔍 Debug Layout Click:', {
+          layoutType: layoutType,
+          selectedElement: selectedElement,
+          selectedElementType: selectedElement?.dataset?.layoutType,
+          hasLayoutContainer: selectedElement?.classList?.contains('layout-container'),
+          editMode: editMode
+        });
+
         // Lógica inteligente para adicionar layouts aninhados
         if (selectedElement && selectedElement.classList.contains('layout-container')) {
           const parentType = selectedElement.dataset.layoutType;
 
+          console.log(`🎯 Tentando adicionar ${layoutType} dentro de ${parentType}`);
+
           if (layoutType === 'column' && parentType === 'row') {
             // Adicionar coluna dentro de row
+            console.log('✅ Adicionando coluna dentro da row');
             addColumnToRow(selectedElement);
           } else if (layoutType === 'row' && parentType === 'column') {
             // Adicionar row dentro de column
+            console.log('✅ Adicionando row dentro da column');
             addRowToColumn(selectedElement);
           } else if (layoutType.startsWith('col-') && parentType === 'grid-12') {
             // Adicionar item de grid de 12 colunas
+            console.log('✅ Adicionando grid item');
             addGridItem(selectedElement, layoutType);
           } else if ((layoutType === 'row' || layoutType === 'column') && (parentType.includes('grid') || parentType === 'card')) {
             // Adicionar row/column dentro de grid/card
+            console.log('✅ Adicionando layout dentro de container');
             addLayoutToContainer(layoutType, selectedElement);
           } else {
             // Criar novo container no viewport
+            console.log('⚠️ Caso não coberto, criando no viewport');
             addLayoutToViewport(layoutType, contentArea);
           }
         } else {
+          console.log('⚠️ Nenhum container selecionado, criando no viewport');
           addLayoutToViewport(layoutType, contentArea);
         }
       });
@@ -1234,14 +1256,26 @@ document.addEventListener('DOMContentLoaded', function() {
       const layoutContainer = e.target.closest('.layout-container');
       const gridItem = e.target.closest('.grid-item');
 
+      console.log('🖱️ Clique detectado:', {
+        target: e.target.tagName,
+        layoutControl: !!layoutControl,
+        layoutContainer: !!layoutContainer,
+        gridItem: !!gridItem,
+        isControlButton: e.target.closest('.control-badge, .control-delete')
+      });
+
       if (layoutControl && !e.target.closest('.control-badge, .control-delete')) {
         // Selecionar wrapper do controle (que contém badge + delete + controle)
+        console.log('🎯 Selecionando controle individual');
         selectIndividualControl(layoutControl);
       } else if (gridItem) {
+        console.log('🎯 Selecionando grid item');
         selectElement(gridItem);
       } else if (layoutContainer) {
+        console.log('🎯 Selecionando layout container');
         selectElement(layoutContainer);
       } else {
+        console.log('🔄 Desselecionando todos');
         deselectAllElements();
       }
     });
@@ -1330,6 +1364,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Selecionar automaticamente se estiver em modo edição
     if (editMode) {
+      console.log(`🎯 Selecionando automaticamente layout ${type} criado`);
       selectElement(layoutContainer);
     }
 
@@ -1499,6 +1534,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function addColumnToRow(rowContainer) {
+    console.log('🔧 addColumnToRow chamada para:', rowContainer.dataset.layoutId);
+
     layoutCounter++;
     const columnId = `layout-column-${layoutCounter}`;
 
@@ -2068,7 +2105,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function selectElement(element) {
+    // Garantir que todos os elementos sejam desselecionados primeiro
     deselectAllElements();
+
     element.classList.add('selected');
     selectedElement = element;
 
@@ -2086,6 +2125,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function selectIndividualControl(control) {
+    // Garantir que todos os elementos sejam desselecionados primeiro
     deselectAllElements();
 
     // Adicionar classe de seleção ao controle individual
@@ -2097,6 +2137,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Mostrar dica de delete
     showDeleteHint();
+
+    // Mostrar painel de propriedades
+    showPropertiesPanel(control);
 
     console.log(`🎯 Controle individual selecionado: ${control.tagName} (${control.dataset.controlType || 'unknown'})`);
   }
@@ -2146,18 +2189,24 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function removeControlSelectionIndicators() {
-    // Remover outlines de todos os controles
-    document.querySelectorAll('.selected-control').forEach(ctrl => {
-      ctrl.classList.remove('selected-control');
+    // Remover outlines e indicadores de TODOS os elementos que podem ter sido selecionados
+    document.querySelectorAll('.selected-control, .layout-control, .layout-container, .grid-item').forEach(ctrl => {
+      ctrl.classList.remove('selected-control', 'selected');
       ctrl.style.outline = '';
       ctrl.style.outlineOffset = '';
 
-      // Remover botão de delete individual
+      // Remover botão de delete individual se existir
       const deleteBtn = ctrl.querySelector('.individual-control-delete');
       if (deleteBtn) {
         deleteBtn.remove();
       }
       ctrl.removeAttribute('data-has-delete-btn');
+    });
+
+    // Remover qualquer outline residual de elementos
+    document.querySelectorAll('[style*="outline"]').forEach(el => {
+      el.style.outline = '';
+      el.style.outlineOffset = '';
     });
   }
 
@@ -2174,18 +2223,29 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function deselectAllElements() {
-    // Desselecionar containers e controles de layout
-    document.querySelectorAll('.layout-container, .layout-control, .grid-item').forEach(el => {
-      el.classList.remove('selected');
+    // Desselecionar TODOS os elementos com qualquer classe de seleção
+    document.querySelectorAll('.selected, .selected-control').forEach(el => {
+      el.classList.remove('selected', 'selected-control');
     });
 
-    // Desselecionar controles individuais
+    // Desselecionar especificamente containers e controles de layout
+    document.querySelectorAll('.layout-container, .layout-control, .grid-item').forEach(el => {
+      el.classList.remove('selected', 'selected-control');
+    });
+
+    // Remover indicadores visuais de controles individuais
     removeControlSelectionIndicators();
 
     // Esconder dica de delete
     hideDeleteHint();
 
+    // Esconder painel de propriedades
+    hidePropertiesPanel();
+
+    // Limpar referência do elemento selecionado
     selectedElement = null;
+
+    console.log('🔄 Todos os elementos desselecionados');
   }
 
   function deleteElement(element) {
@@ -2659,6 +2719,302 @@ document.addEventListener('DOMContentLoaded', function() {
         existingHint.remove();
       }, 300);
     }
+  }
+
+  function showPropertiesPanel(control) {
+    const panel = document.getElementById('properties-panel');
+    const container = document.getElementById('properties-container');
+
+    if (!panel || !container) return;
+
+    // Mostrar painel
+    panel.style.display = 'block';
+
+    // Limpar conteúdo anterior
+    container.innerHTML = '';
+
+    // Obter tipo do controle
+    const controlType = control.dataset.controlType;
+    const actualControl = control.querySelector('button, input, select, label, span, div:not(.control-badge):not(.control-delete)');
+
+    if (!actualControl) return;
+
+    // Gerar propriedades baseadas no tipo
+    const properties = generatePropertiesForControl(controlType, actualControl);
+
+    // Renderizar propriedades
+    renderProperties(container, properties, actualControl);
+
+    // Configurar botão de fechar
+    const closeBtn = document.getElementById('close-properties');
+    if (closeBtn) {
+      closeBtn.onclick = hidePropertiesPanel;
+    }
+  }
+
+  function hidePropertiesPanel() {
+    const panel = document.getElementById('properties-panel');
+    if (panel) {
+      panel.style.display = 'none';
+    }
+  }
+
+  function generatePropertiesForControl(controlType, element) {
+    const baseProperties = {
+      text: {
+        name: '📝 Texto',
+        expanded: true,
+        properties: [
+          { name: 'Texto', type: 'text', property: 'textContent', value: element.textContent || element.value || '' },
+          { name: 'Placeholder', type: 'text', property: 'placeholder', value: element.placeholder || '' }
+        ]
+      },
+      appearance: {
+        name: '🎨 Aparência',
+        expanded: true,
+        properties: [
+          { name: 'Cor do Texto', type: 'color', property: 'color', value: getComputedStyle(element).color },
+          { name: 'Cor de Fundo', type: 'color', property: 'backgroundColor', value: getComputedStyle(element).backgroundColor },
+          { name: 'Opacidade', type: 'range', property: 'opacity', value: getComputedStyle(element).opacity, min: 0, max: 1, step: 0.1 }
+        ]
+      },
+      dimensions: {
+        name: '📏 Dimensões',
+        expanded: false,
+        properties: [
+          { name: 'Largura', type: 'text', property: 'width', value: element.style.width || 'auto' },
+          { name: 'Altura', type: 'text', property: 'height', value: element.style.height || 'auto' },
+          { name: 'Largura Mín.', type: 'text', property: 'minWidth', value: element.style.minWidth || '' },
+          { name: 'Altura Mín.', type: 'text', property: 'minHeight', value: element.style.minHeight || '' }
+        ]
+      },
+      spacing: {
+        name: '📐 Espaçamento',
+        expanded: false,
+        properties: [
+          { name: 'Padding', type: 'text', property: 'padding', value: getComputedStyle(element).padding },
+          { name: 'Margin', type: 'text', property: 'margin', value: getComputedStyle(element).margin }
+        ]
+      },
+      border: {
+        name: '🔲 Borda',
+        expanded: false,
+        properties: [
+          { name: 'Largura da Borda', type: 'text', property: 'borderWidth', value: getComputedStyle(element).borderWidth },
+          { name: 'Estilo da Borda', type: 'select', property: 'borderStyle', value: getComputedStyle(element).borderStyle, options: ['none', 'solid', 'dashed', 'dotted', 'double'] },
+          { name: 'Cor da Borda', type: 'color', property: 'borderColor', value: getComputedStyle(element).borderColor },
+          { name: 'Border Radius', type: 'text', property: 'borderRadius', value: getComputedStyle(element).borderRadius }
+        ]
+      },
+      effects: {
+        name: '✨ Efeitos',
+        expanded: false,
+        properties: [
+          { name: 'Box Shadow', type: 'text', property: 'boxShadow', value: getComputedStyle(element).boxShadow },
+          { name: 'Transform', type: 'text', property: 'transform', value: getComputedStyle(element).transform },
+          { name: 'Transition', type: 'text', property: 'transition', value: getComputedStyle(element).transition }
+        ]
+      }
+    };
+
+    // Propriedades específicas por tipo
+    if (controlType === 'button') {
+      baseProperties.text.properties.push(
+        { name: 'Cursor', type: 'select', property: 'cursor', value: getComputedStyle(element).cursor, options: ['pointer', 'default', 'grab', 'not-allowed'] }
+      );
+    }
+
+    if (controlType === 'input') {
+      baseProperties.text.properties.push(
+        { name: 'Tipo', type: 'select', property: 'type', value: element.type, options: ['text', 'email', 'password', 'number', 'tel', 'url'] }
+      );
+    }
+
+    return baseProperties;
+  }
+
+  function renderProperties(container, properties, element) {
+    Object.keys(properties).forEach(groupKey => {
+      const group = properties[groupKey];
+
+      // Criar grupo
+      const groupDiv = document.createElement('div');
+      groupDiv.className = `property-group ${group.expanded ? 'expanded' : ''}`;
+
+      // Header do grupo
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'property-group-header';
+      headerDiv.textContent = group.name;
+      headerDiv.onclick = () => {
+        groupDiv.classList.toggle('expanded');
+      };
+
+      // Conteúdo do grupo
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'property-group-content';
+
+      // Renderizar propriedades do grupo
+      group.properties.forEach(prop => {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'property-field';
+
+        const label = document.createElement('label');
+        label.className = 'property-label';
+        label.textContent = prop.name;
+
+        let input;
+
+        switch (prop.type) {
+          case 'text':
+            input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'property-input';
+            input.value = prop.value;
+            input.oninput = () => updateElementProperty(element, prop.property, input.value);
+            break;
+
+          case 'color':
+            const colorContainer = document.createElement('div');
+            colorContainer.style.display = 'flex';
+            colorContainer.style.alignItems = 'center';
+
+            input = document.createElement('input');
+            input.type = 'color';
+            input.className = 'property-input';
+            input.value = rgbToHex(prop.value);
+            input.oninput = () => updateElementProperty(element, prop.property, input.value);
+
+            const colorText = document.createElement('input');
+            colorText.type = 'text';
+            colorText.className = 'property-input';
+            colorText.style.marginLeft = '8px';
+            colorText.value = rgbToHex(prop.value);
+            colorText.oninput = () => {
+              input.value = colorText.value;
+              updateElementProperty(element, prop.property, colorText.value);
+            };
+
+            input.oninput = () => {
+              colorText.value = input.value;
+              updateElementProperty(element, prop.property, input.value);
+            };
+
+            colorContainer.appendChild(input);
+            colorContainer.appendChild(colorText);
+            input = colorContainer;
+            break;
+
+          case 'range':
+            const rangeContainer = document.createElement('div');
+
+            input = document.createElement('input');
+            input.type = 'range';
+            input.className = 'property-input';
+            input.min = prop.min || 0;
+            input.max = prop.max || 100;
+            input.step = prop.step || 1;
+            input.value = prop.value;
+
+            const rangeValue = document.createElement('span');
+            rangeValue.style.marginLeft = '8px';
+            rangeValue.style.color = '#ccc';
+            rangeValue.style.fontSize = '11px';
+            rangeValue.textContent = prop.value;
+
+            input.oninput = () => {
+              rangeValue.textContent = input.value;
+              updateElementProperty(element, prop.property, input.value);
+            };
+
+            rangeContainer.appendChild(input);
+            rangeContainer.appendChild(rangeValue);
+            input = rangeContainer;
+            break;
+
+          case 'select':
+            input = document.createElement('select');
+            input.className = 'property-select';
+
+            prop.options.forEach(option => {
+              const optionEl = document.createElement('option');
+              optionEl.value = option;
+              optionEl.textContent = option;
+              optionEl.selected = option === prop.value;
+              input.appendChild(optionEl);
+            });
+
+            input.onchange = () => updateElementProperty(element, prop.property, input.value);
+            break;
+
+          case 'checkbox':
+            const checkboxContainer = document.createElement('div');
+            checkboxContainer.className = 'property-checkbox';
+
+            input = document.createElement('input');
+            input.type = 'checkbox';
+            input.checked = prop.value === 'true' || prop.value === true;
+            input.onchange = () => updateElementProperty(element, prop.property, input.checked);
+
+            const checkboxLabel = document.createElement('span');
+            checkboxLabel.textContent = prop.name;
+            checkboxLabel.style.color = '#ccc';
+            checkboxLabel.style.fontSize = '11px';
+
+            checkboxContainer.appendChild(input);
+            checkboxContainer.appendChild(checkboxLabel);
+            input = checkboxContainer;
+            label.style.display = 'none'; // Esconder label duplicado
+            break;
+        }
+
+        fieldDiv.appendChild(label);
+        fieldDiv.appendChild(input);
+        contentDiv.appendChild(fieldDiv);
+      });
+
+      groupDiv.appendChild(headerDiv);
+      groupDiv.appendChild(contentDiv);
+      container.appendChild(groupDiv);
+    });
+  }
+
+  function updateElementProperty(element, property, value) {
+    try {
+      if (property === 'textContent') {
+        element.textContent = value;
+      } else if (property === 'placeholder') {
+        element.placeholder = value;
+      } else if (property === 'type') {
+        element.type = value;
+      } else {
+        element.style[property] = value;
+      }
+
+      console.log(`🎨 Propriedade ${property} atualizada para: ${value}`);
+    } catch (error) {
+      console.warn(`⚠️ Erro ao atualizar propriedade ${property}:`, error);
+    }
+  }
+
+  function rgbToHex(rgb) {
+    if (!rgb || rgb === 'rgba(0, 0, 0, 0)' || rgb === 'transparent') {
+      return '#000000';
+    }
+
+    if (rgb.startsWith('#')) {
+      return rgb;
+    }
+
+    const result = rgb.match(/\d+/g);
+    if (!result || result.length < 3) {
+      return '#000000';
+    }
+
+    const r = parseInt(result[0]);
+    const g = parseInt(result[1]);
+    const b = parseInt(result[2]);
+
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
   // Inicializar sistema de layout builder quando a página carregar
