@@ -1145,7 +1145,27 @@ document.addEventListener('DOMContentLoaded', function() {
     addLayoutBtns.forEach(btn => {
       btn.addEventListener('click', function() {
         const layoutType = this.dataset.layout;
-        addLayoutToViewport(layoutType, contentArea);
+
+        // Lógica inteligente para adicionar layouts aninhados
+        if (selectedElement && selectedElement.classList.contains('layout-container')) {
+          const parentType = selectedElement.dataset.layoutType;
+
+          if (layoutType === 'column' && parentType === 'row') {
+            // Adicionar coluna dentro de row
+            addColumnToRow(selectedElement);
+          } else if (layoutType === 'row' && parentType === 'column') {
+            // Adicionar row dentro de column
+            addRowToColumn(selectedElement);
+          } else if ((layoutType === 'row' || layoutType === 'column') && (parentType === 'grid' || parentType === 'card')) {
+            // Adicionar row/column dentro de grid/card
+            addLayoutToContainer(layoutType, selectedElement);
+          } else {
+            // Criar novo container no viewport
+            addLayoutToViewport(layoutType, contentArea);
+          }
+        } else {
+          addLayoutToViewport(layoutType, contentArea);
+        }
       });
     });
 
@@ -1322,6 +1342,229 @@ document.addEventListener('DOMContentLoaded', function() {
     contentArea.appendChild(controlWrapper);
 
     console.log(`✅ Controle ${type} adicionado ao layout ${selectedElement.dataset.layoutType}`);
+  }
+
+  function addColumnToRow(rowContainer) {
+    layoutCounter++;
+    const columnId = `layout-column-${layoutCounter}`;
+
+    const columnDiv = document.createElement('div');
+    columnDiv.className = 'layout-container flex flex-col gap-2 p-2 flex-1 min-h-[100px]';
+    columnDiv.dataset.layoutType = 'column';
+    columnDiv.dataset.layoutId = columnId;
+    columnDiv.dataset.parentType = 'row';
+
+    // Header da coluna
+    const header = document.createElement('div');
+    header.className = 'layout-header';
+    header.innerHTML = '📐 COLUMN';
+
+    // Controles da coluna
+    const controls = document.createElement('div');
+    controls.className = 'layout-controls';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'layout-control-btn layout-delete-btn';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteElement(columnDiv);
+    };
+
+    const settingsBtn = document.createElement('button');
+    settingsBtn.className = 'layout-control-btn layout-settings-btn';
+    settingsBtn.innerHTML = '⚙';
+    settingsBtn.onclick = (e) => {
+      e.stopPropagation();
+      showLayoutSettings(columnDiv);
+    };
+
+    controls.appendChild(settingsBtn);
+    controls.appendChild(deleteBtn);
+
+    // Área de conteúdo da coluna
+    const content = document.createElement('div');
+    content.className = 'layout-content flex-1';
+    content.innerHTML = '<div class="layout-empty">Arraste controles aqui</div>';
+
+    // Indicador responsivo
+    const indicator = document.createElement('div');
+    indicator.className = 'responsive-indicator';
+    indicator.textContent = 'flex-col';
+
+    columnDiv.appendChild(header);
+    columnDiv.appendChild(controls);
+    columnDiv.appendChild(content);
+    columnDiv.appendChild(indicator);
+
+    // Adicionar à row
+    const rowContent = rowContainer.querySelector('.layout-content');
+    const emptyState = rowContent.querySelector('.layout-empty');
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    rowContent.appendChild(columnDiv);
+
+    // Configurar como drop zone
+    setupLayoutDropZone(columnDiv);
+
+    // Selecionar automaticamente se estiver em modo edição
+    if (editMode) {
+      selectElement(columnDiv);
+    }
+
+    console.log(`✅ Coluna adicionada à row ${rowContainer.dataset.layoutId}`);
+  }
+
+  function addRowToColumn(columnContainer) {
+    layoutCounter++;
+    const rowId = `layout-row-${layoutCounter}`;
+
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'layout-container flex flex-row gap-2 p-2 min-h-[80px]';
+    rowDiv.dataset.layoutType = 'row';
+    rowDiv.dataset.layoutId = rowId;
+    rowDiv.dataset.parentType = 'column';
+
+    // Header da row
+    const header = document.createElement('div');
+    header.className = 'layout-header';
+    header.innerHTML = '📏 ROW';
+
+    // Controles da row
+    const controls = document.createElement('div');
+    controls.className = 'layout-controls';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'layout-control-btn layout-delete-btn';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteElement(rowDiv);
+    };
+
+    const settingsBtn = document.createElement('button');
+    settingsBtn.className = 'layout-control-btn layout-settings-btn';
+    settingsBtn.innerHTML = '⚙';
+    settingsBtn.onclick = (e) => {
+      e.stopPropagation();
+      showLayoutSettings(rowDiv);
+    };
+
+    controls.appendChild(settingsBtn);
+    controls.appendChild(deleteBtn);
+
+    // Área de conteúdo da row
+    const content = document.createElement('div');
+    content.className = 'layout-content flex-1';
+    content.innerHTML = '<div class="layout-empty">Arraste controles aqui</div>';
+
+    // Indicador responsivo
+    const indicator = document.createElement('div');
+    indicator.className = 'responsive-indicator';
+    indicator.textContent = 'flex-row → flex-col (mobile)';
+
+    rowDiv.appendChild(header);
+    rowDiv.appendChild(controls);
+    rowDiv.appendChild(content);
+    rowDiv.appendChild(indicator);
+
+    // Adicionar à column
+    const columnContent = columnContainer.querySelector('.layout-content');
+    const emptyState = columnContent.querySelector('.layout-empty');
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    columnContent.appendChild(rowDiv);
+
+    // Configurar como drop zone
+    setupLayoutDropZone(rowDiv);
+
+    // Selecionar automaticamente se estiver em modo edição
+    if (editMode) {
+      selectElement(rowDiv);
+    }
+
+    console.log(`✅ Row adicionada à column ${columnContainer.dataset.layoutId}`);
+  }
+
+  function addLayoutToContainer(layoutType, parentContainer) {
+    layoutCounter++;
+    const layoutId = `layout-${layoutType}-${layoutCounter}`;
+
+    const layoutDiv = document.createElement('div');
+    layoutDiv.dataset.layoutType = layoutType;
+    layoutDiv.dataset.layoutId = layoutId;
+    layoutDiv.dataset.parentType = parentContainer.dataset.layoutType;
+
+    // Aplicar classes baseadas no tipo
+    const baseClasses = 'layout-container';
+    const tailwindClasses = getTailwindClasses(layoutType);
+    layoutDiv.className = `${baseClasses} ${tailwindClasses} min-h-[60px]`;
+
+    // Header do layout
+    const header = document.createElement('div');
+    header.className = 'layout-header';
+    header.innerHTML = `${getLayoutIcon(layoutType)} ${layoutType.toUpperCase()}`;
+
+    // Controles do layout
+    const controls = document.createElement('div');
+    controls.className = 'layout-controls';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'layout-control-btn layout-delete-btn';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteElement(layoutDiv);
+    };
+
+    const settingsBtn = document.createElement('button');
+    settingsBtn.className = 'layout-control-btn layout-settings-btn';
+    settingsBtn.innerHTML = '⚙';
+    settingsBtn.onclick = (e) => {
+      e.stopPropagation();
+      showLayoutSettings(layoutDiv);
+    };
+
+    controls.appendChild(settingsBtn);
+    controls.appendChild(deleteBtn);
+
+    // Área de conteúdo
+    const content = document.createElement('div');
+    content.className = 'layout-content flex-1';
+    content.innerHTML = '<div class="layout-empty">Arraste controles aqui</div>';
+
+    // Indicador responsivo
+    const indicator = document.createElement('div');
+    indicator.className = 'responsive-indicator';
+    indicator.textContent = getResponsiveInfo(layoutType);
+
+    layoutDiv.appendChild(header);
+    layoutDiv.appendChild(controls);
+    layoutDiv.appendChild(content);
+    layoutDiv.appendChild(indicator);
+
+    // Adicionar ao container pai
+    const parentContent = parentContainer.querySelector('.layout-content');
+    const emptyState = parentContent.querySelector('.layout-empty');
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    parentContent.appendChild(layoutDiv);
+
+    // Configurar como drop zone
+    setupLayoutDropZone(layoutDiv);
+
+    // Selecionar automaticamente se estiver em modo edição
+    if (editMode) {
+      selectElement(layoutDiv);
+    }
+
+    console.log(`✅ Layout ${layoutType} adicionado ao container ${parentContainer.dataset.layoutType}`);
   }
 
 

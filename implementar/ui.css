@@ -1190,3 +1190,89 @@
             color: #4CAF50;
             background: rgba(76, 175, 80, 0.1);
         }
+
+        /* === 🔗 LAYOUTS ANINHADOS === */
+        .layout-container[data-parent-type] {
+            border-style: solid;
+            border-width: 1px;
+            margin: 4px;
+        }
+
+        .layout-container[data-parent-type="row"] {
+            border-color: rgba(102, 126, 234, 0.4);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .layout-container[data-parent-type="column"] {
+            border-color: rgba(34, 197, 94, 0.4);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .layout-container[data-parent-type="grid"] {
+            border-color: rgba(168, 85, 247, 0.4);
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        .layout-container[data-parent-type="card"] {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        /* === 📱 MELHOR RESPONSIVIDADE === */
+        .layout-container[data-layout-type="row"] .layout-content {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .layout-container[data-layout-type="column"] .layout-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .layout-container[data-layout-type="grid"] .layout-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        /* === 🎯 INDICADORES VISUAIS === */
+        .layout-header {
+            z-index: 10;
+        }
+
+        .layout-container[data-parent-type]:hover .layout-header {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+
+        /* === 📏 DIMENSÕES MÍNIMAS === */
+        .layout-container[data-layout-type="row"] {
+            min-height: 80px;
+        }
+
+        .layout-container[data-layout-type="column"] {
+            min-height: 100px;
+            min-width: 120px;
+        }
+
+        .layout-container[data-layout-type="grid"] {
+            min-height: 120px;
+        }
+
+        .layout-container[data-layout-type="card"] {
+            min-height: 100px;
+        }
+
+        /* === 🎨 HOVER STATES MELHORADOS === */
+        .layout-container:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .layout-container[data-parent-type]:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
