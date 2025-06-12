@@ -362,6 +362,437 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateCSSVariable(name, value, unit = '') {
     document.documentElement.style.setProperty(`--${name}`, value + unit);
   }
+
+  // === SISTEMA DE PRESETS ===
+  function createPresetsSystem(container) {
+    // Seção de controles
+    const controlsSection = document.createElement('div');
+    controlsSection.className = 'preset-controls';
+
+    const title = document.createElement('h4');
+    title.textContent = '💾 Gerenciar Presets';
+    title.style.margin = '0 0 8px 0';
+    title.style.fontSize = '14px';
+    title.style.color = '#ffd700';
+
+    // Seção para salvar novo preset
+    const saveSection = document.createElement('div');
+    saveSection.className = 'preset-save-section';
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'preset-name-input';
+    nameInput.placeholder = 'Nome do preset...';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'preset-save-btn';
+    saveBtn.textContent = '💾 Salvar';
+
+    saveSection.appendChild(nameInput);
+    saveSection.appendChild(saveBtn);
+
+    // Seção para exportar/importar
+    const importExportSection = document.createElement('div');
+    importExportSection.className = 'preset-save-section';
+    importExportSection.style.marginTop = '8px';
+
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'preset-save-btn';
+    exportBtn.style.background = 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)';
+    exportBtn.textContent = '📤 Exportar';
+    exportBtn.title = 'Exportar todos os presets';
+
+    const importBtn = document.createElement('button');
+    importBtn.className = 'preset-save-btn';
+    importBtn.style.background = 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)';
+    importBtn.textContent = '📥 Importar';
+    importBtn.title = 'Importar presets de arquivo';
+
+    // Input file oculto para importar
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+    fileInput.style.display = 'none';
+
+    importExportSection.appendChild(exportBtn);
+    importExportSection.appendChild(importBtn);
+    importExportSection.appendChild(fileInput);
+
+    controlsSection.appendChild(title);
+    controlsSection.appendChild(saveSection);
+    controlsSection.appendChild(importExportSection);
+
+    // Galeria de presets
+    const gallery = document.createElement('div');
+    gallery.className = 'presets-gallery';
+    gallery.id = 'presets-gallery';
+
+    container.appendChild(controlsSection);
+    container.appendChild(gallery);
+
+    // Event listener para salvar preset
+    saveBtn.addEventListener('click', async function() {
+      const name = nameInput.value.trim();
+      if (name) {
+        await savePreset(name);
+        nameInput.value = '';
+        loadPresetsGallery();
+      } else {
+        alert('Por favor, digite um nome para o preset.');
+      }
+    });
+
+    // Event listener para exportar presets
+    exportBtn.addEventListener('click', function() {
+      exportPresets();
+    });
+
+    // Event listener para importar presets
+    importBtn.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        importPresets(file);
+        fileInput.value = ''; // Limpar input
+      }
+    });
+
+    // Carregar presets existentes
+    loadPresetsGallery();
+  }
+
+  // Função para capturar screenshot do canvas (versão simplificada)
+  function captureCanvasScreenshot() {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 160;
+      canvas.height = 120;
+
+      // Criar um preview baseado nas configurações atuais
+      const settings = getCurrentSettings();
+
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 160, 120);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 160, 120);
+
+      // Simular objetos baseado nas configurações
+      const objectPositions = [
+        [20, 20], [60, 20], [100, 20], [140, 20], // Top row
+        [20, 50], [60, 50], [100, 50], [140, 50], // Middle row
+        [20, 80], [60, 80], [100, 80], [140, 80]  // Bottom row
+      ];
+
+      objectPositions.forEach((pos, index) => {
+        if (index < 12) { // Limitar a 12 objetos para o preview
+          const objectId = objectIds[index];
+          const isVisible = settings[`visibility-${objectId}`] !== false;
+
+          if (isVisible) {
+            // Cor do objeto baseada nas configurações
+            const colorKey = `color-${index + 1}-rgb`;
+            let color = 'rgba(255, 255, 255, 0.8)';
+
+            if (settings[colorKey]) {
+              color = `rgb(${settings[colorKey]})`;
+            }
+
+            ctx.fillStyle = color;
+            ctx.fillRect(pos[0] - 8, pos[1] - 6, 16, 12);
+
+            // Número do objeto
+            ctx.fillStyle = '#000';
+            ctx.font = '8px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText((index + 1).toString(), pos[0], pos[1] + 2);
+          }
+        }
+      });
+
+      // Timestamp no canto
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.font = '8px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText(new Date().toLocaleTimeString(), 155, 115);
+
+      resolve(canvas.toDataURL('image/png'));
+    });
+  }
+
+  // Função para coletar todas as configurações atuais
+  function getCurrentSettings() {
+    const settings = {};
+
+    // Coletar valores de todos os inputs
+    document.querySelectorAll('input[type="range"], input[type="checkbox"], input[type="text"], input[type="number"], select').forEach(input => {
+      if (input.id && !input.classList.contains('range-input') && !input.classList.contains('preset-name-input')) {
+        if (input.type === 'checkbox') {
+          settings[input.id] = input.checked;
+        } else {
+          settings[input.id] = input.value;
+        }
+      }
+    });
+
+    return settings;
+  }
+
+  // Função para aplicar configurações
+  function applySettings(settings) {
+    Object.keys(settings).forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        if (input.type === 'checkbox') {
+          input.checked = settings[id];
+        } else {
+          input.value = settings[id];
+        }
+
+        // Disparar evento para atualizar CSS
+        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+
+  // Função para salvar preset
+  async function savePreset(name) {
+    const settings = getCurrentSettings();
+    const screenshot = await captureCanvasScreenshot();
+
+    const preset = {
+      name: name,
+      settings: settings,
+      screenshot: screenshot,
+      date: new Date().toISOString(),
+      timestamp: Date.now()
+    };
+
+    // Salvar no localStorage
+    const presets = getPresets();
+    presets[preset.timestamp] = preset;
+    localStorage.setItem('gui-editor-presets', JSON.stringify(presets));
+
+    console.log('Preset salvo:', name);
+  }
+
+  // Função para obter presets salvos
+  function getPresets() {
+    const saved = localStorage.getItem('gui-editor-presets');
+    return saved ? JSON.parse(saved) : {};
+  }
+
+  // Função para carregar galeria de presets
+  function loadPresetsGallery() {
+    const gallery = document.getElementById('presets-gallery');
+    if (!gallery) return;
+
+    gallery.innerHTML = '';
+    const presets = getPresets();
+
+    if (Object.keys(presets).length === 0) {
+      gallery.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #aaa; font-size: 11px; padding: 20px;">Nenhum preset salvo ainda</div>';
+      return;
+    }
+
+    // Ordenar por data (mais recente primeiro)
+    const sortedPresets = Object.values(presets).sort((a, b) => b.timestamp - a.timestamp);
+
+    sortedPresets.forEach(preset => {
+      const item = createPresetItem(preset);
+      gallery.appendChild(item);
+    });
+  }
+
+  // Função para criar item de preset na galeria
+  function createPresetItem(preset) {
+    const item = document.createElement('div');
+    item.className = 'preset-item';
+
+    // Preview
+    const preview = document.createElement('div');
+    preview.className = 'preset-preview';
+
+    const img = document.createElement('img');
+    img.src = preset.screenshot;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    preview.appendChild(img);
+
+    // Nome
+    const name = document.createElement('div');
+    name.className = 'preset-name';
+    name.textContent = preset.name;
+
+    // Data
+    const date = document.createElement('div');
+    date.className = 'preset-date';
+    date.textContent = new Date(preset.date).toLocaleDateString('pt-BR');
+
+    // Ações
+    const actions = document.createElement('div');
+    actions.className = 'preset-actions';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'preset-action-btn preset-delete-btn';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.title = 'Deletar preset';
+
+    const renameBtn = document.createElement('button');
+    renameBtn.className = 'preset-action-btn preset-rename-btn';
+    renameBtn.innerHTML = '✎';
+    renameBtn.title = 'Renomear preset';
+
+    actions.appendChild(renameBtn);
+    actions.appendChild(deleteBtn);
+
+    // Event listeners
+    item.addEventListener('click', function(e) {
+      if (!e.target.classList.contains('preset-action-btn')) {
+        loadPreset(preset);
+      }
+    });
+
+    deleteBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (confirm(`Deletar preset "${preset.name}"?`)) {
+        deletePreset(preset.timestamp);
+        loadPresetsGallery();
+      }
+    });
+
+    renameBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const newName = prompt('Novo nome:', preset.name);
+      if (newName && newName.trim()) {
+        renamePreset(preset.timestamp, newName.trim());
+        loadPresetsGallery();
+      }
+    });
+
+    // Montar item
+    item.appendChild(preview);
+    item.appendChild(name);
+    item.appendChild(date);
+    item.appendChild(actions);
+
+    return item;
+  }
+
+  // Função para carregar preset
+  function loadPreset(preset) {
+    applySettings(preset.settings);
+    console.log('Preset carregado:', preset.name);
+  }
+
+  // Função para deletar preset
+  function deletePreset(timestamp) {
+    const presets = getPresets();
+    delete presets[timestamp];
+    localStorage.setItem('gui-editor-presets', JSON.stringify(presets));
+  }
+
+  // Função para renomear preset
+  function renamePreset(timestamp, newName) {
+    const presets = getPresets();
+    if (presets[timestamp]) {
+      presets[timestamp].name = newName;
+      localStorage.setItem('gui-editor-presets', JSON.stringify(presets));
+    }
+  }
+
+  // Função para exportar presets
+  function exportPresets() {
+    const presets = getPresets();
+
+    if (Object.keys(presets).length === 0) {
+      alert('Nenhum preset para exportar.');
+      return;
+    }
+
+    const exportData = {
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      presets: presets
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `gui-editor-presets-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+
+    console.log('Presets exportados:', Object.keys(presets).length);
+  }
+
+  // Função para importar presets
+  function importPresets(file) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      try {
+        const importData = JSON.parse(e.target.result);
+
+        // Validar estrutura do arquivo
+        if (!importData.presets || typeof importData.presets !== 'object') {
+          throw new Error('Formato de arquivo inválido');
+        }
+
+        const currentPresets = getPresets();
+        let importedCount = 0;
+        let skippedCount = 0;
+
+        // Importar presets
+        Object.values(importData.presets).forEach(preset => {
+          if (preset.name && preset.settings && preset.timestamp) {
+            // Verificar se já existe um preset com o mesmo nome
+            const existingPreset = Object.values(currentPresets).find(p => p.name === preset.name);
+
+            if (existingPreset) {
+              // Perguntar se quer sobrescrever
+              if (confirm(`Preset "${preset.name}" já existe. Sobrescrever?`)) {
+                // Remover o existente
+                delete currentPresets[existingPreset.timestamp];
+                // Adicionar o novo
+                currentPresets[preset.timestamp] = preset;
+                importedCount++;
+              } else {
+                skippedCount++;
+              }
+            } else {
+              // Adicionar novo preset
+              currentPresets[preset.timestamp] = preset;
+              importedCount++;
+            }
+          }
+        });
+
+        // Salvar presets atualizados
+        localStorage.setItem('gui-editor-presets', JSON.stringify(currentPresets));
+
+        // Recarregar galeria
+        loadPresetsGallery();
+
+        // Mostrar resultado
+        alert(`Importação concluída!\nImportados: ${importedCount}\nIgnorados: ${skippedCount}`);
+
+      } catch (error) {
+        alert('Erro ao importar presets: ' + error.message);
+        console.error('Erro na importação:', error);
+      }
+    };
+
+    reader.readAsText(file);
+  }
   
   // Limpar conteúdo existente e recriar todos os controles
   const globalContainer = document.getElementById('global-controls-container');
@@ -453,6 +884,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     createImageControl(imageGroup, id);
   });
+
+  // === SISTEMA DE PRESETS ===
+  const presetsContainer = document.getElementById('presets-controls-container');
+  createPresetsSystem(presetsContainer);
 
   // === CONFIGURAÇÕES AVANÇADAS ===
   const advancedGroup = document.createElement('div');

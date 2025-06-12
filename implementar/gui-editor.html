@@ -538,6 +538,160 @@
         .clear-image-btn:hover {
             background: linear-gradient(135deg, #ee5a52 0%, #ff6b6b 100%);
         }
+
+        /* === 💾 SISTEMA DE PRESETS === */
+        .preset-controls {
+            margin-bottom: 15px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preset-save-section {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .preset-name-input {
+            flex: 1;
+            padding: 4px 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            color: white;
+            font-size: 11px;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .preset-name-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .preset-save-btn {
+            padding: 4px 8px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .preset-save-btn:hover {
+            background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+        }
+
+        .preset-save-btn[style*="2196F3"]:hover {
+            background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%) !important;
+        }
+
+        .preset-save-btn[style*="FF9800"]:hover {
+            background: linear-gradient(135deg, #F57C00 0%, #FF9800 100%) !important;
+        }
+
+        .presets-gallery {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .preset-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 6px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .preset-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .preset-preview {
+            width: 100%;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .preset-preview canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preset-name {
+            font-size: 10px;
+            color: #fff;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 4px;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .preset-date {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .preset-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+        }
+
+        .preset-item:hover .preset-actions {
+            opacity: 1;
+        }
+
+        .preset-action-btn {
+            width: 16px;
+            height: 16px;
+            border: none;
+            border-radius: 2px;
+            font-size: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preset-delete-btn {
+            background: rgba(255, 0, 0, 0.7);
+            color: white;
+        }
+
+        .preset-delete-btn:hover {
+            background: rgba(255, 0, 0, 0.9);
+        }
+
+        .preset-rename-btn {
+            background: rgba(255, 165, 0, 0.7);
+            color: white;
+        }
+
+        .preset-rename-btn:hover {
+            background: rgba(255, 165, 0, 0.9);
+        }
     </style>
 </head>
 <body>
@@ -553,6 +707,7 @@
                 <button class="tab-button active" data-tab="global">🌐 Global</button>
                 <button class="tab-button" data-tab="effects">✨ Efeitos</button>
                 <button class="tab-button" data-tab="objects">🎯 Objetos</button>
+                <button class="tab-button" data-tab="presets">💾 Presets</button>
                 <button class="tab-button" data-tab="advanced">🔧 Avançado</button>
             </div>
 
@@ -574,6 +729,13 @@
             <div id="tab-objects" class="tab-content">
                 <div id="objects-controls-container">
                     <!-- Controles dos objetos serão inseridos aqui pelo JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tab: Presets -->
+            <div id="tab-presets" class="tab-content">
+                <div id="presets-controls-container">
+                    <!-- Controles de presets serão inseridos aqui pelo JavaScript -->
                 </div>
             </div>
 
