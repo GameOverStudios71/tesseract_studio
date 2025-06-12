@@ -4,7 +4,7 @@ const path = require('path');
 const iconv = require('iconv-lite');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 // Servir arquivos estáticos
 app.use(express.static('public'));
@@ -124,9 +124,10 @@ app.get('/api/ascii/:filename', (req, res) => {
             // Lista de codificações para tentar, em ordem de prioridade
             const encodingsToTry = [];
 
-            if (ext === '.nfo' || ext === '.diz' || ext === '.ans' || ext === '.asc') {
-                // Arquivos típicos de BBS - priorizar CP437 e variantes
-                encodingsToTry.push('cp437', 'cp850', 'cp852', 'latin1', 'utf8');
+            if (ext === '.nfo' || ext === '.diz' || ext === '.ans' || ext === '.asc' ||
+                ext === '.ansi' || ext === '.ice' || ext === '.tnd') {
+                // Arquivos típicos de BBS/ANSI - priorizar CP437 e variantes
+                encodingsToTry.push('cp437', 'cp850', 'cp852', 'cp866', 'latin1');
             } else {
                 // Outros arquivos - priorizar UTF-8 e ISO
                 encodingsToTry.push('utf8', 'latin1', 'cp437', 'cp1252');

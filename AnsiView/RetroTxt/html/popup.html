@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <script src="../scripts/popup.js" defer></script>
+  <link rel="stylesheet" href="../css/bulma.min.css" />
+  <style>
+    body {
+      font-size: medium;
+      width: 33em;
+    }
+
+    div#allowAccess,
+    div#unlockLocalfiles {
+      cursor: pointer;
+    }
+
+    div#floaters {
+      float: right;
+      height: 2rem;
+    }
+
+    span.icon {
+      cursor: pointer;
+      margin-left: 0.5rem;
+      border-radius: 0.1rem;
+    }
+
+    span.icon:hover {
+      fill: #1b73e8;
+    }
+
+    span#hostname {
+      text-decoration: underline;
+      word-break: normal;
+    }
+
+    svg.material-icons {
+      display: inline-block;
+      width: 2rem;
+      height: 2rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container p-2">
+    <div class="notification">
+      <div id="floaters">
+        <span class="icon" id="fonts">
+          <svg role="img" class="material-icons">
+            <use xlink:href="../assets/svg/material-icons.svg#fonts"></use>
+          </svg>
+        </span>
+        <span class="icon" id="display">
+          <svg role="img" class="material-icons">
+            <use xlink:href="../assets/svg/material-icons.svg#display"></use>
+          </svg>
+        </span>
+        <span class="icon" id="settings">
+          <svg role="img" class="material-icons">
+            <use xlink:href="../assets/svg/material-icons.svg#settings"></use>
+          </svg>
+        </span>
+        <span class="icon" id="extension">
+          <svg role="img" class="material-icons">
+            <use xlink:href="../assets/svg/material-icons.svg#extension"></use>
+          </svg>
+        </span>
+      </div>
+      <h1 class="title is-5">RetroTxt
+        <span class="subtitle is-6" id="version"></span>
+      </h1>
+      <div class="block">
+        RetroTxt runs in the background and will attempt to format text files hosted on these websites:
+      </div>
+      <div class="block is-family-monospace" id="websites"></div>
+      <div class="block has-text-link-dark" id="localfiles">
+        RetroTxt also formats local text files using drag and drop.
+      </div>
+      <div class="notification is-link is-light" id="allowAccess" title="Open the Settings Option tab">
+        To include a new website, click here to open settings and add the URL to the
+        <strong>Autorun for webistes</strong> list.
+      </div>
+      <div class="notification is-info is-light is-hidden" id="unlockLocalfiles" title="Open the Extension options">
+        When <strong>Allow access to file URLs</strong> is toggled, RetroTxt
+        can format local text files using drag and drop.
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

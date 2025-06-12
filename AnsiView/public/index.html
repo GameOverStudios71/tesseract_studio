@@ -170,9 +170,40 @@
             padding: 0.5rem;
         }
 
-        [data-theme="dark"] .preview.ascii-mode {
+        /* Estilos específicos para arquivos ANSI */
+        .preview.ansi-mode {
             background-color: #000000;
             color: #c0c0c0;
+            font-size: 14px;
+            line-height: 1.0;
+            padding: 0.5rem;
+            font-family: 'Perfect DOS VGA 437', 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .ansi-row {
+            white-space: nowrap;
+            font-family: inherit;
+            line-height: 1.0;
+            margin: 0;
+            padding: 0;
+        }
+
+        [data-theme="dark"] .preview.ascii-mode,
+        [data-theme="dark"] .preview.ansi-mode {
+            background-color: #000000;
+            color: #c0c0c0;
+        }
+
+        /* Animação para texto piscante */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Melhorar renderização de texto para ANSI */
+        .preview.ansi-mode span {
+            white-space: pre;
         }
 
         .textarea-section {
@@ -339,7 +370,8 @@
             position: relative;
         }
 
-        .preset-thumbnail.ascii-mode {
+        .preset-thumbnail.ascii-mode,
+        .preset-thumbnail.ansi-mode {
             background-color: #000000;
             color: #c0c0c0;
         }
@@ -436,7 +468,8 @@
             color: var(--text-color);
         }
 
-        .modal-content.ascii-mode {
+        .modal-content.ascii-mode,
+        .modal-content.ansi-mode {
             background-color: #000000;
             color: #c0c0c0;
         }
@@ -454,7 +487,8 @@
             z-index: 1001;
         }
 
-        .modal-header.ascii-mode {
+        .modal-header.ascii-mode,
+        .modal-header.ansi-mode {
             background-color: #000000;
             border-bottom-color: #333;
         }
@@ -865,16 +899,20 @@ abcdefghijklmnopqrstuvwxyz
             modalTitle.textContent = `Preset: ${preset.name}`;
             modalText.style.fontFamily = preset.font || 'Courier New';
 
-            const processedText = processAnsiText(preset.text || '');
+            const processedText = processAnsiText(preset.text || '', preset.filename || '');
             modalText.innerHTML = processedText;
 
-            // Aplicar modo ASCII se necessário
-            if (isAsciiArt(preset.text || '')) {
+            // Remover classes anteriores
+            modalContent.classList.remove('ascii-mode', 'ansi-mode');
+            modalHeader.classList.remove('ascii-mode', 'ansi-mode');
+
+            // Aplicar modo apropriado
+            if (preset.filename && isAnsiFile(preset.filename)) {
+                modalContent.classList.add('ansi-mode');
+                modalHeader.classList.add('ansi-mode');
+            } else if (isAsciiArt(preset.text || '')) {
                 modalContent.classList.add('ascii-mode');
                 modalHeader.classList.add('ascii-mode');
-            } else {
-                modalContent.classList.remove('ascii-mode');
-                modalHeader.classList.remove('ascii-mode');
             }
 
             presetModal.style.display = 'block';
@@ -1001,13 +1039,519 @@ abcdefghijklmnopqrstuvwxyz
             return result;
         }
 
+        // Cores VGA padrão (baseado no RetroTxt)
+        const vgaColors = {
+            // Cores padrão (30-37, 40-47)
+            30: 'rgb(0, 0, 0)',        // black
+            31: 'rgb(170, 0, 0)',      // red
+            32: 'rgb(0, 170, 0)',      // green
+            33: 'rgb(170, 85, 0)',     // brown
+            34: 'rgb(0, 0, 170)',      // blue
+            35: 'rgb(170, 0, 170)',    // magenta
+            36: 'rgb(0, 170, 170)',    // cyan
+            37: 'rgb(170, 170, 170)',  // grey
+
+            // Cores de fundo (40-47)
+            40: 'rgb(0, 0, 0)',        // black
+            41: 'rgb(170, 0, 0)',      // red
+            42: 'rgb(0, 170, 0)',      // green
+            43: 'rgb(170, 85, 0)',     // brown
+            44: 'rgb(0, 0, 170)',      // blue
+            45: 'rgb(170, 0, 170)',    // magenta
+            46: 'rgb(0, 170, 170)',    // cyan
+            47: 'rgb(170, 170, 170)',  // grey
+
+            // Cores brilhantes (90-97, 100-107)
+            90: 'rgb(85, 85, 85)',     // darkgrey
+            91: 'rgb(255, 85, 85)',    // lightred
+            92: 'rgb(85, 255, 85)',    // lightgreen
+            93: 'rgb(255, 255, 85)',   // yellow
+            94: 'rgb(85, 85, 255)',    // lightblue
+            95: 'rgb(255, 85, 255)',   // lightmagenta
+            96: 'rgb(85, 255, 255)',   // lightcyan
+            97: 'rgb(255, 255, 255)',  // white
+
+            100: 'rgb(85, 85, 85)',    // darkgrey
+            101: 'rgb(255, 85, 85)',   // lightred
+            102: 'rgb(85, 255, 85)',   // lightgreen
+            103: 'rgb(255, 255, 85)',  // yellow
+            104: 'rgb(85, 85, 255)',   // lightblue
+            105: 'rgb(255, 85, 255)',  // lightmagenta
+            106: 'rgb(85, 255, 255)',  // lightcyan
+            107: 'rgb(255, 255, 255)'  // white
+        };
+
+        // Função para detectar se é arquivo ANSI
+        function isAnsiFile(filename) {
+            if (!filename) return false;
+            const ext = filename.toLowerCase();
+            return ext.endsWith('.ans') || ext.endsWith('.ansi') ||
+                   ext.endsWith('.ice') || ext.endsWith('.tnd');
+        }
+
+        // Função para detectar se o texto contém códigos ANSI
+        function hasAnsiCodes(text) {
+            return text && /\x1b\[[0-9;]*[a-zA-Z]/.test(text);
+        }
+
+        // Função de debug para mostrar códigos ANSI
+        function debugAnsiCodes(text) {
+            if (!text) return;
+            const matches = text.match(/\x1b\[[0-9;]*[a-zA-Z]/g);
+            if (matches) {
+                console.log('Códigos ANSI encontrados:', matches.slice(0, 10));
+                console.log('Total de códigos ANSI:', matches.length);
+            } else {
+                console.log('Nenhum código ANSI encontrado');
+            }
+        }
+
+        // Classe para processar códigos ANSI (baseada no RetroTxt)
+        class AnsiProcessor {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.foreground = 37; // grey padrão
+                this.background = 40; // black padrão
+                this.bold = false;
+                this.italic = false;
+                this.underline = false;
+                this.blink = false;
+                this.inverse = false;
+                this.conceal = false;
+                this.strikethrough = false;
+            }
+
+            // Processa uma sequência de códigos SGR
+            processSGR(codes) {
+                if (!codes || codes === '') codes = '0';
+                const codeArray = codes.split(';').map(c => parseInt(c) || 0);
+
+                for (const code of codeArray) {
+                    if (code === 0) {
+                        this.reset();
+                    } else if (code === 1) {
+                        this.bold = true;
+                    } else if (code === 2) {
+                        this.bold = false; // faint
+                    } else if (code === 3) {
+                        this.italic = true;
+                    } else if (code === 4) {
+                        this.underline = true;
+                    } else if (code === 5 || code === 6) {
+                        this.blink = true;
+                    } else if (code === 7) {
+                        this.inverse = true;
+                    } else if (code === 8) {
+                        this.conceal = true;
+                    } else if (code === 9) {
+                        this.strikethrough = true;
+                    } else if (code === 22) {
+                        this.bold = false;
+                    } else if (code === 23) {
+                        this.italic = false;
+                    } else if (code === 24) {
+                        this.underline = false;
+                    } else if (code === 25) {
+                        this.blink = false;
+                    } else if (code === 27) {
+                        this.inverse = false;
+                    } else if (code === 28) {
+                        this.conceal = false;
+                    } else if (code === 29) {
+                        this.strikethrough = false;
+                    } else if (code >= 30 && code <= 37) {
+                        this.foreground = code;
+                    } else if (code === 39) {
+                        this.foreground = 37; // reset to default
+                    } else if (code >= 40 && code <= 47) {
+                        this.background = code;
+                    } else if (code === 49) {
+                        this.background = 40; // reset to default
+                    } else if (code >= 90 && code <= 97) {
+                        this.foreground = code;
+                    } else if (code >= 100 && code <= 107) {
+                        this.background = code;
+                    }
+                }
+            }
+
+            // Gera CSS inline baseado no estado atual
+            generateCSS() {
+                let styles = [];
+
+                let fg = this.foreground;
+                let bg = this.background;
+
+                // Aplicar inversão se necessário
+                if (this.inverse) {
+                    const temp = fg;
+                    fg = bg;
+                    bg = temp;
+                }
+
+                // Cores de texto
+                if (vgaColors[fg]) {
+                    styles.push(`color: ${vgaColors[fg]}`);
+                }
+
+                // Cores de fundo (só aplicar se não for preto padrão)
+                if (bg !== 40 && vgaColors[bg]) {
+                    styles.push(`background-color: ${vgaColors[bg]}`);
+                }
+
+                // Estilos de texto
+                if (this.bold) styles.push('font-weight: bold');
+                if (this.italic) styles.push('font-style: italic');
+                if (this.underline) styles.push('text-decoration: underline');
+                if (this.strikethrough) styles.push('text-decoration: line-through');
+                if (this.blink) styles.push('animation: blink 1s infinite');
+                if (this.conceal) styles.push('opacity: 0');
+
+                return styles.join('; ');
+            }
+        }
+
+        // Classe para simular cursor e tela ANSI
+        class AnsiScreen {
+            constructor(width = 80, height = 25) {
+                this.width = width;
+                this.height = height;
+                this.cursorX = 0;
+                this.cursorY = 0;
+                this.savedCursorX = 0;
+                this.savedCursorY = 0;
+                this.processor = new AnsiProcessor();
+                this.screen = [];
+                this.initScreen();
+            }
+
+            initScreen() {
+                for (let y = 0; y < this.height; y++) {
+                    this.screen[y] = [];
+                    for (let x = 0; x < this.width; x++) {
+                        this.screen[y][x] = {
+                            char: ' ',
+                            style: this.processor.generateCSS()
+                        };
+                    }
+                }
+            }
+
+            moveCursor(x, y) {
+                this.cursorX = Math.max(0, x);
+                this.cursorY = Math.max(0, y);
+            }
+
+            saveCursor() {
+                this.savedCursorX = this.cursorX;
+                this.savedCursorY = this.cursorY;
+            }
+
+            restoreCursor() {
+                this.cursorX = this.savedCursorX;
+                this.cursorY = this.savedCursorY;
+            }
+
+            writeChar(char) {
+                // Expandir tela se necessário
+                while (this.cursorY >= this.screen.length) {
+                    this.screen.push([]);
+                    for (let x = 0; x < this.width; x++) {
+                        this.screen[this.screen.length - 1][x] = {
+                            char: ' ',
+                            style: ''
+                        };
+                    }
+                }
+
+                if (char === '\n') {
+                    this.cursorX = 0;
+                    this.cursorY++;
+                } else if (char === '\r') {
+                    this.cursorX = 0;
+                } else if (char.charCodeAt(0) >= 32 || char === ' ') { // Caracteres imprimíveis e espaço
+                    // Auto-wrap se chegou no final da linha e não há posicionamento absoluto recente
+                    if (this.cursorX >= this.width) {
+                        this.cursorX = 0;
+                        this.cursorY++;
+
+                        // Expandir tela se necessário
+                        while (this.cursorY >= this.screen.length) {
+                            this.screen.push([]);
+                            for (let x = 0; x < this.width; x++) {
+                                this.screen[this.screen.length - 1][x] = {
+                                    char: ' ',
+                                    style: ''
+                                };
+                            }
+                        }
+                    }
+
+                    // Expandir linha se necessário (para posicionamento absoluto)
+                    while (this.cursorX >= this.width) {
+                        this.width = Math.max(this.width + 20, this.cursorX + 1);
+                        // Expandir todas as linhas existentes
+                        for (let y = 0; y < this.screen.length; y++) {
+                            while (this.screen[y].length < this.width) {
+                                this.screen[y].push({
+                                    char: ' ',
+                                    style: ''
+                                });
+                            }
+                        }
+                    }
+
+                    this.screen[this.cursorY][this.cursorX] = {
+                        char: char,
+                        style: this.processor.generateCSS()
+                    };
+                    this.cursorX++;
+                }
+            }
+
+            toHTML() {
+                let html = '';
+                let lastUsedRow = -1;
+
+                // Encontrar a última linha com conteúdo
+                for (let y = this.screen.length - 1; y >= 0; y--) {
+                    let hasContent = false;
+                    for (let x = 0; x < this.width && x < this.screen[y].length; x++) {
+                        if (this.screen[y][x] && this.screen[y][x].char !== ' ') {
+                            hasContent = true;
+                            break;
+                        }
+                    }
+                    if (hasContent) {
+                        lastUsedRow = y;
+                        break;
+                    }
+                }
+
+                for (let y = 0; y <= lastUsedRow; y++) {
+                    html += `<div class="ansi-row">`;
+                    let currentStyle = '';
+                    let spanOpen = false;
+                    let lineContent = '';
+
+                    // Encontrar o último caractere não-espaço da linha
+                    let lastChar = -1;
+                    for (let x = this.screen[y].length - 1; x >= 0; x--) {
+                        if (this.screen[y][x] && this.screen[y][x].char !== ' ') {
+                            lastChar = x;
+                            break;
+                        }
+                    }
+
+                    // Renderizar até o último caractere + alguns espaços extras
+                    const renderWidth = Math.min(this.width, Math.max(lastChar + 5, 80));
+
+                    for (let x = 0; x < renderWidth; x++) {
+                        const cell = this.screen[y][x] || { char: ' ', style: '' };
+
+                        if (cell.style !== currentStyle) {
+                            if (spanOpen) {
+                                lineContent += '</span>';
+                                spanOpen = false;
+                            }
+
+                            if (cell.style) {
+                                lineContent += `<span style="${cell.style}">`;
+                                spanOpen = true;
+                            }
+                            currentStyle = cell.style;
+                        }
+
+                        lineContent += cell.char === ' ' ? '&nbsp;' : cell.char;
+                    }
+
+                    if (spanOpen) {
+                        lineContent += '</span>';
+                    }
+
+                    // Se a linha está vazia, adicionar pelo menos um espaço
+                    if (lineContent.trim() === '') {
+                        lineContent = '&nbsp;';
+                    }
+
+                    html += lineContent + '</div>';
+                }
+
+                return html;
+            }
+        }
+
+        // Função para processar códigos ANSI e converter para HTML
+        function processAnsiCodes(text) {
+            if (!text) return '';
+
+            // Primeiro, converter CP437 para Unicode
+            text = convertCP437ToUnicode(text);
+
+            // Detectar largura aproximada do arquivo
+            const lines = text.split(/\r?\n/);
+            let maxWidth = 80;
+
+            // Calcular largura máxima removendo códigos ANSI
+            for (const line of lines) {
+                const cleanLine = line.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '');
+                maxWidth = Math.max(maxWidth, cleanLine.length);
+            }
+
+            // Limitar largura máxima para evitar problemas de performance
+            maxWidth = Math.min(maxWidth + 10, 200);
+
+            const screen = new AnsiScreen(maxWidth, Math.max(25, lines.length + 10));
+            let i = 0;
+            let hasPositioning = false;
+
+            while (i < text.length) {
+                const charCode = text.charCodeAt(i);
+
+                if (charCode === 27) { // ESC
+                    if (text[i + 1] === '[') { // ESC[
+                    // Encontrou sequência de escape ANSI
+                    let j = i + 2;
+                    let codes = '';
+
+                    // Ler até encontrar uma letra (comando ANSI)
+                    while (j < text.length && !/[a-zA-Z]/.test(text[j])) {
+                        codes += text[j];
+                        j++;
+                    }
+
+                    const command = text[j];
+
+                    if (command === 'm') {
+                        // Processar códigos SGR (cores e estilos)
+                        screen.processor.processSGR(codes);
+                    } else if (command === 'H' || command === 'f') {
+                        // Posicionamento do cursor CUP/HVP
+                        hasPositioning = true;
+                        if (codes === '') {
+                            // ESC[H move para home (1,1)
+                            screen.moveCursor(0, 0);
+                        } else {
+                            const params = codes.split(';').map(p => parseInt(p) || 1);
+                            const row = (params[0] || 1) - 1; // ANSI é 1-based
+                            const col = (params[1] || 1) - 1;
+                            screen.moveCursor(col, row);
+                        }
+                    } else if (command === 'A') {
+                        // Cursor up
+                        const count = parseInt(codes) || 1;
+                        screen.moveCursor(screen.cursorX, Math.max(0, screen.cursorY - count));
+                    } else if (command === 'B') {
+                        // Cursor down
+                        const count = parseInt(codes) || 1;
+                        screen.moveCursor(screen.cursorX, screen.cursorY + count);
+                    } else if (command === 'C') {
+                        // Cursor forward
+                        const count = parseInt(codes) || 1;
+                        screen.moveCursor(screen.cursorX + count, screen.cursorY);
+                    } else if (command === 'D') {
+                        // Cursor backward
+                        const count = parseInt(codes) || 1;
+                        screen.moveCursor(Math.max(0, screen.cursorX - count), screen.cursorY);
+                    } else if (command === 'J') {
+                        // Clear screen
+                        const param = parseInt(codes) || 0;
+                        if (param === 2) {
+                            // Clear entire screen
+                            screen.initScreen();
+                            screen.moveCursor(0, 0);
+                        }
+                    } else if (command === 'K') {
+                        // Clear line
+                        const param = parseInt(codes) || 0;
+                        if (param === 0) {
+                            // Clear from cursor to end of line
+                            for (let x = screen.cursorX; x < screen.width; x++) {
+                                if (screen.screen[screen.cursorY]) {
+                                    screen.screen[screen.cursorY][x] = {
+                                        char: ' ',
+                                        style: ''
+                                    };
+                                }
+                            }
+                        }
+                    } else if (command === 's') {
+                        // Save cursor position
+                        screen.saveCursor();
+                    } else if (command === 'u') {
+                        // Restore cursor position
+                        screen.restoreCursor();
+                    }
+
+                        i = j + 1;
+                    } else if (text[i + 1] === '7') {
+                        // ESC7 - Save cursor
+                        screen.saveCursor();
+                        i += 2;
+                    } else if (text[i + 1] === '8') {
+                        // ESC8 - Restore cursor
+                        screen.restoreCursor();
+                        i += 2;
+                    } else {
+                        // Outras sequências ESC - ignorar
+                        i += 2;
+                    }
+                } else if (charCode === 26) {
+                    // SUB (Substitute) - fim de arquivo DOS
+                    break;
+                } else if (charCode === 12) {
+                    // Form Feed - nova página
+                    screen.cursorX = 0;
+                    screen.cursorY = 0;
+                    i++;
+                } else if (charCode === 8) {
+                    // Backspace
+                    if (screen.cursorX > 0) {
+                        screen.cursorX--;
+                    }
+                    i++;
+                } else if (charCode === 9) {
+                    // Tab - mover para próxima posição de tab (múltiplo de 8)
+                    const nextTab = Math.floor(screen.cursorX / 8) * 8 + 8;
+                    screen.moveCursor(nextTab, screen.cursorY);
+                    i++;
+                } else {
+                    // Caractere normal
+                    screen.writeChar(text[i]);
+                    i++;
+                }
+            }
+
+            let result = screen.toHTML();
+
+            // Pós-processamento para arquivos com muito posicionamento
+            if (hasPositioning) {
+                // Remover linhas vazias consecutivas em excesso
+                result = result.replace(/(<div class="ansi-row">&nbsp;<\/div>\s*){3,}/g,
+                    '<div class="ansi-row">&nbsp;</div><div class="ansi-row">&nbsp;</div>');
+            }
+
+            return result;
+        }
+
         // Função para processar texto ASCII/ANSI
-        function processAnsiText(text) {
+        function processAnsiText(text, filename = '') {
             if (!text) return '';
 
             // Converter caracteres CP437 para Unicode
             let processedText = convertCP437ToUnicode(text);
 
+            // Se for arquivo .ans ou contém códigos ANSI, processar códigos ANSI para HTML
+            if (isAnsiFile(filename) || hasAnsiCodes(processedText)) {
+                console.log(`Processando arquivo ANSI: ${filename || 'texto com códigos ANSI'}`);
+                debugAnsiCodes(processedText);
+                return processAnsiCodes(processedText);
+            }
+
+            // Para outros arquivos, processar como antes
             // Escapar HTML para evitar problemas de segurança
             processedText = processedText
                 .replace(/&/g, '&amp;')
@@ -1145,15 +1689,17 @@ abcdefghijklmnopqrstuvwxyz
                 if (response.ok) {
                     textInput.value = data.content;
 
-                    // Detectar se é ASCII art e aplicar modo especial
-                    if (isAsciiArt(data.content)) {
+                    // Detectar tipo de arquivo e aplicar modo apropriado
+                    textPreview.classList.remove('ascii-mode', 'ansi-mode');
+
+                    if (isAnsiFile(filename) || hasAnsiCodes(data.content)) {
+                        textPreview.classList.add('ansi-mode');
+                    } else if (isAsciiArt(data.content)) {
                         textPreview.classList.add('ascii-mode');
-                    } else {
-                        textPreview.classList.remove('ascii-mode');
                     }
 
                     updatePreview();
-                    console.log(`Arquivo ASCII carregado: ${filename}`);
+                    console.log(`Arquivo carregado: ${filename} (${isAnsiFile(filename) ? 'ANSI' : 'ASCII'})`);
                 } else {
                     alert(`Erro ao carregar arquivo: ${data.error}`);
                 }
@@ -1195,16 +1741,24 @@ abcdefghijklmnopqrstuvwxyz
 
             // Processar texto para ASCII/ANSI art (usar a textarea principal)
             const rawText = textInput.value;
+            const selectedFile = asciiSelect.value;
 
-            // Detectar se é ASCII art e aplicar modo especial
-            if (isAsciiArt(rawText)) {
+            // Remover classes de modo anteriores
+            textPreview.classList.remove('ascii-mode', 'ansi-mode');
+
+            // Detectar tipo de arquivo e aplicar modo apropriado
+            if (isAnsiFile(selectedFile) || hasAnsiCodes(rawText)) {
+                textPreview.classList.add('ansi-mode');
+                const processedText = processAnsiText(rawText, selectedFile);
+                textPreview.innerHTML = processedText;
+            } else if (isAsciiArt(rawText)) {
                 textPreview.classList.add('ascii-mode');
+                const processedText = processAnsiText(rawText);
+                textPreview.innerHTML = processedText;
             } else {
-                textPreview.classList.remove('ascii-mode');
+                const processedText = processAnsiText(rawText);
+                textPreview.innerHTML = processedText;
             }
-
-            const processedText = processAnsiText(rawText);
-            textPreview.innerHTML = processedText;
         }
         
         // Event listeners
@@ -1263,6 +1817,7 @@ abcdefghijklmnopqrstuvwxyz
                 name,
                 text: presetInput.value,
                 font: fontSelect.value,
+                filename: asciiSelect.value || '',
                 createdAt: new Date().toISOString()
             };
 
@@ -1297,12 +1852,14 @@ abcdefghijklmnopqrstuvwxyz
                 thumbnail.style.fontFamily = preset.font || 'Courier New';
 
                 // Processar texto para a miniatura
-                const processedText = processAnsiText(preset.text || '');
+                const processedText = processAnsiText(preset.text || '', preset.filename || '');
                 const truncatedText = truncateTextForThumbnail(processedText);
                 thumbnail.innerHTML = truncatedText;
 
-                // Detectar se é ASCII art para aplicar estilo especial
-                if (isAsciiArt(preset.text || '')) {
+                // Detectar tipo de arquivo para aplicar estilo especial
+                if (preset.filename && isAnsiFile(preset.filename)) {
+                    thumbnail.classList.add('ansi-mode');
+                } else if (isAsciiArt(preset.text || '')) {
                     thumbnail.classList.add('ascii-mode');
                 }
 
