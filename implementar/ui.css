@@ -1273,15 +1273,172 @@
             align-items: stretch;
         }
 
-        .layout-container[data-layout-type="grid-fluid"] .layout-content,
-        .layout-container[data-layout-type="grid-12"] .layout-content,
-        .layout-container[data-layout-type="grid-auto"] .layout-content {
+        .layout-container[data-layout-type="grid-fluid"] .layout-content {
             display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 8px;
         }
 
-        .layout-container[data-layout-type="grid-fluid"] .layout-content {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        .layout-container[data-layout-type="grid-12"] .layout-content {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 4px;
+        }
+
+        .layout-container[data-layout-type="grid-auto"] .layout-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        /* === 🔧 CÉLULAS DO GRID === */
+        .layout-container[data-layout-type="grid-fluid"] .layout-control,
+        .layout-container[data-layout-type="grid-12"] .layout-control,
+        .layout-container[data-layout-type="grid-auto"] .layout-control {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: flex-start;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            min-height: 60px;
+        }
+
+        /* === 🎯 GRID ITEMS (para grid-12) === */
+        .grid-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: flex-start;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            min-height: 60px;
+        }
+
+        .grid-item-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: flex-start;
+            width: 100%;
+            min-height: 60px;
+        }
+
+        /* === 🎯 CONTROLES DENTRO DE GRIDS === */
+        .grid-control-item {
+            position: relative;
+            margin: 2px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .grid-control-item:hover .control-badge,
+        .grid-control-item:hover .control-delete {
+            opacity: 1;
+        }
+
+        .grid-control-item .control-badge,
+        .grid-control-item .control-delete {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        /* === 🔧 OVERRIDE PARA GRIDS === */
+        .layout-container[data-layout-type="grid-fluid"] .layout-content > *,
+        .layout-container[data-layout-type="grid-auto"] .layout-content > * {
+            display: inline-block;
+            margin: 2px;
+            vertical-align: top;
+        }
+
+        .layout-container[data-layout-type="grid-12"] .grid-item-content > * {
+            display: inline-block;
+            margin: 2px;
+            vertical-align: top;
+        }
+
+        /* === 🎯 SELEÇÃO DE CONTROLES INDIVIDUAIS === */
+        .selected-control {
+            outline: 2px solid #ffd700 !important;
+            outline-offset: 2px !important;
+            position: relative !important;
+            z-index: 100;
+        }
+
+        .individual-control-delete {
+            position: absolute !important;
+            top: -8px !important;
+            right: -8px !important;
+            width: 16px !important;
+            height: 16px !important;
+            background: #ff4444 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 50% !important;
+            font-size: 10px !important;
+            cursor: pointer !important;
+            z-index: 1000 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .individual-control-delete:hover {
+            background: #ff0000 !important;
+            transform: scale(1.1) !important;
+        }
+
+        /* === 🔧 MODO EDIÇÃO VISUAL === */
+        .edit-mode-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Exo 2', sans-serif;
+            z-index: 2000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* === 🎮 HOVER STATES MELHORADOS === */
+        .layout-control button:hover,
+        .layout-control input:hover,
+        .layout-control select:hover,
+        .grid-control-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+        }
+
+        /* === 📱 RESPONSIVIDADE PARA CONTROLES === */
+        @media (max-width: 640px) {
+            .layout-control,
+            .grid-control-item {
+                margin: 1px;
+                font-size: 11px;
+            }
+
+            .individual-control-delete {
+                width: 14px !important;
+                height: 14px !important;
+                font-size: 9px !important;
+            }
         }
 
         .layout-container[data-layout-type="card"] .layout-content,

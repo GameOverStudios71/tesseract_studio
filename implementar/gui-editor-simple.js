@@ -1176,6 +1176,12 @@ document.addEventListener('DOMContentLoaded', function() {
     addControlBtns.forEach(btn => {
       btn.addEventListener('click', function() {
         const controlType = this.dataset.control;
+
+        // Auto-ativar modo edição se não estiver ativo
+        if (!editMode) {
+          toggleEditModeBtn?.click();
+        }
+
         addControlToLayout(controlType);
       });
     });
@@ -1197,6 +1203,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Atualizar visibilidade dos controles de edição
       updateEditModeVisibility(contentArea);
+
+      // Mostrar/esconder indicador visual
+      toggleEditModeIndicator(editMode);
+
+      // Desselecionar tudo quando sair do modo edição
+      if (!editMode) {
+        deselectAllElements();
+      }
     });
 
     // Exportar layout
@@ -1208,11 +1222,19 @@ document.addEventListener('DOMContentLoaded', function() {
     contentArea.addEventListener('click', function(e) {
       if (!editMode) return;
 
+      // Verificar se clicou em um controle individual (button, input, etc.)
+      const individualControl = e.target.closest('.grid-control-item, .layout-control button, .layout-control input, .layout-control select, .layout-control label, .layout-control span, .layout-control p, .layout-control div:not(.control-badge):not(.control-delete)');
       const layoutContainer = e.target.closest('.layout-container');
       const layoutControl = e.target.closest('.layout-control');
+      const gridItem = e.target.closest('.grid-item');
 
-      if (layoutControl) {
+      if (individualControl && !e.target.closest('.control-badge, .control-delete')) {
+        // Selecionar controle individual
+        selectIndividualControl(individualControl);
+      } else if (layoutControl) {
         selectElement(layoutControl);
+      } else if (gridItem) {
+        selectElement(gridItem);
       } else if (layoutContainer) {
         selectElement(layoutContainer);
       } else {
@@ -1223,7 +1245,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para tecla Delete
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Delete' && selectedElement && editMode) {
-        deleteElement(selectedElement);
+        if (selectedElement.classList.contains('selected-control')) {
+          deleteIndividualControl(selectedElement);
+        } else {
+          deleteElement(selectedElement);
+        }
       }
     });
 
@@ -1306,6 +1332,28 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    const layoutType = selectedElement.dataset.layoutType;
+
+    // Para grids, verificar se precisa criar uma célula ou adicionar a uma existente
+    if (layoutType === 'grid-fluid' || layoutType === 'grid-auto') {
+      addControlToGridCell(type, selectedElement);
+    } else if (layoutType === 'grid-12') {
+      // Para grid-12, precisa selecionar um grid-item primeiro
+      const gridItems = selectedElement.querySelectorAll('.grid-item');
+      if (gridItems.length === 0) {
+        alert('Adicione primeiro um Grid Item (Col-1, Col-2, etc.) ao Grid 12!');
+        return;
+      }
+      // Adicionar ao último grid item criado
+      const lastGridItem = gridItems[gridItems.length - 1];
+      addControlToGridItem(type, lastGridItem);
+    } else {
+      // Para row, column, card, etc.
+      addControlToFlexContainer(type, selectedElement);
+    }
+  }
+
+  function addControlToFlexContainer(type, container) {
     controlCounter++;
     const controlId = `control-${type}-${controlCounter}`;
 
@@ -1336,7 +1384,7 @@ document.addEventListener('DOMContentLoaded', function() {
     controlWrapper.appendChild(control);
 
     // Adicionar ao layout selecionado
-    const contentArea = selectedElement.querySelector('.layout-content');
+    const contentArea = container.querySelector('.layout-content');
     const emptyState = contentArea.querySelector('.layout-empty');
     if (emptyState) {
       emptyState.remove();
@@ -1344,7 +1392,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
     contentArea.appendChild(controlWrapper);
 
-    console.log(`✅ Controle ${type} adicionado ao layout ${selectedElement.dataset.layoutType}`);
+    console.log(`✅ Controle ${type} adicionado ao layout ${container.dataset.layoutType}`);
+  }
+
+  function addControlToGridCell(type, gridContainer) {
+    controlCounter++;
+    const controlId = `control-${type}-${controlCounter}`;
+
+    // Criar apenas o controle, sem wrapper
+    const control = createTailwindControl(type, controlId);
+    control.dataset.controlType = type;
+    control.dataset.controlId = controlId;
+    control.className += ' grid-control-item';
+
+    // Adicionar badge e delete diretamente no controle
+    const badge = document.createElement('div');
+    badge.className = 'control-badge';
+    badge.textContent = getControlIcon(type);
+    badge.style.position = 'absolute';
+    badge.style.top = '-6px';
+    badge.style.left = '-6px';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'control-delete';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.style.position = 'absolute';
+    deleteBtn.style.top = '-6px';
+    deleteBtn.style.right = '-6px';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteElement(control);
+    };
+
+    control.style.position = 'relative';
+    control.appendChild(badge);
+    control.appendChild(deleteBtn);
+
+    // Adicionar ao grid
+    const contentArea = gridContainer.querySelector('.layout-content');
+    const emptyState = contentArea.querySelector('.layout-empty');
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    contentArea.appendChild(control);
+
+    console.log(`✅ Controle ${type} adicionado à célula do grid ${gridContainer.dataset.layoutType}`);
+  }
+
+  function addControlToGridItem(type, gridItem) {
+    controlCounter++;
+    const controlId = `control-${type}-${controlCounter}`;
+
+    // Criar apenas o controle, sem wrapper
+    const control = createTailwindControl(type, controlId);
+    control.dataset.controlType = type;
+    control.dataset.controlId = controlId;
+    control.className += ' grid-control-item';
+
+    // Adicionar badge e delete diretamente no controle
+    const badge = document.createElement('div');
+    badge.className = 'control-badge';
+    badge.textContent = getControlIcon(type);
+    badge.style.position = 'absolute';
+    badge.style.top = '-6px';
+    badge.style.left = '-6px';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'control-delete';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.style.position = 'absolute';
+    deleteBtn.style.top = '-6px';
+    deleteBtn.style.right = '-6px';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteElement(control);
+    };
+
+    control.style.position = 'relative';
+    control.appendChild(badge);
+    control.appendChild(deleteBtn);
+
+    // Adicionar ao grid item
+    const contentArea = gridItem.querySelector('.grid-item-content');
+    const emptyState = contentArea.querySelector('div');
+    if (emptyState && emptyState.textContent.includes('Arraste controles aqui')) {
+      emptyState.remove();
+    }
+
+    contentArea.appendChild(control);
+
+    console.log(`✅ Controle ${type} adicionado ao grid item ${gridItem.dataset.colSize}`);
   }
 
   function addColumnToRow(rowContainer) {
@@ -1823,10 +1961,100 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(`🎯 Elemento selecionado: ${element.dataset.layoutType || element.dataset.controlType}`);
   }
 
+  function selectIndividualControl(control) {
+    deselectAllElements();
+
+    // Adicionar classe de seleção ao controle individual
+    control.classList.add('selected-control');
+    selectedElement = control;
+
+    // Criar indicadores visuais para controle individual
+    addControlSelectionIndicators(control);
+
+    console.log(`🎯 Controle individual selecionado: ${control.tagName} (${control.dataset.controlType || 'unknown'})`);
+  }
+
+  function addControlSelectionIndicators(control) {
+    // Remover indicadores existentes
+    removeControlSelectionIndicators();
+
+    // Criar borda de seleção
+    control.style.outline = '2px solid #ffd700';
+    control.style.outlineOffset = '2px';
+
+    // Criar botão de delete para controle individual
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'individual-control-delete';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.style.cssText = `
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 16px;
+      height: 16px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 10px;
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteIndividualControl(control);
+    };
+
+    // Posicionar relativamente se necessário
+    if (getComputedStyle(control).position === 'static') {
+      control.style.position = 'relative';
+    }
+
+    control.appendChild(deleteBtn);
+    control.dataset.hasDeleteBtn = 'true';
+  }
+
+  function removeControlSelectionIndicators() {
+    // Remover outlines de todos os controles
+    document.querySelectorAll('.selected-control').forEach(ctrl => {
+      ctrl.classList.remove('selected-control');
+      ctrl.style.outline = '';
+      ctrl.style.outlineOffset = '';
+
+      // Remover botão de delete individual
+      const deleteBtn = ctrl.querySelector('.individual-control-delete');
+      if (deleteBtn) {
+        deleteBtn.remove();
+      }
+      ctrl.removeAttribute('data-has-delete-btn');
+    });
+  }
+
+  function deleteIndividualControl(control) {
+    if (control === selectedElement) {
+      selectedElement = null;
+    }
+
+    // Remover indicadores antes de deletar
+    removeControlSelectionIndicators();
+
+    control.remove();
+    console.log(`🗑️ Controle individual removido`);
+  }
+
   function deselectAllElements() {
-    document.querySelectorAll('.layout-container, .layout-control').forEach(el => {
+    // Desselecionar containers e controles de layout
+    document.querySelectorAll('.layout-container, .layout-control, .grid-item').forEach(el => {
       el.classList.remove('selected');
     });
+
+    // Desselecionar controles individuais
+    removeControlSelectionIndicators();
+
     selectedElement = null;
   }
 
@@ -1966,6 +2194,22 @@ document.addEventListener('DOMContentLoaded', function() {
     URL.revokeObjectURL(url);
 
     console.log('📤 Layout exportado como HTML');
+  }
+
+  function toggleEditModeIndicator(isEditMode) {
+    // Remover indicador existente
+    const existingIndicator = document.querySelector('.edit-mode-indicator');
+    if (existingIndicator) {
+      existingIndicator.remove();
+    }
+
+    // Criar novo indicador se modo edição estiver ativo
+    if (isEditMode) {
+      const indicator = document.createElement('div');
+      indicator.className = 'edit-mode-indicator';
+      indicator.innerHTML = '✏️ MODO EDIÇÃO ATIVO<br><small>Clique nos controles para selecioná-los</small>';
+      document.body.appendChild(indicator);
+    }
   }
 
   // Inicializar sistema de layout builder quando a página carregar
