@@ -70,7 +70,7 @@ export function initializeApp() {
   }
 
   // Control Palette Drag and Visibility
-  const ALLOWED_PALETTE_CONTROLS: ControlPaletteItemType[] = ['row-container', 'column-container', 'text-block', 'image-element', 'text-colors', 'button', 'text-input'];
+  const ALLOWED_PALETTE_CONTROLS: ControlPaletteItemType[] = ['row-container', 'column-container', 'text-block', 'image-element', 'text-colors', 'button', 'text-input', 'ansi-art'];
   if(dom.controlPaletteItems) {
       dom.controlPaletteItems.forEach(item => {
           item.addEventListener('dragstart', handlePaletteItemDragStart);

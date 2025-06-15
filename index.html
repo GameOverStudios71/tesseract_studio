@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,8 +51,8 @@
     <!-- Config Panel Toggle Button -->
     <button id="toggle-config-panel-btn" class="fixed top-4 right-4 z-50 p-3 bg-teal-500 hover:bg-teal-600 rounded-full shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-opacity-50" aria-label="Toggle Configuration Panel">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.646.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 1.905c-.007.379.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.333.184-.582.496-.646.87l-.212 1.282c-.09.542-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.759 6.759 0 0 1 0-1.905c.007-.379-.137-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.184.582-.496.644-.87l.214-1.282Z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.646.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 1.905c-.007.379.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.333.184-.582.496-.646.87l-.212 1.282c-.09.542-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.759 6.759 0 010-1.905c.007-.379-.137-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.184.582-.496.644-.87l.214-1.282Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 016 0Z" />
         </svg>
     </button>
 
@@ -185,7 +184,7 @@
                 </div>
 
                 <!-- Element Settings Tab Content -->
-                <div id="element-settings-tab-content" role="tabpanel" class="hidden">
+                <div id="element-settings-tab-content" role="tabpanel">
                                         <div class="control-group p-2 bg-slate-700/30 rounded-lg mb-3">
                         <h4 class="text-sm font-semibold text-teal-400 mb-2 border-b border-slate-600 pb-1">Scene Elements</h4>
                         <div id="element-visibility-toggles" class="grid grid-cols-4 gap-2 text-center">
@@ -195,7 +194,7 @@
                     <p class="text-slate-300 text-xs mb-2">Selected: <strong id="selected-element-name" class="text-teal-400">None</strong></p>
                 
                     <!-- Decorative Element Properties Section -->
-                    <div id="decorative-element-props-section" class="space-y-2 hidden">
+                    <div id="decorative-element-props-section" class="space-y-2">
                         <div class="control-group p-2 bg-slate-700/50 rounded-lg">
                              <p class="text-slate-200 text-xs font-medium mb-1">General</p>
                             <label class="flex items-center space-x-2 text-slate-200 cursor-pointer text-xs">
@@ -430,7 +429,7 @@
                     </div>
 
                     <!-- Dropped Control Properties Section -->
-                    <div id="dropped-control-props-section" class="space-y-2 hidden">
+                    <div id="dropped-control-props-section" class="space-y-2">
                         <div class="control-group p-2 bg-slate-700/50 rounded-lg">
                              <p class="text-slate-200 text-xs font-medium mb-1">General</p>
                             <label class="flex items-center space-x-2 text-slate-200 cursor-pointer text-xs">
@@ -528,7 +527,7 @@
                         </div>
                         
                         <!-- Typography Controls for Dropped Controls -->
-                        <div id="dropped-control-typography-section" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5 hidden">
+                        <div id="dropped-control-typography-section" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
                             <p class="text-slate-200 text-xs font-medium mb-1">Typography</p>
                             <div>
                                 <label for="dropped-control-font-family" class="block text-xs text-slate-400 mb-0.5">Font Family:</label>
@@ -609,7 +608,7 @@
                         </div>
 
                         <!-- Text Alignment Controls (Existing) -->
-                        <div id="text-alignment-controls-container" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5 hidden">
+                        <div id="text-alignment-controls-container" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
                             <p class="text-slate-200 text-xs font-medium mb-1">Text Alignment (Flex Content)</p>
                             <div>
                                 <label for="text-align-horizontal" class="block text-xs text-slate-400 mb-0.5">Horizontal (text-align):</label>
@@ -631,7 +630,7 @@
                         </div>
 
                         <!-- Container Alignment Controls (Existing) -->
-                        <div id="container-alignment-controls-container" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5 hidden">
+                        <div id="container-alignment-controls-container" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
                             <p class="text-slate-200 text-xs font-medium mb-1">Align Children (Flex Container)</p>
                             <div>
                                 <label for="container-align-items" class="block text-xs text-slate-400 mb-0.5">Cross Axis (align-items):</label>
@@ -666,7 +665,7 @@
                     </div>
 
                     <!-- TextColors Component Properties Section -->
-                    <div id="text-colors-props-section" class="space-y-2 hidden">
+                    <div id="text-colors-props-section" class="space-y-2">
                         <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
                             <p class="text-slate-200 text-xs font-medium mb-1">Text Content</p>
                             <div>
@@ -710,7 +709,7 @@
                 </div>
                 
                 <!-- Animations Tab Content -->
-                <div id="animations-tab-content" role="tabpanel" class="hidden">
+                <div id="animations-tab-content" role="tabpanel">
                     <p class="text-slate-300 text-xs mb-2">Animations for: <strong id="animation-selected-element-name" class="text-teal-400">None (Select a Decorative Element)</strong></p>
                     <div id="animation-controls-container" class="space-y-2">
                         <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
@@ -757,7 +756,7 @@
                 </div>
 
                 <!-- Controls Tab Content -->
-                <div id="controls-tab-content" role="tabpanel" class="hidden">
+                <div id="controls-tab-content" role="tabpanel">
                     <h4 class="text-sm font-semibold text-teal-400 mb-1 border-b border-slate-600 pb-1">Control Palette</h4>
                     <p class="text-xs text-slate-400 mb-2">Drag controls onto Layer 2 or a Decorative Element.</p>
                     <div id="control-palette" class="grid grid-cols-2 gap-2 text-xs">
@@ -769,7 +768,7 @@
                         </div>
                         <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="text-input">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a2.25 2.25 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                             </svg>
                             Text Input
                         </div>
@@ -805,11 +804,17 @@
                             </svg>
                             TextColors
                         </div>
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="ansi-art">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18v18H3z" />
+                            </svg>
+                            ANSI Art
+                        </div>
                     </div>
                 </div>
 
                 <!-- Components Tab Content -->
-                <div id="components-tab-content" role="tabpanel" class="hidden">
+                <div id="components-tab-content" role="tabpanel">
                     <h4 class="text-sm font-semibold text-teal-400 mb-1 border-b border-slate-600 pb-1">Component Palette</h4>
                     <p class="text-xs text-slate-400 mb-2">No components available at the moment. Drag components onto Layer 2 or a Decorative Element.</p>
                     <div id="component-palette" class="grid grid-cols-2 gap-2 text-xs">
@@ -819,7 +824,7 @@
                 </div>
 
                 <!-- Presets Tab Content -->
-                <div id="presets-tab-content" role="tabpanel" class="hidden">
+                <div id="presets-tab-content" role="tabpanel">
                     <h4 class="text-sm font-semibold text-teal-400 mb-2 border-b border-slate-600 pb-1">Manage Presets</h4>
                     <button id="save-preset-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-3 rounded-md transition-colors text-xs mb-3 flex items-center justify-center space-x-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">

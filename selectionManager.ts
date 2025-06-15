@@ -99,7 +99,82 @@ export function updatePanelForSelectedControl() {
     dom.decorativeElementPropsSection.classList.add('hidden');
     const controlType = state.selectedDroppedControl.dataset.controlType || state.selectedDroppedControl.tagName.toLowerCase();
 
-    if (controlType === 'text-colors') {
+    if (controlType === 'ansi-art') {
+        dom.droppedControlPropsSection.innerHTML = `
+            <h3>ANSI Art Settings</h3>
+            <div class="space-y-2">
+                <textarea class="w-full p-2 border ansi-textarea" placeholder="Cole aqui o código ANSI"></textarea>
+                <label for="ansi-width" class="block text-xs text-slate-400">Width (px):</label>
+                <input type="number" id="ansi-width" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full">
+                <label for="ansi-height" class="block text-xs text-slate-400">Height (px):</label>
+                <input type="number" id="ansi-height" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full">
+                <label for="ansi-bg-color" class="block text-xs text-slate-400">Background Color:</label>
+                <input type="color" id="ansi-bg-color" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                <label for="ansi-text-color" class="block text-xs text-slate-400">Text Color:</label>
+                <input type="color" id="ansi-text-color" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                <label for="ansi-font-family" class="block text-xs text-slate-400">Font Family:</label>
+                <select id="ansi-font-family" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full">
+                    <option value="'Perfect DOS VGA 437 Win', monospace">Perfect DOS VGA 437 Win</option>
+                    <option value="monospace">Monospace (Default)</option>
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'Lucida Console', monospace">Lucida Console</option>
+                </select>
+            </div>`;
+        const textarea = dom.droppedControlPropsSection.querySelector('.ansi-textarea') as HTMLTextAreaElement;
+        const widthInput = dom.droppedControlPropsSection.querySelector('#ansi-width') as HTMLInputElement;
+        const heightInput = dom.droppedControlPropsSection.querySelector('#ansi-height') as HTMLInputElement;
+        const bgColorInput = dom.droppedControlPropsSection.querySelector('#ansi-bg-color') as HTMLInputElement;
+        const textColorInput = dom.droppedControlPropsSection.querySelector('#ansi-text-color') as HTMLInputElement;
+        const fontFamilySelect = dom.droppedControlPropsSection.querySelector('#ansi-font-family') as HTMLSelectElement;
+        if (state.selectedDroppedControl) {
+            // Set initial values
+            widthInput.value = (state.selectedDroppedControl.style.width || 'auto').replace('px', '');
+            heightInput.value = (state.selectedDroppedControl.style.height || 'auto').replace('px', '');
+            bgColorInput.value = state.selectedDroppedControl.style.backgroundColor || '#000000';
+            textColorInput.value = state.selectedDroppedControl.style.color || '#ffffff';
+            fontFamilySelect.value = state.selectedDroppedControl.style.fontFamily || "'Perfect DOS VGA 437 Win', monospace";
+            textarea.value = state.selectedDroppedControl.dataset.ansiCode || '';
+            
+            // Add event listeners
+            textarea.addEventListener('input', (e) => {
+                const ansiCode = (e.target as HTMLTextAreaElement).value;
+                if (state.selectedDroppedControl) {
+                    state.selectedDroppedControl.dataset.ansiCode = ansiCode;
+                    const previewElement = state.selectedDroppedControl.querySelector('.ansi-preview');
+                    if (previewElement) {
+                        previewElement.innerHTML = ansiCode.replace(/\x1b\[ [0-?]*[ -/]*[@-~]/g, ''); // Simple rendering
+                    }
+                }
+            });
+            widthInput.addEventListener('input', (e) => {
+                if (state.selectedDroppedControl) {
+                    state.selectedDroppedControl.style.width = `${(e.target as HTMLInputElement).value}px`;
+                }
+            });
+            heightInput.addEventListener('input', (e) => {
+                if (state.selectedDroppedControl) {
+                    state.selectedDroppedControl.style.height = `${(e.target as HTMLInputElement).value}px`;
+                }
+            });
+            bgColorInput.addEventListener('input', (e) => {
+                if (state.selectedDroppedControl) {
+                    state.selectedDroppedControl.style.backgroundColor = (e.target as HTMLInputElement).value;
+                }
+            });
+            textColorInput.addEventListener('input', (e) => {
+                if (state.selectedDroppedControl) {
+                    state.selectedDroppedControl.style.color = (e.target as HTMLInputElement).value;
+                }
+            });
+            fontFamilySelect.addEventListener('change', (e) => {
+                if (state.selectedDroppedControl) {
+                    state.selectedDroppedControl.style.fontFamily = (e.target as HTMLSelectElement).value;
+                }
+            });
+        }
+        dom.droppedControlPropsSection.classList.remove('hidden');
+        dom.selectedElementNameDisplay.textContent = `Control: ANSI Art`;
+    } else if (controlType === 'text-colors') {
         dom.droppedControlPropsSection.classList.add('hidden');
         dom.droppedControlTypographySection.classList.add('hidden');
         dom.textColorsPropsSection.classList.remove('hidden');

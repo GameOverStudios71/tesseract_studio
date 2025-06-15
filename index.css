@@ -266,3 +266,13 @@ html, body {
   cursor: pointer;
   border: none;
 }
+
+/* Add font-face for ANSI control */
+@font-face {
+  font-family: 'PerfectDOSVGA';
+  src: url('/fonts/Perfect DOS VGA 437 Win.ttf') format('truetype');
+}
+
+.ansi-font {
+  font-family: 'PerfectDOSVGA', monospace;
+}

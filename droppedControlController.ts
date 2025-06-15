@@ -245,11 +245,25 @@ export function handleDrop(event: DragEvent) {
                 newControl.dataset.lightenColor = DEFAULT_TEXTCOLORS_LIGHTEN_COLOR;
                 renderTextColorsComponent(newControl);
                 break;
+            case 'ansi-art':
+                newControl = document.createElement('div');
+                newControl.className = 'dropped-control dropped-ansi-art bg-black text-white p-2 rounded w-full h-48 flex flex-col ansi-font';
+                const uniqueId = generateUniqueId();
+                newControl.dataset.controlType = 'ansi-art';
+                newControl.dataset.droppedControlId = uniqueId;
+                newControl.dataset.ansiCode = '';  // Default empty ANSI code
+                const previewElement = document.createElement('div');
+                previewElement.className = 'mt-2 p-2 bg-black font-mono overflow-auto ansi-preview ansi-font';
+                previewElement.innerHTML = '';  // Initial empty render
+                newControl.appendChild(previewElement);  // Add preview element
+                renderAnsiPreview(newControl);  // Initial render call
+                break;
+            default:
+                console.error(`Unknown control type: ${controlType}`);
+                return; // Exit early if control type is invalid
         }
 
         if (newControl) {
-            newControl.dataset.controlType = controlType;
-            newControl.dataset.droppedControlId = generateUniqueId('dc');
             newControl.draggable = true; 
             newControl.addEventListener('dragstart', handleDroppedControlDragStart);
             newControl.addEventListener('dragend', handleDroppedControlDragEnd);
@@ -264,6 +278,40 @@ export function handleDrop(event: DragEvent) {
             else if (dropTarget.classList.contains('decorative-element')) updatePlaceholderVisibility(dropTarget, '.decorative-element-empty-placeholder');
             else if (dropTarget.classList.contains('dropped-row-container') || dropTarget.classList.contains('dropped-column-container')) updatePlaceholderVisibility(dropTarget, '.container-empty-placeholder');
         }
+    }
+}
+
+function renderAnsiPreview(control: HTMLElement) {
+    const ansiCode = control.dataset.ansiCode || '';
+    const previewElement = control.querySelector('.ansi-preview');
+    if (previewElement) {
+        // Improved ANSI rendering: handle colors and basic formatting
+        let html = ansiCode;
+        // Reset all attributes
+        html = html.replace(/\x1b\[0m/g, '</span>');
+        // Colors (foreground and background)
+        html = html.replace(/\x1b\[30m/g, '<span style="color:black;">');
+        html = html.replace(/\x1b\[31m/g, '<span style="color:red;">');
+        html = html.replace(/\x1b\[32m/g, '<span style="color:green;">');
+        html = html.replace(/\x1b\[33m/g, '<span style="color:yellow;">');
+        html = html.replace(/\x1b\[34m/g, '<span style="color:blue;">');
+        html = html.replace(/\x1b\[35m/g, '<span style="color:magenta;">');
+        html = html.replace(/\x1b\[36m/g, '<span style="color:cyan;">');
+        html = html.replace(/\x1b\[37m/g, '<span style="color:white;">');
+        html = html.replace(/\x1b\[40m/g, '<span style="background-color:black;">');
+        html = html.replace(/\x1b\[41m/g, '<span style="background-color:red;">');
+        html = html.replace(/\x1b\[42m/g, '<span style="background-color:green;">');
+        html = html.replace(/\x1b\[43m/g, '<span style="background-color:yellow;">');
+        html = html.replace(/\x1b\[44m/g, '<span style="background-color:blue;">');
+        html = html.replace(/\x1b\[45m/g, '<span style="background-color:magenta;">');
+        html = html.replace(/\x1b\[46m/g, '<span style="background-color:cyan;">');
+        html = html.replace(/\x1b\[47m/g, '<span style="background-color:white;">');
+        // Basic formatting
+        html = html.replace(/\x1b\[1m/g, '<span style="font-weight:bold;">');
+        html = html.replace(/\x1b\[4m/g, '<span style="text-decoration:underline;">');
+        // Remove any remaining unhandled escape sequences
+        html = html.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '');
+        previewElement.innerHTML = html;
     }
 }
 

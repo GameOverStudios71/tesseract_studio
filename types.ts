@@ -1,4 +1,3 @@
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -13,7 +12,7 @@ export type AnchorXType = 'left' | 'center' | 'right';
 export type AnchorYType = 'top' | 'center' | 'bottom';
 export type TabId = 'globals' | 'element' | 'animations' | 'controls' | 'components' | 'presets'; 
 export type ElementBorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
-export type ControlPaletteItemType = 'button' | 'text-input' | 'row-container' | 'column-container' | 'text-block' | 'image-element' | 'text-colors';
+export type ControlPaletteItemType = 'button' | 'text-input' | 'row-container' | 'column-container' | 'text-block' | 'image-element' | 'text-colors' | 'ansi-art';
 
 export type TextAlignmentHorizontal = 'left' | 'center' | 'right' | 'justify';
 export type TextAlignmentVertical = 'flex-start' | 'center' | 'flex-end'; // For internal text alignment using flex
