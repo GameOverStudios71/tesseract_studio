@@ -1,0 +1,268 @@
+
+/* index.css */
+body {
+    margin: 0;
+    font-family: 'Exo 2', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* overflow-hidden is good for a full-screen app like this */
+}
+
+html, body {
+    height: 100%; 
+    width: 100%; /* Ensure full width as well */
+}
+
+
+/* Custom scrollbar for webkit browsers for Layer 2 if content overflows */
+#layer-2::-webkit-scrollbar, 
+#presets-list-container::-webkit-scrollbar,
+#config-panel-body nav::-webkit-scrollbar,
+#config-panel-body .flex-grow::-webkit-scrollbar { /* Target the new scrollable content area */
+    width: 8px;
+    height: 8px;
+}
+#layer-2::-webkit-scrollbar-track, 
+#presets-list-container::-webkit-scrollbar-track,
+#config-panel-body nav::-webkit-scrollbar-track,
+#config-panel-body .flex-grow::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+#layer-2::-webkit-scrollbar-thumb, 
+#presets-list-container::-webkit-scrollbar-thumb,
+#config-panel-body nav::-webkit-scrollbar-thumb,
+#config-panel-body .flex-grow::-webkit-scrollbar-thumb {
+    background: rgba(30, 200, 200, 0.5);
+    border-radius: 10px;
+}
+#layer-2::-webkit-scrollbar-thumb:hover, 
+#presets-list-container::-webkit-scrollbar-thumb:hover,
+#config-panel-body nav::-webkit-scrollbar-thumb:hover,
+#config-panel-body .flex-grow::-webkit-scrollbar-thumb:hover {
+    background: rgba(30, 200, 200, 0.7);
+}
+
+#layer-2, 
+#presets-list-container,
+#config-panel-body nav,
+#config-panel-body .flex-grow {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(30, 200, 200, 0.5) rgba(255, 255, 255, 0.05);
+}
+
+
+/* Highlight for selected elements */
+.selected-element-highlight {
+  outline: 3px solid #14f1d9; /* Bright teal */
+  outline-offset: 3px;
+  box-shadow: 0 0 15px #14f1d9, 0 0 5px #14f1d9 inset; /* Added glow */
+}
+
+.selected-dropped-control-highlight {
+  outline: 2px dashed #f59e0b; /* Amber */
+  outline-offset: 2px; /* Adjusted offset */
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+
+/* Config Panel Styles */
+#config-panel {
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out; 
+    /* width: 399px; */ /* Tailwind w-[399px] is preferred if used directly in HTML */
+}
+
+
+/* Styles for collapsed panel */
+#config-panel.collapsed #config-panel-body nav,
+#config-panel.collapsed #config-panel-body .flex-grow {
+    display: none; /* Hide tab navigation and content when collapsed */
+}
+
+#config-panel.collapsed {
+    height: auto !important; /* Allow panel to shrink to header height */
+    width: auto !important; /* Allow panel to shrink to header width */
+    min-width: 210px; /* Adjust as needed, considering button sizes in header */
+}
+
+#config-panel.collapsed #config-panel-header {
+    border-bottom-left-radius: 0.5rem; /* Re-apply rounded corners to header when collapsed */
+    border-bottom-right-radius: 0.5rem;
+}
+
+
+/* Active Tab Button Style */
+.tab-button.active-tab {
+    background-color: rgba(13, 148, 136, 0.6); /* Tailwind teal-700 with opacity */
+    color: #f0fdfa; /* Tailwind teal-50 */
+    font-weight: 600;
+}
+.tab-button.active-tab svg {
+    color: #5eead4; /* Tailwind teal-300 for icon */
+}
+
+/* Preset Item Styling */
+.preset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background-color: rgba(71, 85, 105, 0.3); /* slate-600 with opacity */
+    border-radius: 0.375rem; /* rounded-md */
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s ease-in-out;
+}
+.preset-item:hover {
+    background-color: rgba(71, 85, 105, 0.5); /* slightly darker on hover */
+}
+.preset-item-info {
+    display: flex;
+    flex-direction: column; /* Stack name and thumbnail */
+    align-items: flex-start;
+    gap: 0.25rem; /* space between name and thumbnail */
+    flex-grow: 1;
+    min-width: 0; /* for text truncation */
+}
+.preset-item-name {
+    font-size: 0.75rem; /* text-xs */
+    color: #e2e8f0; /* slate-200 */
+    font-weight: 500;
+    /* Text truncation is handled by Tailwind's `truncate` class in HTML */
+}
+.preset-thumbnail {
+    width: 100%;
+    height: 12px; /* Small height for thumbnail */
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preset-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem; /* space between buttons */
+    margin-left: 0.5rem;
+}
+.preset-item-actions button {
+    background-color: rgba(51, 65, 85, 0.7); /* slate-700 with opacity */
+    color: #cbd5e1; /* slate-300 */
+    padding: 0.25rem 0.5rem; /* py-1 px-2 */
+    border-radius: 0.25rem; /* rounded-sm */
+    font-size: 0.7rem; /* smaller text for buttons */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.preset-item-actions button:hover {
+    background-color: rgba(30, 41, 59, 0.9); /* slate-800 with opacity */
+    color: #f1f5f9; /* slate-100 */
+}
+.preset-item-actions .preset-delete-btn:hover {
+    background-color: #dc2626; /* red-600 */
+    color: white;
+}
+.preset-item-actions .preset-export-btn:hover {
+    background-color: #0d9488; /* teal-600 */
+    color: white;
+}
+
+/* Drag over active state */
+.drag-over-active {
+    outline: 2px dashed #10b981; /* emerald-500 */
+    background-color: rgba(16, 185, 129, 0.1); /* emerald-500 with low opacity */
+}
+
+/* Styles for the control being dragged */
+.dragging-control {
+    /* opacity is handled inline by JS */
+    border: 2px dashed #f59e0b; /* amber-500, to indicate it's the source */
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.dropped-text-colors-component {
+    --primary-gradient-base-color-light: #00f000; 
+    --gradient-lighten-color: #FFFFFF;
+    --gradient-color-1: color-mix(in srgb, var(--primary-gradient-base-color-light, #00f000) 55%, black 45%);
+    --gradient-color-2: color-mix(in srgb, var(--primary-gradient-base-color-light, #00f000) 75%, black 25%);
+    --gradient-color-3: var(--primary-gradient-base-color-light, #00f000);
+    --gradient-color-4: color-mix(in srgb, var(--primary-gradient-base-color-light, #00f000) 75%, var(--gradient-lighten-color, #FFFFFF) 25%);
+    --gradient-color-5: color-mix(in srgb, var(--primary-gradient-base-color-light, #00f000) 55%, var(--gradient-lighten-color, #FFFFFF) 45%);
+    --gradient-color-6: color-mix(in srgb, var(--primary-gradient-base-color-light, #00f000) 40%, var(--gradient-lighten-color, #FFFFFF) 60%);
+    font-size: 1rem; line-height: 1.6; padding: 10px; background-color: rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; word-break: break-word; width: 100%; color: #e0e0e0;
+    min-height: 50px; /* Ensure it's droppable and visible */
+}
+.dropped-text-colors-component.word-gradient .word { display: inline-block; margin-right: 0.25em; }
+.dropped-text-colors-component.word-gradient .word span { display: inline-block; }
+.dropped-text-colors-component.word-gradient .word span:nth-child(1) { color: var(--gradient-color-1); }
+.dropped-text-colors-component.word-gradient .word span:nth-child(2) { color: var(--gradient-color-2); }
+.dropped-text-colors-component.word-gradient .word span:nth-child(3) { color: var(--gradient-color-3); }
+.dropped-text-colors-component.word-gradient .word span:nth-child(4) { color: var(--gradient-color-4); }
+.dropped-text-colors-component.word-gradient .word span:nth-child(5) { color: var(--gradient-color-5); }
+.dropped-text-colors-component.word-gradient .word span:nth-child(n+6) { color: var(--gradient-color-6); }
+.dropped-text-colors-component.sentence-gradient span { display: inline-block; }
+.dropped-text-colors-component.sentence-gradient .gradient-step-1 { color: var(--gradient-color-1); }
+.dropped-text-colors-component.sentence-gradient .gradient-step-2 { color: var(--gradient-color-2); }
+.dropped-text-colors-component.sentence-gradient .gradient-step-3 { color: var(--gradient-color-3); }
+.dropped-text-colors-component.sentence-gradient .gradient-step-4 { color: var(--gradient-color-4); }
+.dropped-text-colors-component.sentence-gradient .gradient-step-5 { color: var(--gradient-color-5); }
+.dropped-text-colors-component.sentence-gradient .gradient-step-6 { color: var(--gradient-color-6); }
+.dropped-text-colors-component.dark-light-dark-sentence-gradient > span { display: inline-block; }
+.dropped-text-colors-component.dark-light-dark-sentence-gradient .dle-step-1 { color: var(--gradient-color-1); }
+.dropped-text-colors-component.dark-light-dark-sentence-gradient .dle-step-2 { color: var(--gradient-color-3); }
+.dropped-text-colors-component.dark-light-dark-sentence-gradient .dle-step-3 { color: var(--gradient-color-6); }
+.dropped-text-colors-component.dark-light-dark-word-gradient .word { display: inline-block; margin-right: 0.25em; }
+.dropped-text-colors-component.dark-light-dark-word-gradient .word span { display: inline-block; }
+.dropped-text-colors-component.dark-light-dark-word-gradient .word .dle-step-1 { color: var(--gradient-color-1); }
+.dropped-text-colors-component.dark-light-dark-word-gradient .word .dle-step-2 { color: var(--gradient-color-3); }
+.dropped-text-colors-component.dark-light-dark-word-gradient .word .dle-step-3 { color: var(--gradient-color-6); }
+
+/* Dropped control default min height for better usability if empty */
+.dropped-control.dropped-row-container,
+.dropped-control.dropped-column-container {
+    min-height: 50px; /* Already set by Tailwind in HTML, but good to reinforce */
+}
+.dropped-control.dropped-image-element {
+    min-width: 50px; 
+    min-height: 50px; 
+}
+
+/* Styling input[type=color] to ensure consistent height with other inputs if needed */
+#config-panel input[type="color"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0.1rem; /* Adjust if Tailwind's p-1 for color input is too large */
+    border-radius: 0.25rem; /* rounded */
+}
+#config-panel input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+#config-panel input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 0.125rem; /* rounded-sm */
+}
+#config-panel input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 0.125rem; /* rounded-sm */
+}
+
+/* Range input thumb styles for better visibility */
+#config-panel input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px; /* Thumb size */
+  height: 12px; /* Thumb size */
+  background: #5eead4; /* teal-300 */
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -3.5px; /* Adjust this value to vertically center the thumb on the track */
+}
+
+#config-panel input[type="range"]::-moz-range-thumb {
+  width: 12px; /* Thumb size */
+  height: 12px; /* Thumb size */
+  background: #5eead4; /* teal-300 */
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}

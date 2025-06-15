@@ -1,101 +1,103 @@
-export type ElementType = 'container' | 'row' | 'col' | 'control' | 'template';
 
-export interface Spacing {
-  top: string;
-  right: string;
-  bottom: string;
-  left: string;
-}
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-export interface CommonProps {
-  padding: Spacing;
-  margin: Spacing;
-  backgroundColor: string; // e.g., 'blue-200'
-  customClasses: string;
-  minHeight: string; // e.g. '60px'
-}
+export type BackgroundSizeType = 'cover' | 'contain' | 'auto';
+export type BackgroundRepeatType = 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y' | 'space' | 'round';
+export type ElementDisplayType = 'flex' | 'block' | 'inline-block' | 'grid' | 'none';
+export type ElementOverflowType = 'visible' | 'hidden' | 'scroll' | 'auto';
 
-export interface ContainerSpecificProps {
-  isFluid: boolean;
-  isFullscreen: boolean; // New property for fullscreen containers
-}
-export type ContainerProps = CommonProps & ContainerSpecificProps;
+export type AnchorXType = 'left' | 'center' | 'right';
+export type AnchorYType = 'top' | 'center' | 'bottom';
+export type TabId = 'globals' | 'element' | 'animations' | 'controls' | 'components' | 'presets'; 
+export type ElementBorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
+export type ControlPaletteItemType = 'button' | 'text-input' | 'row-container' | 'column-container' | 'text-block' | 'image-element' | 'text-colors';
 
-export interface RowSpecificProps {
-  gutters: { x: string; y: string }; // 0-5
-  justifyContent: string; // start, end, center, between, around, evenly
-  alignItems: string; // start, end, center, baseline, stretch
-}
-export type RowProps = CommonProps & RowSpecificProps;
+export type TextAlignmentHorizontal = 'left' | 'center' | 'right' | 'justify';
+export type TextAlignmentVertical = 'flex-start' | 'center' | 'flex-end'; // For internal text alignment using flex
+
+export type FlexJustifyContent = 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+export type FlexAlignItems = 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
+
+export type TextColorGradientType = 'word' | 'sentence' | 'dark-light-dark-sentence' | 'dark-light-dark-word';
+export type FontStyleType = 'normal' | 'italic';
+export type TextTransformType = 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+export type TextDecorationType = 'none' | 'underline' | 'overline' | 'line-through';
 
 
-export interface ColSpecificProps {
-  span: string; // 1-12, 'auto'
-  offset: string; // 0-11
-  order: string; // 1-12, 'first', 'last', 'none'
-  alignSelf: string; // auto, start, end, center, baseline, stretch
-}
-export type ColProps = CommonProps & ColSpecificProps;
-
-export interface ControlSpecificProps {
-  controlType: string; // button, input, label, etc.
-  text?: string;
-  placeholder?: string;
-  href?: string;
-  src?: string;
-  alt?: string;
-  type?: string;
-  value?: string;
-  checked?: boolean;
-  disabled?: boolean;
-  htmlFor?: string;
-  target?: string;
-  variant?: string;
-  size?: string;
-  width?: string;
-  height?: string;
-  level?: string; // for headings: h1, h2, h3, etc.
-  rows?: string; // for textarea
-  [key: string]: any; // Allow additional properties
-}
-export type ControlProps = CommonProps & ControlSpecificProps;
-
-// A map of object class names to their RGB color string
-export interface AdaptiveGridObjectColors {
-  [key: string]: string; // e.g., 'topLeft': '230, 25, 75'
-}
-
-// A generic container for CSS variables that a template can expose
-export interface TemplateCssVariables {
-  colors?: AdaptiveGridObjectColors;
-  // Future properties like sizing, spacing, etc., can be added here
-}
-
-export interface TemplateSpecificProps {
-  templateKey: PredefinedComponentKey;
-  templateProps?: TemplateCssVariables; // Properties to be controlled by the user
-}
-export type TemplateProps = CommonProps & TemplateSpecificProps;
-
-export type ElementProps = ContainerProps | RowProps | ColProps | ControlProps | TemplateProps;
-
-export interface LayoutElement {
+export interface ElementConfig {
   id: string;
-  type: ElementType;
-  name: string; 
-  parentId: string | null;
-  children: string[];
-  props: Partial<ElementProps>; // Using Partial as props are built up
+  element: HTMLElement; // This will remain as it's a direct reference.
+  anchorX: AnchorXType;
+  anchorY: AnchorYType;
+  isVisible: boolean;
+  display: ElementDisplayType;
+  zIndex: number;
+  overflowX: ElementOverflowType;
+  overflowY: ElementOverflowType;
+  widthVmin: number;
+  heightVmin: number;
+  marginTopVmin: number;
+  marginRightVmin: number;
+  marginBottomVmin: number;
+  marginLeftVmin: number;
+  bgColor: string;
+  imageUrl: string;
+  backgroundSize: BackgroundSizeType;
+  bgRepeat: BackgroundRepeatType;
+  bgPosition: string;
+  shadowClass: string;
+  opacity: number;
+  // Filters
+  filterBlur: number; 
+  filterBrightness: number;
+  filterContrast: number;
+  filterGrayscale: number;
+  filterSaturate: number;
+  filterSepia: number;
+  filterHueRotate: number;
+  filterInvert: number;
+  // Border
+  borderWidthVmin: number;
+  borderStyle: ElementBorderStyle;
+  borderColor: string;
+  borderRadiusVmin: number;
+  // Transforms
+  rotationDeg: number;
+  transformScale: number;
+  transformTranslateX: number;
+  transformTranslateY: number;
+  transformSkewX: number;
+  transformSkewY: number;
+  // Animation
+  animationName: string;
+  animationIterationClass: string;
+  animationDelayClass: string;
+  animationSpeedClass: string;
+  animationOnHover: boolean; 
 }
 
-// New type definitions for property keys
-export type CommonPropKeys = keyof CommonProps;
-export type ContainerSpecificPropKeys = keyof ContainerSpecificProps;
-export type RowSpecificPropKeys = keyof RowSpecificProps;
-export type ColSpecificPropKeys = keyof ColSpecificProps;
-export type ControlSpecificPropKeys = keyof ControlSpecificProps;
+export interface Layer2Config {
+  isVisible: boolean;
+  widthPercent: number;
+  heightPercent: number;
+  paddingPx: number;
+  bgColor: string;
+  borderWidthPx: number;
+  borderColor: string;
+  shadowClass: string;
+  backdropBlurClass: string; 
+}
 
-export type AllElementPropKeys = CommonPropKeys | ContainerSpecificPropKeys | RowSpecificPropKeys | ColSpecificPropKeys | ControlSpecificPropKeys;
-
-// Type for predefined component keys
-export type PredefinedComponentKey = 'INFO_CARDS_SECTION' | 'ADAPTIVE_GRID_TEMPLATE' | string; // Allow for more keys
+export interface Preset {
+    id: string;
+    name: string;
+    timestamp: number;
+    layer2Config: Layer2Config;
+    elementsConfig: Record<string, Omit<ElementConfig, 'element'>>; // Store config without live element
+    layer2HTML: string;
+    decorativeElementsHTML: Record<string, string>;
+    layer2BgColorForThumbnail: string; 
+}

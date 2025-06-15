@@ -4,68 +4,890 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>React Slide Editor</title>
+    <title>Tesseract Studio - Fluid Layered Interface Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              'sans': ['Exo 2', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-            },
-            fontSize: {
-              'xs': ['0.6875rem', { lineHeight: '1rem' }],     // 11px
-              'sm': ['0.75rem', { lineHeight: '1.125rem' }],   // 12px
-              'base': ['0.8125rem', { lineHeight: '1.25rem' }], // 13px
-              'lg': ['0.875rem', { lineHeight: '1.375rem' }],  // 14px
-              'xl': ['1rem', { lineHeight: '1.5rem' }],        // 16px
-              '2xl': ['1.125rem', { lineHeight: '1.75rem' }],  // 18px
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      /* Basic scrollbar styling for better aesthetics if needed */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #cbd5e1; /* slate-300 */
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8; /* slate-500 */
-      }
-      body {
-        font-family: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
-        font-size: 0.8125rem; /* 13px base font size */
-        margin: 0; /* Ensure no default body margin */
-        overflow: hidden; /* Prevent body scrollbars, manage scrolling within components */
-      }
-    </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.1.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react/": "https://esm.sh/react@^19.1.0/"
-  }
-}
-</script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="index.css">
+    <script type="module" src="main.ts"></script>
+<link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+<body class="bg-gray-900 text-white overflow-hidden">
+
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-[100] flex items-center justify-center hidden">
+        <div class="bg-slate-800/90 rounded-lg shadow-2xl w-11/12 max-w-3xl h-auto max-h-[85vh] flex flex-col p-6 text-white relative font-exo border border-teal-500/20">
+            <!-- Close Button -->
+            <button id="splash-close-btn" class="absolute top-3 right-3 p-2 text-slate-400 hover:text-red-400 hover:scale-110 transition-transform" aria-label="Close Splash Screen">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Content -->
+            <div class="text-center mb-4 flex-shrink-0">
+                <h1 class="text-4xl font-bold text-teal-300">Tesseract Studio</h1>
+                <p class="text-lg text-slate-300">Software Interface Designer</p>
+            </div>
+
+            <!-- Changelog -->
+            <div id="changelog-container" class="flex-grow bg-slate-900/60 rounded-md p-4 overflow-y-auto border border-slate-700">
+                <h2 class="text-2xl font-semibold text-teal-400 mb-3 border-b-2 border-teal-500/30 pb-2">What's New</h2>
+                <div class="space-y-2 text-slate-200">
+                    <!-- O usuário adicionará o conteúdo das mudanças aqui -->
+                    <p class="text-slate-400 italic">As notas da versão aparecerão aqui.</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-4 text-xs text-slate-500 flex-shrink-0">
+                <p>Copyright@CrashAngelArts / Brazil 2025</p>
+                <p>Ver. 1.0 (Cold Mind)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Config Panel Toggle Button -->
+    <button id="toggle-config-panel-btn" class="fixed top-4 right-4 z-50 p-3 bg-teal-500 hover:bg-teal-600 rounded-full shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-opacity-50" aria-label="Toggle Configuration Panel">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.646.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 1.905c-.007.379.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.333.184-.582.496-.646.87l-.212 1.282c-.09.542-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.759 6.759 0 0 1 0-1.905c.007-.379-.137-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.184.582-.496.644-.87l.214-1.282Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+    </button>
+
+    <!-- Tesseract Studio Configuration Panel -->
+    <div id="config-panel" class="fixed top-1/4 left-1/4 w-[399px] bg-slate-800/70 backdrop-blur-md rounded-lg shadow-2xl z-40 text-sm hidden">
+        <div id="config-panel-header" class="flex justify-between items-center p-2 bg-slate-700/80 rounded-t-lg cursor-grab select-none">
+            <h3 class="text-md font-semibold text-teal-300">Tesseract Studio</h3>
+            <div class="flex items-center space-x-1">
+                <button id="config-panel-collapse-btn" class="p-1 text-slate-300 hover:text-teal-400" aria-label="Collapse Panel">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 panel-icon-expand">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                    </svg>
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 panel-icon-collapse hidden">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                    </svg>
+                </button>
+                <button id="config-panel-close-btn" class="p-1 text-slate-300 hover:text-red-400" aria-label="Close Panel">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div id="config-panel-body" class="flex max-h-[65vh]">
+            <!-- Vertical Tab Navigation -->
+            <nav class="flex flex-col space-y-1 p-2 bg-slate-700/60 overflow-y-auto w-16 items-center" aria-label="Tabs">
+                <button id="tab-btn-globals" type="button" class="tab-button active-tab p-2 rounded-md text-slate-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500" aria-controls="global-settings-tab-content" role="tab" title="Globals">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.646.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 1.905c-.007.379.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.333.184-.582.496-.646.87l-.212 1.282c-.09.542-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.759 6.759 0 010-1.905c.007-.379-.137-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.184.582-.496.644-.87l.214-1.282Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z" />
+                    </svg>
+                </button>
+                <button id="tab-btn-element" type="button" class="tab-button p-2 rounded-md text-slate-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500" aria-controls="element-settings-tab-content" role="tab" title="Element">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                    </svg>
+                </button>
+                <button id="tab-btn-controls" type="button" class="tab-button p-2 rounded-md text-slate-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500" aria-controls="controls-tab-content" role="tab" title="Controls">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                    </svg>
+                </button>
+                <button id="tab-btn-animations" type="button" class="tab-button p-2 rounded-md text-slate-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500" aria-controls="animations-tab-content" role="tab" title="Animations">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L1.875 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09l2.846.813-.813 2.846a4.5 4.5 0 00-3.09 3.09zM18.25 7.5h.008v.008h-.008V7.5zM12 1.5h.008v.008H12V1.5zM12 12.75h.008v.008H12v-.008zM12 18h.008v.008H12V18zM15.75 4.5h.008v.008h-.008V4.5zM17.25 10.5h.008v.008h-.008v-.008z" />
+                    </svg>
+                </button>
+                 <button id="tab-btn-components" type="button" class="tab-button p-2 rounded-md text-slate-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500" aria-controls="components-tab-content" role="tab" title="Components">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                    </svg>
+                </button>
+                <button id="tab-btn-presets" type="button" class="tab-button p-2 rounded-md text-slate-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500" aria-controls="presets-tab-content" role="tab" title="Presets">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125V6.375A1.125 1.125 0 013.375 5.25h17.25a1.125 1.125 0 011.125 1.125v12A1.125 1.125 0 0120.625 19.5h-17.25z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5L5.625 12l2.25 7.5" />
+                    </svg>
+                </button>
+            </nav>
+
+            <!-- Tab Content Area -->
+            <div class="flex-grow p-3 overflow-y-auto">
+                <!-- Global Settings Tab Content -->
+                <div id="global-settings-tab-content" role="tabpanel">
+                    <div class="control-group p-2 bg-slate-700/30 rounded-lg">
+                        <h4 class="text-sm font-semibold text-teal-400 mb-2 border-b border-slate-600 pb-1">Layer 2 Configuration</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-2 text-slate-200 cursor-pointer text-xs">
+                                <input type="checkbox" id="layer2-visible" class="form-checkbox h-4 w-4 text-teal-500 bg-slate-600 border-slate-500 rounded focus:ring-teal-400">
+                                <span>Visible</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="layer2-width" class="block text-xs text-slate-400 mb-0.5">Width (%):</label>
+                                    <input type="number" id="layer2-width" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                                <div>
+                                    <label for="layer2-height" class="block text-xs text-slate-400 mb-0.5">Height (%):</label>
+                                    <input type="number" id="layer2-height" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="layer2-padding" class="block text-xs text-slate-400 mb-0.5">Padding (px):</label>
+                                <input type="number" id="layer2-padding" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                            </div>
+                            <div>
+                                <label for="layer2-bgcolor" class="block text-xs text-slate-400 mb-0.5">Background Color:</label>
+                                <input type="color" id="layer2-bgcolor" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="layer2-border-width" class="block text-xs text-slate-400 mb-0.5">Border Width (px):</label>
+                                    <input type="number" id="layer2-border-width" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                                <div>
+                                    <label for="layer2-border-color" class="block text-xs text-slate-400 mb-0.5">Border Color:</label>
+                                    <input type="color" id="layer2-border-color" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="layer2-shadow" class="block text-xs text-slate-400 mb-0.5">Shadow:</label>
+                                <select id="layer2-shadow" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="shadow-none">None</option>
+                                    <option value="shadow-sm">Small</option>
+                                    <option value="shadow">Medium</option>
+                                    <option value="shadow-md">Medium-Dark</option>
+                                    <option value="shadow-lg">Large</option>
+                                    <option value="shadow-xl">XL</option>
+                                    <option value="shadow-2xl">2XL</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="layer2-backdrop-blur" class="block text-xs text-slate-400 mb-0.5">Backdrop Blur:</label>
+                                <select id="layer2-backdrop-blur" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="">None</option>
+                                    <option value="backdrop-blur-none">None (explicit)</option>
+                                    <option value="backdrop-blur-sm">Small (sm)</option>
+                                    <option value="backdrop-blur">Medium (default)</option>
+                                    <option value="backdrop-blur-md">Medium-Dark (md)</option>
+                                    <option value="backdrop-blur-lg">Large (lg)</option>
+                                    <option value="backdrop-blur-xl">XL</option>
+                                    <option value="backdrop-blur-2xl">2XL</option>
+                                    <option value="backdrop-blur-3xl">3XL</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Element Settings Tab Content -->
+                <div id="element-settings-tab-content" role="tabpanel" class="hidden">
+                                        <div class="control-group p-2 bg-slate-700/30 rounded-lg mb-3">
+                        <h4 class="text-sm font-semibold text-teal-400 mb-2 border-b border-slate-600 pb-1">Scene Elements</h4>
+                        <div id="element-visibility-toggles" class="grid grid-cols-4 gap-2 text-center">
+                            <!-- Toggles will be dynamically inserted here -->
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-xs mb-2">Selected: <strong id="selected-element-name" class="text-teal-400">None</strong></p>
+                
+                    <!-- Decorative Element Properties Section -->
+                    <div id="decorative-element-props-section" class="space-y-2 hidden">
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg">
+                             <p class="text-slate-200 text-xs font-medium mb-1">General</p>
+                            <label class="flex items-center space-x-2 text-slate-200 cursor-pointer text-xs">
+                                <input type="checkbox" id="config-visible" class="form-checkbox h-4 w-4 text-teal-500 bg-slate-600 border-slate-500 rounded focus:ring-teal-400">
+                                <span>Visible</span>
+                            </label>
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Layout</p>
+                            <div>
+                                <label for="config-el-display" class="block text-xs text-slate-400 mb-0.5">Display:</label>
+                                <select id="config-el-display" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="flex">Flex</option>
+                                    <option value="block">Block</option>
+                                    <option value="inline-block">Inline-Block</option>
+                                    <option value="grid">Grid</option>
+                                    <option value="none">None</option>
+                                </select>
+                            </div>
+                             <div>
+                                <label for="config-el-zindex" class="block text-xs text-slate-400 mb-0.5">Z-Index:</label>
+                                <input type="number" id="config-el-zindex" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="auto">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-el-overflow-x" class="block text-xs text-slate-400 mb-0.5">Overflow X:</label>
+                                    <select id="config-el-overflow-x" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <option value="visible">Visible</option>
+                                        <option value="hidden">Hidden</option>
+                                        <option value="scroll">Scroll</option>
+                                        <option value="auto">Auto</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="config-el-overflow-y" class="block text-xs text-slate-400 mb-0.5">Overflow Y:</label>
+                                    <select id="config-el-overflow-y" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <option value="visible">Visible</option>
+                                        <option value="hidden">Hidden</option>
+                                        <option value="scroll">Scroll</option>
+                                        <option value="auto">Auto</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Size (vmin)</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-width" class="block text-xs text-slate-400 mb-0.5">Width:</label>
+                                    <input type="number" id="config-width" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                                <div>
+                                    <label for="config-height" class="block text-xs text-slate-400 mb-0.5">Height:</label>
+                                    <input type="number" id="config-height" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Margin (vmin)</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-margin-top" class="block text-xs text-slate-400 mb-0.5">Top:</label>
+                                    <input type="number" id="config-margin-top" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                                <div>
+                                    <label for="config-margin-right" class="block text-xs text-slate-400 mb-0.5">Right:</label>
+                                    <input type="number" id="config-margin-right" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                                <div>
+                                    <label for="config-margin-bottom" class="block text-xs text-slate-400 mb-0.5">Bottom:</label>
+                                    <input type="number" id="config-margin-bottom" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                                <div>
+                                    <label for="config-margin-left" class="block text-xs text-slate-400 mb-0.5">Left:</label>
+                                    <input type="number" id="config-margin-left" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Transformations</p>
+                            <div>
+                                <label for="config-rotation" class="block text-xs text-slate-400 mb-0.5">Rotation (deg): <span id="config-rotation-value" class="text-teal-400">0</span></label>
+                                <input type="range" id="config-rotation" min="-180" max="180" step="1" value="0" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                             <div>
+                                <label for="config-el-scale" class="block text-xs text-slate-400 mb-0.5">Scale: <span id="config-el-scale-value" class="text-teal-400">1</span></label>
+                                <input type="range" id="config-el-scale" min="0.1" max="3" step="0.05" value="1" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-el-translate-x" class="block text-xs text-slate-400 mb-0.5">Translate X (vmin):</label>
+                                    <input type="number" id="config-el-translate-x" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" value="0">
+                                </div>
+                                <div>
+                                    <label for="config-el-translate-y" class="block text-xs text-slate-400 mb-0.5">Translate Y (vmin):</label>
+                                    <input type="number" id="config-el-translate-y" step="0.1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" value="0">
+                                </div>
+                                <div>
+                                    <label for="config-el-skew-x" class="block text-xs text-slate-400 mb-0.5">Skew X (deg):</label>
+                                    <input type="number" id="config-el-skew-x" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" value="0">
+                                </div>
+                                <div>
+                                    <label for="config-el-skew-y" class="block text-xs text-slate-400 mb-0.5">Skew Y (deg):</label>
+                                    <input type="number" id="config-el-skew-y" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" value="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Effects (Filters & Opacity)</p>
+                             <div>
+                                <label for="config-opacity" class="block text-xs text-slate-400 mb-0.5">Opacity: <span id="config-opacity-value" class="text-teal-400">1</span></label>
+                                <input type="range" id="config-opacity" min="0" max="1" step="0.01" value="1" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                            <div>
+                                <label for="config-blur" class="block text-xs text-slate-400 mb-0.5">Blur (px): <span id="config-blur-value" class="text-teal-400">0</span></label>
+                                <input type="range" id="config-blur" min="0" max="20" step="0.5" value="0" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                            <div>
+                                <label for="config-el-brightness" class="block text-xs text-slate-400 mb-0.5">Brightness: <span id="config-el-brightness-value" class="text-teal-400">1</span></label>
+                                <input type="range" id="config-el-brightness" min="0" max="2" step="0.05" value="1" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                             <div>
+                                <label for="config-el-contrast" class="block text-xs text-slate-400 mb-0.5">Contrast: <span id="config-el-contrast-value" class="text-teal-400">1</span></label>
+                                <input type="range" id="config-el-contrast" min="0" max="2" step="0.05" value="1" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                             <div>
+                                <label for="config-el-saturate" class="block text-xs text-slate-400 mb-0.5">Saturate: <span id="config-el-saturate-value" class="text-teal-400">1</span></label>
+                                <input type="range" id="config-el-saturate" min="0" max="2" step="0.05" value="1" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                             <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-el-grayscale" class="block text-xs text-slate-400 mb-0.5">Grayscale: <span id="config-el-grayscale-value" class="text-teal-400">0</span></label>
+                                    <input type="range" id="config-el-grayscale" min="0" max="1" step="0.01" value="0" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                                </div>
+                                <div>
+                                    <label for="config-el-sepia" class="block text-xs text-slate-400 mb-0.5">Sepia: <span id="config-el-sepia-value" class="text-teal-400">0</span></label>
+                                    <input type="range" id="config-el-sepia" min="0" max="1" step="0.01" value="0" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                                </div>
+                                <div>
+                                    <label for="config-el-invert" class="block text-xs text-slate-400 mb-0.5">Invert: <span id="config-el-invert-value" class="text-teal-400">0</span></label>
+                                    <input type="range" id="config-el-invert" min="0" max="1" step="0.01" value="0" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                                </div>
+                                <div>
+                                    <label for="config-el-hue-rotate" class="block text-xs text-slate-400 mb-0.5">Hue (deg): <span id="config-el-hue-rotate-value" class="text-teal-400">0</span></label>
+                                    <input type="range" id="config-el-hue-rotate" min="0" max="360" step="1" value="0" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Border & Radius</p>
+                            <div>
+                                <label for="config-border-radius" class="block text-xs text-slate-400 mb-0.5">Border Radius (vmin):</label>
+                                <input type="number" id="config-border-radius" step="0.1" min="0" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                            </div>
+                            <div>
+                                <label for="config-border-width-el" class="block text-xs text-slate-400 mb-0.5">Border Width (vmin):</label>
+                                <input type="number" id="config-border-width-el" step="0.1" min="0" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-border-style-el" class="block text-xs text-slate-400 mb-0.5">Border Style:</label>
+                                    <select id="config-border-style-el" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <option value="none">None</option>
+                                        <option value="solid">Solid</option>
+                                        <option value="dashed">Dashed</option>
+                                        <option value="dotted">Dotted</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="config-border-color-el" class="block text-xs text-slate-400 mb-0.5">Border Color:</label>
+                                    <input type="color" id="config-border-color-el" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg">
+                            <label for="config-bgcolor" class="block text-slate-200 text-xs font-medium mb-0.5">Background Color:</label>
+                            <input type="color" id="config-bgcolor" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Background Image</p>
+                            <div>
+                                <label for="config-image-url" class="block text-xs text-slate-400 mb-0.5">Image URL:</label>
+                                <input type="url" id="config-image-url" placeholder="https://example.com/image.png" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-bg-size" class="block text-xs text-slate-400 mb-0.5">Size:</label>
+                                    <select id="config-bg-size" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <option value="cover">Cover</option>
+                                        <option value="contain">Contain</option>
+                                        <option value="auto">Auto</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="config-el-bg-repeat" class="block text-xs text-slate-400 mb-0.5">Repeat:</label>
+                                    <select id="config-el-bg-repeat" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <option value="no-repeat">No Repeat</option>
+                                        <option value="repeat">Repeat</option>
+                                        <option value="repeat-x">Repeat X</option>
+                                        <option value="repeat-y">Repeat Y</option>
+                                        <option value="space">Space</option>
+                                        <option value="round">Round</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="config-el-bg-position" class="block text-xs text-slate-400 mb-0.5">Position:</label>
+                                <input type="text" id="config-el-bg-position" placeholder="center center" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                            </div>
+                        </div>
+
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg">
+                            <label for="config-shadow" class="block text-slate-200 text-xs font-medium mb-0.5">Shadow:</label>
+                            <select id="config-shadow" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                <option value="shadow-none">None</option>
+                                <option value="shadow-sm">Small</option>
+                                <option value="shadow">Medium</option>
+                                <option value="shadow-md">Medium-Dark</option>
+                                <option value="shadow-lg">Large</option>
+                                <option value="shadow-xl">XL</option>
+                                <option value="shadow-2xl">2XL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dropped Control Properties Section -->
+                    <div id="dropped-control-props-section" class="space-y-2 hidden">
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg">
+                             <p class="text-slate-200 text-xs font-medium mb-1">General</p>
+                            <label class="flex items-center space-x-2 text-slate-200 cursor-pointer text-xs">
+                                <input type="checkbox" id="dropped-control-visible" class="form-checkbox h-4 w-4 text-teal-500 bg-slate-600 border-slate-500 rounded focus:ring-teal-400">
+                                <span>Visible</span>
+                            </label>
+                        </div>
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Content</p>
+                            <div>
+                                <label for="dropped-control-text-content" class="block text-xs text-slate-400 mb-0.5">Text Content:</label>
+                                <textarea id="dropped-control-text-content" rows="2" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="Button text, paragraph content..."></textarea>
+                            </div>
+                            <div>
+                                <label for="dropped-control-placeholder" class="block text-xs text-slate-400 mb-0.5">Placeholder (for inputs):</label>
+                                <input type="text" id="dropped-control-placeholder" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="Input placeholder text...">
+                            </div>
+                            <div>
+                                <label for="dropped-control-image-src" class="block text-xs text-slate-400 mb-0.5">Image Source URL:</label>
+                                <input type="url" id="dropped-control-image-src" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="https://path/to/image.png">
+                            </div>
+                        </div>
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Sizing (px or %)</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="dropped-control-width" class="block text-xs text-slate-400 mb-0.5">Width:</label>
+                                    <input type="text" id="dropped-control-width" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="auto / 100px / 50%">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-height" class="block text-xs text-slate-400 mb-0.5">Height:</label>
+                                    <input type="text" id="dropped-control-height" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="auto / 50px / 100%">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Appearance</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="dropped-control-bgcolor" class="block text-xs text-slate-400 mb-0.5">Background:</label>
+                                    <input type="color" id="dropped-control-bgcolor" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-textcolor" class="block text-xs text-slate-400 mb-0.5">Text Color:</label>
+                                    <input type="color" id="dropped-control-textcolor" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="dropped-control-opacity" class="block text-xs text-slate-400 mb-0.5">Opacity: <span id="dropped-control-opacity-value" class="text-teal-400">1</span></label>
+                                <input type="range" id="dropped-control-opacity" min="0" max="1" step="0.01" value="1" class="form-input w-full h-1.5 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                            </div>
+                             <div>
+                                <label for="dropped-control-border-radius" class="block text-xs text-slate-400 mb-0.5">Border Radius (px):</label>
+                                <input type="number" id="dropped-control-border-radius" step="1" min="0" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="0">
+                            </div>
+                            <p class="text-slate-300 text-xs font-medium pt-1">Border</p>
+                            <div class="grid grid-cols-3 gap-2 items-end">
+                                <div>
+                                    <label for="dropped-control-border-width" class="block text-xs text-slate-400 mb-0.5">Width(px):</label>
+                                    <input type="number" id="dropped-control-border-width" step="1" min="0" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="0">
+                                </div>
+                                <div class="col-span-2">
+                                    <label for="dropped-control-border-color" class="block text-xs text-slate-400 mb-0.5">Color:</label>
+                                    <input type="color" id="dropped-control-border-color" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                                </div>
+                                <div class="col-span-3">
+                                    <label for="dropped-control-border-style" class="block text-xs text-slate-400 mb-0.5">Style:</label>
+                                    <select id="dropped-control-border-style" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <option value="none">None</option>
+                                        <option value="solid">Solid</option>
+                                        <option value="dashed">Dashed</option>
+                                        <option value="dotted">Dotted</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <p class="text-slate-300 text-xs font-medium pt-1">Box Shadow</p>
+                             <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="dropped-control-boxshadow-x" class="block text-xs text-slate-400 mb-0.5">Offset X (px):</label>
+                                    <input type="number" id="dropped-control-boxshadow-x" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="0">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-boxshadow-y" class="block text-xs text-slate-400 mb-0.5">Offset Y (px):</label>
+                                    <input type="number" id="dropped-control-boxshadow-y" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="0">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-boxshadow-blur" class="block text-xs text-slate-400 mb-0.5">Blur (px):</label>
+                                    <input type="number" id="dropped-control-boxshadow-blur" step="1" min="0" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="0">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-boxshadow-color" class="block text-xs text-slate-400 mb-0.5">Color:</label>
+                                    <input type="color" id="dropped-control-boxshadow-color" value="#000000" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Typography Controls for Dropped Controls -->
+                        <div id="dropped-control-typography-section" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5 hidden">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Typography</p>
+                            <div>
+                                <label for="dropped-control-font-family" class="block text-xs text-slate-400 mb-0.5">Font Family:</label>
+                                <input type="text" id="dropped-control-font-family" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="Arial, sans-serif">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="dropped-control-font-size" class="block text-xs text-slate-400 mb-0.5">Font Size:</label>
+                                    <input type="text" id="dropped-control-font-size" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="16px / 1em">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-font-weight" class="block text-xs text-slate-400 mb-0.5">Font Weight:</label>
+                                    <select id="dropped-control-font-weight" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full">
+                                        <option value="normal">Normal</option>
+                                        <option value="bold">Bold</option>
+                                        <option value="100">100</option><option value="200">200</option><option value="300">300</option>
+                                        <option value="400">400 (normal)</option><option value="500">500</option><option value="600">600</option>
+                                        <option value="700">700 (bold)</option><option value="800">800</option><option value="900">900</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="dropped-control-font-style" class="block text-xs text-slate-400 mb-0.5">Font Style:</label>
+                                    <select id="dropped-control-font-style" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full">
+                                        <option value="normal">Normal</option>
+                                        <option value="italic">Italic</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="dropped-control-line-height" class="block text-xs text-slate-400 mb-0.5">Line Height:</label>
+                                    <input type="text" id="dropped-control-line-height" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="normal / 1.5">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="dropped-control-letter-spacing" class="block text-xs text-slate-400 mb-0.5">Letter Spacing:</label>
+                                    <input type="text" id="dropped-control-letter-spacing" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="normal / 1px">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-text-transform" class="block text-xs text-slate-400 mb-0.5">Text Transform:</label>
+                                    <select id="dropped-control-text-transform" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full">
+                                        <option value="none">None</option>
+                                        <option value="uppercase">Uppercase</option>
+                                        <option value="lowercase">Lowercase</option>
+                                        <option value="capitalize">Capitalize</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="dropped-control-text-decoration" class="block text-xs text-slate-400 mb-0.5">Text Decoration:</label>
+                                <select id="dropped-control-text-decoration" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full">
+                                    <option value="none">None</option>
+                                    <option value="underline">Underline</option>
+                                    <option value="overline">Overline</option>
+                                    <option value="line-through">Line-through</option>
+                                </select>
+                            </div>
+                            <p class="text-slate-300 text-xs font-medium pt-1">Text Shadow</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="dropped-control-textshadow-x" class="block text-xs text-slate-400 mb-0.5">Offset X (px):</label>
+                                    <input type="number" id="dropped-control-textshadow-x" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="0">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-textshadow-y" class="block text-xs text-slate-400 mb-0.5">Offset Y (px):</label>
+                                    <input type="number" id="dropped-control-textshadow-y" step="1" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="0">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-textshadow-blur" class="block text-xs text-slate-400 mb-0.5">Blur (px):</label>
+                                    <input type="number" id="dropped-control-textshadow-blur" step="1" min="0" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full" placeholder="0">
+                                </div>
+                                <div>
+                                    <label for="dropped-control-textshadow-color" class="block text-xs text-slate-400 mb-0.5">Color:</label>
+                                    <input type="color" id="dropped-control-textshadow-color" value="#000000" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Alignment Controls (Existing) -->
+                        <div id="text-alignment-controls-container" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5 hidden">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Text Alignment (Flex Content)</p>
+                            <div>
+                                <label for="text-align-horizontal" class="block text-xs text-slate-400 mb-0.5">Horizontal (text-align):</label>
+                                <select id="text-align-horizontal" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="left">Left</option>
+                                    <option value="center">Center</option>
+                                    <option value="right">Right</option>
+                                    <option value="justify">Justify</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="text-align-vertical" class="block text-xs text-slate-400 mb-0.5">Vertical (align-items):</label>
+                                <select id="text-align-vertical" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="flex-start">Top</option>
+                                    <option value="center">Middle</option>
+                                    <option value="flex-end">Bottom</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Container Alignment Controls (Existing) -->
+                        <div id="container-alignment-controls-container" class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5 hidden">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Align Children (Flex Container)</p>
+                            <div>
+                                <label for="container-align-items" class="block text-xs text-slate-400 mb-0.5">Cross Axis (align-items):</label>
+                                <select id="container-align-items" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="flex-start">Start</option>
+                                    <option value="center">Center</option>
+                                    <option value="flex-end">End</option>
+                                    <option value="stretch">Stretch</option>
+                                    <option value="baseline">Baseline</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="container-justify-content" class="block text-xs text-slate-400 mb-0.5">Main Axis (justify-content):</label>
+                                <select id="container-justify-content" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="flex-start">Start</option>
+                                    <option value="center">Center</option>
+                                    <option value="flex-end">End</option>
+                                    <option value="space-between">Space Between</option>
+                                    <option value="space-around">Space Around</option>
+                                    <option value="space-evenly">Space Evenly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg mt-2">
+                            <button id="delete-control-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded-md transition-colors flex items-center justify-center space-x-1.5 text-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.56 0c1.153 0 2.243.096 3.222.261m3.222.261L5.84 5.79m5.84 0L7.05 5.79m4.772 0l-1.94-.397m-3.478.397L5.84 5.79m5.84 0L7.05 5.79m2.211 11.458c.253.041.508.068.766.088l3.588-.062m-3.588.062a2.253 2.253 0 002.217 2.133h.099a2.253 2.253 0 002.217-2.133L17.25 12a2.25 2.25 0 00-2.25-2.25H9a2.25 2.25 0 00-2.25 2.25l.004 1.257c.002.605.006 1.21.014 1.821M12 9.75V12m0 0V9.75m0 2.25H9.75m2.25 0H12m2.25 0H12m2.25 0H9.75M7.5 12h9M7.5 15h3M7.5 18h3" />
+                                </svg>
+                                <span>Delete Control</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TextColors Component Properties Section -->
+                    <div id="text-colors-props-section" class="space-y-2 hidden">
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Text Content</p>
+                            <div>
+                                <label for="text-colors-content-input" class="block text-xs text-slate-400 mb-0.5">Text:</label>
+                                <textarea id="text-colors-content-input" rows="3" class="form-input text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400" placeholder="Enter text for the component..."></textarea>
+                            </div>
+                        </div>
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Gradient Style</p>
+                            <div>
+                                <label for="text-colors-gradient-type-select" class="block text-xs text-slate-400 mb-0.5">Gradient Type:</label>
+                                <select id="text-colors-gradient-type-select" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="word">Word Gradient</option>
+                                    <option value="sentence">Sentence Gradient</option>
+                                    <option value="dark-light-dark-sentence">DLE Sentence</option>
+                                    <option value="dark-light-dark-word">DLE Word</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="text-colors-base-color-picker" class="block text-xs text-slate-400 mb-0.5">Base Gradient Color (Dark):</label>
+                                <input type="color" id="text-colors-base-color-picker" value="#00f000" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="text-colors-lighten-color-picker" class="block text-xs text-slate-400 mb-0.5">Lighten Gradient Color:</label>
+                                <input type="color" id="text-colors-lighten-color-picker" value="#FFFFFF" class="form-input w-full h-8 p-1 bg-slate-600 border-slate-500 rounded cursor-pointer">
+                            </div>
+                        </div>
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg mt-2">
+                            <button id="delete-text-colors-control-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded-md transition-colors flex items-center justify-center space-x-1.5 text-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.56 0c1.153 0 2.243.096 3.222.261m3.222.261L5.84 5.79m5.84 0L7.05 5.79m4.772 0l-1.94-.397m-3.478.397L5.84 5.79m5.84 0L7.05 5.79m2.211 11.458c.253.041.508.068.766.088l3.588-.062m-3.588.062a2.253 2.253 0 002.217 2.133h.099a2.253 2.253 0 002.217-2.133L17.25 12a2.25 2.25 0 00-2.25-2.25H9a2.25 2.25 0 00-2.25 2.25l.004 1.257c.002.605.006 1.21.014 1.821M12 9.75V12m0 0V9.75m0 2.25H9.75m2.25 0H12m2.25 0H12m2.25 0H9.75M7.5 12h9M7.5 15h3M7.5 18h3" />
+                                </svg>
+                                <span>Delete Component/Control</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="no-element-selected-msg" class="text-center text-slate-400 py-6 text-xs hidden">
+                        Select a decorative square, a dropped control, or a component to edit its properties.
+                    </div>
+                </div>
+                
+                <!-- Animations Tab Content -->
+                <div id="animations-tab-content" role="tabpanel" class="hidden">
+                    <p class="text-slate-300 text-xs mb-2">Animations for: <strong id="animation-selected-element-name" class="text-teal-400">None (Select a Decorative Element)</strong></p>
+                    <div id="animation-controls-container" class="space-y-2">
+                        <div class="control-group p-2 bg-slate-700/50 rounded-lg space-y-1.5">
+                            <p class="text-slate-200 text-xs font-medium mb-1">Animation Settings</p>
+                            <div>
+                                <label for="config-animation-name" class="block text-xs text-slate-400 mb-0.5">Animation:</label>
+                                <select id="config-animation-name" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <option value="">None</option>
+                                    <!-- Options will be populated by JS -->
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="config-animation-iteration" class="block text-xs text-slate-400 mb-0.5">Iteration Count:</label>
+                                    <select id="config-animation-iteration" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <!-- Options will be populated by JS -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="config-animation-speed" class="block text-xs text-slate-400 mb-0.5">Speed:</label>
+                                    <select id="config-animation-speed" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                        <!-- Options will be populated by JS -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="config-animation-delay" class="block text-xs text-slate-400 mb-0.5">Delay:</label>
+                                <select id="config-animation-delay" class="form-select text-xs bg-slate-600 border-slate-500 text-slate-200 p-1.5 rounded w-full focus:ring-teal-400 focus:border-teal-400">
+                                    <!-- Options will be populated by JS -->
+                                </select>
+                            </div>
+                            <button id="play-animation-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-1.5 px-3 rounded-md transition-colors text-xs">
+                                Play Animation
+                            </button>
+                            <label class="flex items-center space-x-2 text-slate-200 cursor-pointer pt-1.5 text-xs">
+                                <input type="checkbox" id="config-animation-on-hover" class="form-checkbox h-4 w-4 text-teal-500 bg-slate-600 border-slate-500 rounded focus:ring-teal-400">
+                                <span>Play animation on mouseover</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="no-element-selected-animation-msg" class="text-center text-slate-400 py-6 text-xs hidden">
+                        Select a decorative square to configure animations. Animation controls do not apply to dropped UI components.
+                    </div>
+                </div>
+
+                <!-- Controls Tab Content -->
+                <div id="controls-tab-content" role="tabpanel" class="hidden">
+                    <h4 class="text-sm font-semibold text-teal-400 mb-1 border-b border-slate-600 pb-1">Control Palette</h4>
+                    <p class="text-xs text-slate-400 mb-2">Drag controls onto Layer 2 or a Decorative Element.</p>
+                    <div id="control-palette" class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                            </svg>
+                            Button
+                        </div>
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="text-input">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                            </svg>
+                            Text Input
+                        </div>
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="row-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                            Row Container
+                        </div>
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="column-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400 transform rotate-90">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                            Column Container
+                        </div>
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="text-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                            </svg>
+                            Text Block
+                        </div>
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="image-element">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.158 0a.75.75 0 10-1.5 0 .75.75 0 001.5 0z" />
+                            </svg>
+                            Image
+                        </div>
+                        <div class="control-palette-item bg-slate-600 hover:bg-slate-500 p-2 rounded-md text-center text-slate-200" draggable="true" data-control-type="text-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-0.5 text-teal-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.498 4.542A1.875 1.875 0 0015 3.375H9A1.875 1.875 0 007.5 5.25v13.5A1.875 1.875 0 009 20.625h6A1.875 1.875 0 0016.5 18.75V5.25A1.875 1.875 0 0016.498 4.542z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h.008v.008H12V7.5zM12 10.5h.008v.008H12V10.5zM12 13.5h.008v.008H12V13.5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12H6m12 0h2.25" />
+                            </svg>
+                            TextColors
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Components Tab Content -->
+                <div id="components-tab-content" role="tabpanel" class="hidden">
+                    <h4 class="text-sm font-semibold text-teal-400 mb-1 border-b border-slate-600 pb-1">Component Palette</h4>
+                    <p class="text-xs text-slate-400 mb-2">No components available at the moment. Drag components onto Layer 2 or a Decorative Element.</p>
+                    <div id="component-palette" class="grid grid-cols-2 gap-2 text-xs">
+                        <!-- TextColors item moved to control-palette -->
+                    </div>
+                    <p class="text-center text-slate-500 py-4 text-xs italic">More components coming soon!</p>
+                </div>
+
+                <!-- Presets Tab Content -->
+                <div id="presets-tab-content" role="tabpanel" class="hidden">
+                    <h4 class="text-sm font-semibold text-teal-400 mb-2 border-b border-slate-600 pb-1">Manage Presets</h4>
+                    <button id="save-preset-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-3 rounded-md transition-colors text-xs mb-3 flex items-center justify-center space-x-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m2.25-6.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                        </svg>
+                        <span>Save Current State as Preset</span>
+                    </button>
+                    <div id="presets-list-container" class="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+                        <!-- Presets will be listed here by JS -->
+                    </div>
+                    <p id="no-presets-message" class="text-center text-slate-500 py-4 text-xs italic hidden">No presets saved yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="fluid-layer-container" class="relative w-screen h-screen overflow-hidden flex items-center justify-center p-4 bg-gray-900">
+
+        <!-- Decorative Squares -->
+        <div id="decorative-square-tl" data-element-id="ds-tl" data-anchor-y="top" data-anchor-x="left"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+        <div id="decorative-square-tc" data-element-id="ds-tc" data-anchor-y="top" data-anchor-x="center"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+        <div id="decorative-square-tr" data-element-id="ds-tr" data-anchor-y="top" data-anchor-x="right"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+        <div id="decorative-square-ml" data-element-id="ds-ml" data-anchor-y="center" data-anchor-x="left"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+        <div id="decorative-square-mr" data-element-id="ds-mr" data-anchor-y="center" data-anchor-x="right"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+        <div id="decorative-square-bl" data-element-id="ds-bl" data-anchor-y="bottom" data-anchor-x="left"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+        <div id="decorative-square-bc" data-element-id="ds-bc" data-anchor-y="bottom" data-anchor-x="center"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+        <div id="decorative-square-br" data-element-id="ds-br" data-anchor-y="bottom" data-anchor-x="right"
+             class="decorative-element absolute w-[20vmin] h-[20vmin] bg-purple-500 shadow-xl z-20
+                    transition-all duration-100 ease-in-out hover:scale-110 cursor-pointer"
+             aria-hidden="true" style="background-position: center center;">
+        </div>
+
+        <!-- Layer 2: Main Content Panel (Centered) -->
+        <div id="layer-2"
+             class="editable-layer relative w-4/5 h-4/5 bg-slate-700/80 rounded-xl shadow-2xl p-6 transition-all duration-300 z-10 overflow-auto border-[20px] border-slate-600 box-border flex flex-col items-start space-y-2">
+            <!-- Content will be added via Controls Tab -->
+            <span class="layer2-empty-placeholder text-slate-500 italic text-center w-full p-10 pointer-events-none">Drop controls here</span>
+        </div>
+    </div>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>
